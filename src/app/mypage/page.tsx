@@ -16,19 +16,27 @@ const GRID_ITEMS = [
 
 const MENU_ITEMS = [
   {
-    section: "계정",
+    section: "혜택",
     items: [
-      { icon: "🌟", label: "받은 리뷰",  badge: 0 },
-      { icon: "🔔", label: "알림 설정",  badge: 0 },
-      { icon: "💳", label: "결제 정보",  badge: 0 },
+      { icon: "🎟️", label: "쿠폰함",     href: "/mypage/coupons",       value: "2장",    badge: 2 },
+      { icon: "💎", label: "포인트",      href: "/mypage/points",        value: "1,200P", badge: 0 },
     ],
   },
   {
-    section: "기타",
+    section: "계정",
     items: [
-      { icon: "❓", label: "고객센터",   badge: 0 },
-      { icon: "📋", label: "공지사항",   badge: 1 },
-      { icon: "⚙️", label: "앱 설정",   badge: 0 },
+      { icon: "🚚", label: "배송지 관리", href: "",                       value: "",       badge: 0 },
+      { icon: "💳", label: "결제 정보",   href: "",                       value: "",       badge: 0 },
+      { icon: "🔔", label: "알림 설정",   href: "/mypage/notifications",  value: "",       badge: 0 },
+      { icon: "🔒", label: "계정 보안",   href: "",                       value: "",       badge: 0 },
+    ],
+  },
+  {
+    section: "고객지원",
+    items: [
+      { icon: "📋", label: "공지사항",    href: "/mypage/notices",        value: "",       badge: 1 },
+      { icon: "❓", label: "고객센터",    href: "",                       value: "",       badge: 0 },
+      { icon: "📄", label: "이용약관",    href: "",                       value: "",       badge: 0 },
     ],
   },
 ];
@@ -163,12 +171,16 @@ export default function MyPage() {
               <button
                 key={item.label}
                 className="w-full flex items-center justify-between px-4 py-3.5 active:bg-gray-50"
+                onClick={() => item.href && router.push(item.href)}
               >
                 <div className="flex items-center gap-3">
                   <span className="text-lg w-6 text-center">{item.icon}</span>
                   <span className="text-sm text-gray-800" style={{ fontWeight: 500 }}>{item.label}</span>
                 </div>
                 <div className="flex items-center gap-2">
+                  {item.value && (
+                    <span className="text-sm text-gray-400" style={{ fontWeight: 500 }}>{item.value}</span>
+                  )}
                   {item.badge > 0 && (
                     <span
                       className="text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center"

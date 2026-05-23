@@ -140,7 +140,47 @@ export default function ChatRoom({ params }: { params: { id: string } }) {
           <p className="text-sm text-gray-900 leading-none" style={{ fontWeight: 700 }}>{chat.user}</p>
           <p className="text-xs text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>최근 접속 5분 전</p>
         </div>
-        <button onClick={() => setShowMenu(true)} className="text-gray-400 text-xl p-1 -mr-1">⋮</button>
+        {/* ⋮ 드롭다운 */}
+        <div className="relative">
+          <button
+            onClick={() => setShowMenu((v) => !v)}
+            className="text-gray-400 text-xl p-1 -mr-1"
+          >
+            ⋮
+          </button>
+          {showMenu && (
+            <>
+              {/* 외부 클릭 닫기 */}
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setShowMenu(false)}
+              />
+              <div className="absolute top-full right-0 mt-2 w-44 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50">
+                <button
+                  className="w-full flex items-center gap-2.5 px-4 py-3.5 border-b border-gray-100 active:bg-gray-50"
+                  onClick={() => { setShowMenu(false); router.push("/card/1"); }}
+                >
+                  <span className="text-base">🎴</span>
+                  <span className="text-sm text-gray-800" style={{ fontWeight: 500 }}>거래 카드 보기</span>
+                </button>
+                <button
+                  className="w-full flex items-center gap-2.5 px-4 py-3.5 border-b border-gray-100 active:bg-gray-50"
+                  onClick={() => { setShowMenu(false); }}
+                >
+                  <span className="text-base">🚫</span>
+                  <span className="text-sm text-gray-800" style={{ fontWeight: 500 }}>사용자 차단</span>
+                </button>
+                <button
+                  className="w-full flex items-center gap-2.5 px-4 py-3.5 active:bg-red-50"
+                  onClick={() => { setShowMenu(false); setShowLeaveConfirm(true); }}
+                >
+                  <span className="text-base">🚪</span>
+                  <span className="text-sm" style={{ fontWeight: 600, color: PRIMARY }}>채팅방 나가기</span>
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </header>
 
       {/* 거래 카드 배너 */}
@@ -222,45 +262,6 @@ export default function ChatRoom({ params }: { params: { id: string } }) {
           </button>
         </div>
       </div>
-
-      {/* ── ⋮ 메뉴 바텀시트 ── */}
-      {showMenu && (
-        <div
-          className="fixed inset-0 bg-black/40 z-50 flex items-end justify-center"
-          onClick={() => setShowMenu(false)}
-        >
-          <div
-            className="w-full max-w-sm bg-white rounded-t-3xl pb-8"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mt-3 mb-5" />
-            <p className="px-6 text-base text-gray-900 mb-4" style={{ fontWeight: 700 }}>{chat.user}</p>
-            <div className="mx-4 rounded-2xl overflow-hidden" style={{ background: "#f9fafb" }}>
-              <button
-                className="w-full flex items-center gap-3 px-4 py-4 border-b border-gray-100 active:bg-gray-100"
-                onClick={() => { setShowMenu(false); router.push(`/card/1`); }}
-              >
-                <span className="text-xl">🎴</span>
-                <span className="text-sm text-gray-800" style={{ fontWeight: 500 }}>거래 카드 보기</span>
-              </button>
-              <button
-                className="w-full flex items-center gap-3 px-4 py-4 border-b border-gray-100 active:bg-gray-100"
-                onClick={() => { setShowMenu(false); }}
-              >
-                <span className="text-xl">🚫</span>
-                <span className="text-sm text-gray-800" style={{ fontWeight: 500 }}>사용자 차단</span>
-              </button>
-              <button
-                className="w-full flex items-center gap-3 px-4 py-4 active:bg-gray-100"
-                onClick={() => { setShowMenu(false); setShowLeaveConfirm(true); }}
-              >
-                <span className="text-xl">🚪</span>
-                <span className="text-sm" style={{ fontWeight: 500, color: PRIMARY }}>채팅방 나가기</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── 나가기 확인 다이얼로그 ── */}
       {showLeaveConfirm && (

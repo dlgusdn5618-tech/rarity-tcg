@@ -2,16 +2,20 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Tag, ShoppingBag, ArrowLeftRight,
+  Heart, Clock, MessageSquare,
+} from "lucide-react";
 
 const PRIMARY = "#E53E3E";
 
 const GRID_ITEMS = [
-  { icon: "🏷️", label: "판매내역",    href: "/mypage/sales"    },
-  { icon: "🛍️", label: "구매내역",    href: "/mypage/purchases" },
-  { icon: "🔄", label: "교환내역",    href: "/mypage/trades"   },
-  { icon: "❤️", label: "찜한 카드",   href: "/mypage/wishlist" },
-  { icon: "🕐", label: "최근 본 카드", href: "/mypage/recent"   },
-  { icon: "💰", label: "가격제안",    href: "/mypage/offers"   },
+  { Icon: Tag,             label: "판매내역",    href: "/mypage/sales",     color: "#3b82f6" },
+  { Icon: ShoppingBag,     label: "구매내역",    href: "/mypage/purchases",  color: "#10b981" },
+  { Icon: ArrowLeftRight,  label: "교환내역",    href: "/mypage/trades",    color: "#f59e0b" },
+  { Icon: Heart,           label: "찜한 카드",   href: "/mypage/wishlist",  color: PRIMARY   },
+  { Icon: Clock,           label: "최근 본 카드", href: "/mypage/recent",    color: "#8b5cf6" },
+  { Icon: MessageSquare,   label: "가격제안",    href: "/mypage/offers",    color: "#06b6d4" },
 ];
 
 const MENU_ITEMS = [
@@ -139,7 +143,7 @@ export default function MyPage() {
 
       {/* 아이콘 그리드 */}
       <div className="bg-white mt-2 px-4 py-5">
-        <div className="grid grid-cols-3 gap-y-5">
+        <div className="grid grid-cols-3 gap-y-6">
           {GRID_ITEMS.map((item) => (
             <button
               key={item.label}
@@ -147,10 +151,10 @@ export default function MyPage() {
               onClick={() => router.push(item.href)}
             >
               <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
-                style={{ background: "#f9fafb" }}
+                className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                style={{ background: `${item.color}15` }}
               >
-                {item.icon}
+                <item.Icon size={24} strokeWidth={1.8} color={item.color} />
               </div>
               <span className="text-xs text-gray-700" style={{ fontWeight: 500 }}>
                 {item.label}

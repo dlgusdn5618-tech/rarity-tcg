@@ -6,6 +6,7 @@ import {
   Tag, ShoppingBag, ArrowLeftRight, Heart, Clock, DollarSign,
   Ticket, Gem, MapPin, CreditCard, Bell, Shield,
   Megaphone, HelpCircle, FileText, ChevronRight,
+  Home, Search, Sparkles, MessageCircle, User,
   type LucideIcon,
 } from "lucide-react";
 
@@ -229,26 +230,30 @@ export default function MyPage() {
       {/* 하단 탭 */}
       <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100">
         <div className="grid grid-cols-5 h-14">
-          {[
-            { icon: "🏠", label: "홈",      href: "/"        },
-            { icon: "🔍", label: "탐색",    href: "/explore" },
-            { icon: "✨", label: "내 피드",  href: "/"        },
-            { icon: "💬", label: "채팅",    href: "/chat"    },
-            { icon: "👤", label: "마이",    href: "/mypage"  },
-          ].map((tab) => (
-            <button
-              key={tab.label}
-              onClick={() => { setActiveTab(tab.label); router.push(tab.href); }}
-              className="flex flex-col items-center justify-center gap-0.5 transition-colors"
-              style={{
-                color: activeTab === tab.label ? PRIMARY : "#9ca3af",
-                fontWeight: activeTab === tab.label ? 600 : 400,
-              }}
-            >
-              <span className="text-lg">{tab.icon}</span>
-              <span className="text-[10px]">{tab.label}</span>
-            </button>
-          ))}
+          {(
+            [
+              { Icon: Home,          label: "홈",   href: "/"        },
+              { Icon: Search,        label: "탐색", href: "/explore" },
+              { Icon: Sparkles,      label: "피드", href: "/"        },
+              { Icon: MessageCircle, label: "채팅", href: "/chat"    },
+              { Icon: User,          label: "마이", href: "/mypage"  },
+            ] as { Icon: LucideIcon; label: string; href: string }[]
+          ).map((tab) => {
+            const isActive = activeTab === tab.label;
+            return (
+              <button
+                key={tab.label}
+                onClick={() => { setActiveTab(tab.label); router.push(tab.href); }}
+                className="flex flex-col items-center justify-center gap-0.5 transition-colors"
+                style={{ color: isActive ? "#111111" : "#9ca3af" }}
+              >
+                <tab.Icon size={22} strokeWidth={isActive ? 2.2 : 1.5} />
+                <span className="text-[10px]" style={{ fontWeight: isActive ? 700 : 400 }}>
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </nav>
 

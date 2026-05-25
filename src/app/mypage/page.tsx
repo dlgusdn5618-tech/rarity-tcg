@@ -133,6 +133,25 @@ export default function MyPage() {
           </button>
         </div>
 
+        {/* 컬렉터 태그 */}
+        <div className="flex flex-wrap gap-1.5 mt-4">
+          {["PSA 10", "일본판 위주", "PROMO 수집", "SAR 관심", "미개봉 선호"].map((tag) => (
+            <span
+              key={tag}
+              className="text-xs px-2.5 py-1 rounded-full"
+              style={{ border: "1px solid #d1d5db", color: "#6b7280", fontWeight: 500 }}
+            >
+              {tag}
+            </span>
+          ))}
+          <span
+            className="text-xs px-2.5 py-1 rounded-full cursor-pointer"
+            style={{ border: "1px dashed #d1d5db", color: "#9ca3af", fontWeight: 400 }}
+          >
+            + 편집
+          </span>
+        </div>
+
         {/* 버튼 — 보조(아웃라인) + 주요(채움) */}
         <div className="flex gap-2 mt-4">
           <button

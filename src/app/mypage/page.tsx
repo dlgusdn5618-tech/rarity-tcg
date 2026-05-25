@@ -3,47 +3,72 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Tag, ShoppingBag, ArrowLeftRight,
-  Heart, Clock, MessageSquare,
+  Tag, ShoppingBag, ArrowLeftRight, Heart, Clock, DollarSign,
+  Ticket, Gem, MapPin, CreditCard, Bell, Shield,
+  Megaphone, HelpCircle, FileText, ChevronRight,
+  type LucideIcon,
 } from "lucide-react";
 
 const PRIMARY = "#E53E3E";
 
-const GRID_ITEMS = [
-  { Icon: Tag,             label: "판매내역",    href: "/mypage/sales",     color: "#3b82f6" },
-  { Icon: ShoppingBag,     label: "구매내역",    href: "/mypage/purchases",  color: "#10b981" },
-  { Icon: ArrowLeftRight,  label: "교환내역",    href: "/mypage/trades",    color: "#f59e0b" },
-  { Icon: Heart,           label: "찜한 카드",   href: "/mypage/wishlist",  color: PRIMARY   },
-  { Icon: Clock,           label: "최근 본 카드", href: "/mypage/recent",    color: "#8b5cf6" },
-  { Icon: MessageSquare,   label: "가격제안",    href: "/mypage/offers",    color: "#06b6d4" },
+const TRADE_ITEMS = [
+  { Icon: Tag,            label: "판매내역",    href: "/mypage/sales"     },
+  { Icon: ShoppingBag,    label: "구매내역",    href: "/mypage/purchases"  },
+  { Icon: ArrowLeftRight, label: "교환내역",    href: "/mypage/trades"    },
+  { Icon: DollarSign,     label: "가격제안",    href: "/mypage/offers"    },
 ];
 
-const MENU_ITEMS = [
+const COLLECTION_ITEMS = [
+  { Icon: Heart, label: "찜한 카드",    href: "/mypage/wishlist" },
+  { Icon: Clock, label: "최근 본 카드", href: "/mypage/recent"   },
+];
+
+type MenuItem = { Icon: LucideIcon; label: string; href: string; value?: string; badge?: number };
+
+const MENU_ITEMS: { section: string; items: MenuItem[] }[] = [
   {
     section: "혜택",
     items: [
-      { icon: "🎟️", label: "쿠폰함",     href: "/mypage/coupons",       value: "2장",    badge: 2 },
-      { icon: "💎", label: "포인트",      href: "/mypage/points",        value: "1,200P", badge: 0 },
+      { Icon: Ticket,     label: "쿠폰함",     href: "/mypage/coupons",       value: "2장",    badge: 2 },
+      { Icon: Gem,        label: "포인트",      href: "/mypage/points",        value: "1,200P", badge: 0 },
     ],
   },
   {
     section: "계정",
     items: [
-      { icon: "🚚", label: "배송지 관리", href: "",                       value: "",       badge: 0 },
-      { icon: "💳", label: "결제 정보",   href: "",                       value: "",       badge: 0 },
-      { icon: "🔔", label: "알림 설정",   href: "/mypage/notifications",  value: "",       badge: 0 },
-      { icon: "🔒", label: "계정 보안",   href: "",                       value: "",       badge: 0 },
+      { Icon: MapPin,     label: "배송지 관리", href: "",                                        badge: 0 },
+      { Icon: CreditCard, label: "결제 정보",   href: "",                                        badge: 0 },
+      { Icon: Bell,       label: "알림 설정",   href: "/mypage/notifications",                   badge: 0 },
+      { Icon: Shield,     label: "계정 보안",   href: "",                                        badge: 0 },
     ],
   },
   {
     section: "고객지원",
     items: [
-      { icon: "📋", label: "공지사항",    href: "/mypage/notices",        value: "",       badge: 1 },
-      { icon: "❓", label: "고객센터",    href: "",                       value: "",       badge: 0 },
-      { icon: "📄", label: "이용약관",    href: "",                       value: "",       badge: 0 },
+      { Icon: Megaphone,  label: "공지사항",    href: "/mypage/notices",                         badge: 1 },
+      { Icon: HelpCircle, label: "고객센터",    href: "",                                        badge: 0 },
+      { Icon: FileText,   label: "이용약관",    href: "",                                        badge: 0 },
     ],
   },
 ];
+
+function GridTile({ Icon, label, href, router }: { Icon: LucideIcon; label: string; href: string; router: ReturnType<typeof useRouter> }) {
+  return (
+    <button
+      className="flex items-center gap-3 px-4 active:bg-gray-50 transition-colors"
+      style={{
+        height: 54,
+        background: "#fff",
+        border: "1px solid #f0f0f0",
+        borderRadius: 14,
+      }}
+      onClick={() => router.push(href)}
+    >
+      <Icon size={18} strokeWidth={1.6} color="#374151" />
+      <span className="text-sm text-gray-800" style={{ fontWeight: 500 }}>{label}</span>
+    </button>
+  );
+}
 
 export default function MyPage() {
   const router = useRouter();
@@ -72,7 +97,6 @@ export default function MyPage() {
       {/* 프로필 */}
       <div className="bg-white px-4 pt-5 pb-5">
         <div className="flex items-center gap-4">
-          {/* 아바타 */}
           <div className="relative shrink-0">
             <div
               className="w-[72px] h-[72px] rounded-full flex items-center justify-center text-3xl"
@@ -87,40 +111,21 @@ export default function MyPage() {
               ✏️
             </button>
           </div>
-
-          {/* 닉네임 + 정보 */}
           <div className="flex-1 min-w-0">
-            <p className="text-[17px] text-gray-900 leading-tight" style={{ fontWeight: 700 }}>
-              레어리티유저
-            </p>
+            <p className="text-[17px] text-gray-900 leading-tight" style={{ fontWeight: 700 }}>레어리티유저</p>
             <p className="text-xs text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>@rarity_user</p>
-
-            {/* 별점 */}
             <div className="flex items-center gap-1 mt-2">
               <span style={{ color: "#F6C90E", fontSize: 14 }}>★</span>
               <span className="text-sm text-gray-900" style={{ fontWeight: 700 }}>4.8</span>
               <span className="text-xs text-gray-400" style={{ fontWeight: 400 }}>(23개)</span>
             </div>
-
-            {/* 태그: 인증 + 거래수 */}
             <div className="flex items-center gap-1.5 mt-1.5">
-              <span
-                className="text-[10px] px-2 py-0.5 rounded-full"
-                style={{ background: "#f0fdf4", color: "#16a34a", fontWeight: 600 }}
-              >
-                ✓ 인증완료
-              </span>
-              <span
-                className="text-[10px] px-2 py-0.5 rounded-full"
-                style={{ background: "#f9fafb", color: "#6b7280", fontWeight: 500 }}
-              >
-                거래 18회
-              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "#f0fdf4", color: "#16a34a", fontWeight: 600 }}>✓ 인증완료</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "#f9fafb", color: "#6b7280", fontWeight: 500 }}>거래 18회</span>
             </div>
           </div>
         </div>
 
-        {/* 팔로워 / 팔로잉 — 미니멀 */}
         <div className="flex items-center gap-4 mt-4 pl-1">
           <button className="flex items-center gap-1.5">
             <span className="text-sm text-gray-900" style={{ fontWeight: 700 }}>128</span>
@@ -133,31 +138,21 @@ export default function MyPage() {
           </button>
         </div>
 
-        {/* 컬렉터 태그 */}
         <div className="flex flex-wrap gap-1.5 mt-4">
           {["PSA 10", "일본판 위주", "PROMO 수집", "SAR 관심", "미개봉 선호"].map((tag) => (
-            <span
-              key={tag}
-              className="text-xs px-2.5 py-1 rounded-full"
-              style={{ border: "1px solid #d1d5db", color: "#6b7280", fontWeight: 500 }}
-            >
+            <span key={tag} className="text-xs px-2.5 py-1 rounded-full" style={{ border: "1px solid #d1d5db", color: "#6b7280", fontWeight: 500 }}>
               {tag}
             </span>
           ))}
-          <span
-            className="text-xs px-2.5 py-1 rounded-full cursor-pointer"
-            style={{ border: "1px dashed #d1d5db", color: "#9ca3af", fontWeight: 400 }}
-          >
+          <span className="text-xs px-2.5 py-1 rounded-full cursor-pointer" style={{ border: "1px dashed #d1d5db", color: "#9ca3af", fontWeight: 400 }}>
             + 편집
           </span>
         </div>
 
-        {/* 버튼 — 보조(아웃라인) + 주요(채움) */}
         <div className="flex gap-2 mt-4">
           <button
             className="flex-1 py-2.5 rounded-xl text-sm"
             style={{ border: "1.5px solid #e5e7eb", color: "#6b7280", fontWeight: 500 }}
-            onClick={() => {}}
           >
             내 샵 보기
           </button>
@@ -171,25 +166,19 @@ export default function MyPage() {
         </div>
       </div>
 
-      {/* 아이콘 그리드 */}
-      <div className="bg-white mt-2 px-4 py-5">
-        <div className="grid grid-cols-3 gap-y-6">
-          {GRID_ITEMS.map((item) => (
-            <button
-              key={item.label}
-              className="flex flex-col items-center gap-2 active:opacity-70"
-              onClick={() => router.push(item.href)}
-            >
-              <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                style={{ background: `${item.color}15` }}
-              >
-                <item.Icon size={24} strokeWidth={1.8} color={item.color} />
-              </div>
-              <span className="text-xs text-gray-700" style={{ fontWeight: 500 }}>
-                {item.label}
-              </span>
-            </button>
+      {/* 거래 관리 그리드 */}
+      <div className="bg-white mt-2 px-4 pt-4 pb-5">
+        <p className="text-xs text-gray-400 mb-3" style={{ fontWeight: 600 }}>거래 관리</p>
+        <div className="grid grid-cols-2 gap-2">
+          {TRADE_ITEMS.map((item) => (
+            <GridTile key={item.label} {...item} router={router} />
+          ))}
+        </div>
+
+        <p className="text-xs text-gray-400 mb-3 mt-5" style={{ fontWeight: 600 }}>컬렉션</p>
+        <div className="grid grid-cols-2 gap-2">
+          {COLLECTION_ITEMS.map((item) => (
+            <GridTile key={item.label} {...item} router={router} />
           ))}
         </div>
       </div>
@@ -197,33 +186,32 @@ export default function MyPage() {
       {/* 메뉴 리스트 */}
       {MENU_ITEMS.map((group) => (
         <div key={group.section} className="bg-white mt-2">
-          <p className="px-4 pt-4 pb-1 text-xs text-gray-400" style={{ fontWeight: 600 }}>
-            {group.section}
-          </p>
+          <p className="px-4 pt-4 pb-1 text-xs text-gray-400" style={{ fontWeight: 600 }}>{group.section}</p>
           <div className="divide-y divide-gray-50">
             {group.items.map((item) => (
               <button
                 key={item.label}
-                className="w-full flex items-center justify-between px-4 py-3.5 active:bg-gray-50"
+                className="w-full flex items-center justify-between px-4 active:bg-gray-50"
+                style={{ height: 54 }}
                 onClick={() => item.href && router.push(item.href)}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-lg w-6 text-center">{item.icon}</span>
+                  <item.Icon size={18} strokeWidth={1.6} color="#9ca3af" />
                   <span className="text-sm text-gray-800" style={{ fontWeight: 500 }}>{item.label}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   {item.value && (
-                    <span className="text-sm text-gray-400" style={{ fontWeight: 500 }}>{item.value}</span>
+                    <span className="text-sm text-gray-400" style={{ fontWeight: 400 }}>{item.value}</span>
                   )}
-                  {item.badge > 0 && (
+                  {item.badge && item.badge > 0 ? (
                     <span
                       className="text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center"
                       style={{ background: PRIMARY, fontWeight: 700 }}
                     >
                       {item.badge}
                     </span>
-                  )}
-                  <span className="text-gray-300">›</span>
+                  ) : null}
+                  <ChevronRight size={15} strokeWidth={1.5} color="#d1d5db" />
                 </div>
               </button>
             ))}

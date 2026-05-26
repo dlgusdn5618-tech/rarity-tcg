@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  ExchangeBalanceBoard,
+  type BalanceReport,
+} from "@/components/ExchangeBalanceBoard";
 
 const PRIMARY = "#E53E3E";
 
@@ -51,11 +55,70 @@ const TRADES = [
   },
 ];
 
+// ── Mock balance report data ──────────────────────────────────────
+const BALANCE_REPORTS: Record<number, BalanceReport> = {
+  1: {
+    myCard: {
+      name: "꼬부기 ex",
+      tcg: "Pokemon",
+      rarity: "SR",
+      condition: "A급",
+      gradingCompany: "-",
+      grade: "-",
+      recentPrice: 55000,
+      scarcity: "Medium",
+    },
+    theirCard: {
+      name: "피카츄 ex",
+      tcg: "Pokemon",
+      rarity: "SAR",
+      condition: "S급",
+      gradingCompany: "-",
+      grade: "-",
+      recentPrice: 63000,
+      scarcity: "High",
+    },
+    extraCashRange: [4000, 8000],
+    extraCashPayer: "me",
+    fitPercent: 87,
+    analysisNote:
+      "상대 카드가 SAR로 레어도가 한 단계 높고 컨디션도 우세합니다. 5,000원 내외의 추가금을 제안하면 양측 모두 수긍 가능한 조건입니다.",
+  },
+  3: {
+    myCard: {
+      name: "뮤 ex",
+      tcg: "Pokemon",
+      rarity: "SAR",
+      condition: "S급",
+      gradingCompany: "PSA",
+      grade: "9",
+      recentPrice: 142000,
+      scarcity: "High",
+    },
+    theirCard: {
+      name: "에이스",
+      tcg: "One Piece",
+      rarity: "UR",
+      condition: "S급",
+      gradingCompany: "-",
+      grade: "-",
+      recentPrice: 130000,
+      scarcity: "High",
+    },
+    extraCashRange: [5000, 12000],
+    extraCashPayer: "them",
+    fitPercent: 91,
+    analysisNote:
+      "PSA 9 감정으로 내 카드 신뢰도가 높고 시세도 소폭 우위입니다. 추가금 5,000~12,000원을 상대방이 지급하거나 동등 교환을 제안할 수 있습니다.",
+  },
+};
+
 type Tab = "전체" | "진행중" | "완료" | "취소됨";
 
 export default function TradesPage() {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("전체");
+  const [expandedBalance, setExpandedBalance] = useState<number | null>(null);
 
   const visible = TRADES.filter((t) => {
     if (tab === "전체") return true;
@@ -64,11 +127,13 @@ export default function TradesPage() {
   });
 
   const counts = {
-    "전체": TRADES.length,
-    "진행중": TRADES.filter((t) => t.status === "진행중" || t.status === "대기중").length,
-    "완료": TRADES.filter((t) => t.status === "완료").length,
+    "전체":   TRADES.length,
+    "진행중":  TRADES.filter((t) => t.status === "진행중" || t.status === "대기중").length,
+    "완료":   TRADES.filter((t) => t.status === "완료").length,
     "취소됨": TRADES.filter((t) => t.status === "취소됨").length,
   };
+
+  const isActive = (status: string) => status === "진행중" || status === "대기중";
 
   return (
     <div className="min-h-screen bg-gray-50 max-w-sm mx-auto">
@@ -101,6 +166,9 @@ export default function TradesPage() {
       <div className="mt-2 bg-white divide-y divide-gray-50">
         {visible.map((trade) => {
           const st = STATUS_STYLE[trade.status];
+          const hasBalance = isActive(trade.status) && !!BALANCE_REPORTS[trade.id];
+          const isOpen = expandedBalance === trade.id;
+
           return (
             <div key={trade.id} className="px-4 py-4">
 
@@ -137,10 +205,7 @@ export default function TradesPage() {
                   {trade.priceDiff !== 0 && (
                     <span
                       className="text-[9px] mt-0.5"
-                      style={{
-                        color: trade.priceDiff > 0 ? "#10b981" : PRIMARY,
-                        fontWeight: 600,
-                      }}
+                      style={{ color: trade.priceDiff > 0 ? "#10b981" : PRIMARY, fontWeight: 600 }}
                     >
                       {trade.priceDiff > 0 ? "+" : ""}{trade.priceDiff.toLocaleString()}원
                     </span>
@@ -168,6 +233,20 @@ export default function TradesPage() {
                   상대방 <span className="text-gray-700" style={{ fontWeight: 500 }}>{trade.partner}</span>
                 </p>
                 <div className="flex gap-2">
+                  {/* 밸런스 분석 버튼 (진행중/대기중) */}
+                  {hasBalance && (
+                    <button
+                      onClick={() => setExpandedBalance(isOpen ? null : trade.id)}
+                      className="text-xs px-3 py-1.5 rounded-xl transition-colors"
+                      style={{
+                        background: isOpen ? "#111" : "#f3f4f6",
+                        color: isOpen ? "white" : "#374151",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {isOpen ? "접기" : "밸런스 분석"}
+                    </button>
+                  )}
                   {(trade.status === "진행중" || trade.status === "대기중") && (
                     <button
                       className="text-xs px-3 py-1.5 rounded-xl border"
@@ -195,6 +274,16 @@ export default function TradesPage() {
                   )}
                 </div>
               </div>
+
+              {/* 교환 밸런스 보드 (expand) */}
+              {isOpen && BALANCE_REPORTS[trade.id] && (
+                <div className="mt-4">
+                  <ExchangeBalanceBoard
+                    report={BALANCE_REPORTS[trade.id]}
+                    onChat={() => router.push("/chat")}
+                  />
+                </div>
+              )}
             </div>
           );
         })}

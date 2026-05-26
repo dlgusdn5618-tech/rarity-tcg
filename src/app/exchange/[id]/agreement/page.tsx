@@ -9,6 +9,13 @@ import {
 
 const PRIMARY = "#E53E3E";
 
+// ── Demo toggle ──────────────────────────────────────────────────
+// false: 사진 미등록 → 확정 불가 상태
+// true : 모든 증빙 충족 → 확정 가능 상태
+const DEMO_COMPLETE_EVIDENCE = false;
+
+// ── Types ────────────────────────────────────────────────────────
+
 type AgreementStatus =
   | "DRAFT"
   | "PENDING_CONFIRMATION"
@@ -56,6 +63,8 @@ type ExchangeAgreement = {
   partnerConfirmed: boolean;
 };
 
+// ── Status config ────────────────────────────────────────────────
+
 const STATUS_CONFIG: Record<
   AgreementStatus,
   { label: string; bg: string; color: string; banner: string; bannerBg: string; bannerColor: string }
@@ -98,17 +107,74 @@ const STATUS_CONFIG: Record<
   },
 };
 
-function StatusChipIcon({ status, size = 11 }: { status: AgreementStatus; size?: number }) {
-  const color = STATUS_CONFIG[status].color;
-  const p = { size, strokeWidth: 2.2, color };
-  switch (status) {
-    case "CONFIRMED":           return <CheckCircle2 {...p} />;
-    case "CANCELLED":           return <XCircle {...p} />;
-    case "CHANGE_REQUESTED":
-    case "DISPUTED":            return <AlertTriangle {...p} />;
-    default:                    return <Clock {...p} />;
+// ── Validation ───────────────────────────────────────────────────
+
+function computeMissingRequirements(ag: ExchangeAgreement): string[] {
+  const missing: string[] = [];
+  const { myCard, partnerCard, terms } = ag;
+
+  // 카드 사진
+  if (!myCard.imageUrl)      missing.push("내 카드 사진 등록 필요");
+  if (!partnerCard.imageUrl) missing.push("상대 카드 사진 등록 필요");
+
+  // 내 카드 필수 항목
+  const myFields: [string, string | number][] = [
+    ["내 카드 레어도",   myCard.rarity],
+    ["내 카드 언어",     myCard.language],
+    ["내 카드 세트번호", myCard.setNumber],
+    ["내 카드 상태",     myCard.condition],
+    ["내 카드 예상가",   myCard.estimatedPrice],
+  ];
+  for (const [label, val] of myFields) {
+    if (!val || val === "-") missing.push(`${label} 입력 필요`);
   }
+
+  // 내 카드 감정 (감정사가 있는 경우)
+  if (myCard.gradingCompany && myCard.gradingCompany !== "-") {
+    if (!myCard.grade || myCard.grade === "-")
+      missing.push("내 카드 감정 등급 입력 필요");
+    if (!myCard.certificateNumber || myCard.certificateNumber === "-")
+      missing.push("내 카드 인증번호 입력 필요");
+  }
+
+  // 상대 카드 필수 항목
+  const partnerFields: [string, string | number][] = [
+    ["상대 카드 레어도",   partnerCard.rarity],
+    ["상대 카드 언어",     partnerCard.language],
+    ["상대 카드 세트번호", partnerCard.setNumber],
+    ["상대 카드 상태",     partnerCard.condition],
+    ["상대 카드 예상가",   partnerCard.estimatedPrice],
+  ];
+  for (const [label, val] of partnerFields) {
+    if (!val || val === "-") missing.push(`${label} 확인 필요`);
+  }
+
+  // 상대 카드 감정 (감정사가 있는 경우)
+  if (partnerCard.gradingCompany && partnerCard.gradingCompany !== "-") {
+    if (!partnerCard.grade || partnerCard.grade === "-")
+      missing.push("상대 카드 감정 등급 확인 필요");
+    if (!partnerCard.certificateNumber || partnerCard.certificateNumber === "-")
+      missing.push("상대 카드 인증번호 확인 필요");
+  }
+
+  // 추가금 조건
+  if (terms.extraCashRequired) {
+    if (!terms.extraCashAmount || terms.extraCashAmount <= 0)
+      missing.push("추가금 금액 입력 필요");
+    if (!terms.extraCashPayer)
+      missing.push("추가금 지급 주체 확인 필요");
+  }
+
+  // 교환 조건 필수 항목
+  if (!terms.shippingMethod)       missing.push("배송 방식 입력 필요");
+  if (!terms.shipByDate)           missing.push("발송 기한 입력 필요");
+  if (!terms.receiveConfirmByDate) missing.push("수령 확인 기한 입력 필요");
+  if (!terms.disputeHandling)      missing.push("분쟁 처리 방식 입력 필요");
+
+  return missing;
 }
+
+// ── Mock data ────────────────────────────────────────────────────
 
 const MOCK: ExchangeAgreement = {
   id: "exg_001",
@@ -123,7 +189,7 @@ const MOCK: ExchangeAgreement = {
     gradingCompany: "PSA",
     grade: "9",
     certificateNumber: "87654321",
-    imageUrl: "",
+    imageUrl: DEMO_COMPLETE_EVIDENCE ? "__registered__" : "",
     estimatedPrice: 85000,
   },
   partnerCard: {
@@ -136,7 +202,7 @@ const MOCK: ExchangeAgreement = {
     gradingCompany: "-",
     grade: "-",
     certificateNumber: "-",
-    imageUrl: "",
+    imageUrl: DEMO_COMPLETE_EVIDENCE ? "__registered__" : "",
     estimatedPrice: 280000,
   },
   terms: {
@@ -157,7 +223,19 @@ const MOCK: ExchangeAgreement = {
   partnerConfirmed: true,
 };
 
-// ── Sub-components ──────────────────────────────────────────────
+// ── Sub-components ───────────────────────────────────────────────
+
+function StatusChipIcon({ status, size = 11 }: { status: AgreementStatus; size?: number }) {
+  const color = STATUS_CONFIG[status].color;
+  const p = { size, strokeWidth: 2.2, color };
+  switch (status) {
+    case "CONFIRMED":           return <CheckCircle2 {...p} />;
+    case "CANCELLED":           return <XCircle {...p} />;
+    case "CHANGE_REQUESTED":
+    case "DISPUTED":            return <AlertTriangle {...p} />;
+    default:                    return <Clock {...p} />;
+  }
+}
 
 function SectionHeader({ title, locked }: { title: string; locked?: boolean }) {
   return (
@@ -176,15 +254,26 @@ function SectionHeader({ title, locked }: { title: string; locked?: boolean }) {
 }
 
 function CardThumbnail({ card, label }: { card: CardInfo; label: string }) {
+  const hasPhoto = Boolean(card.imageUrl);
   return (
     <div className="flex-1 min-w-0">
-      <div className="w-full rounded-xl bg-gray-100 flex flex-col items-center justify-center gap-1.5" style={{ height: 96 }}>
-        {card.imageUrl ? (
-          <img src={card.imageUrl} alt={card.name} className="h-full w-full object-contain rounded-xl" />
+      <div
+        className="w-full rounded-xl flex flex-col items-center justify-center gap-1.5"
+        style={{
+          height: 96,
+          background: hasPhoto ? "#f0fdf4" : "#f3f4f6",
+          border: `1px solid ${hasPhoto ? "#bbf7d0" : "#e5e7eb"}`,
+        }}
+      >
+        {hasPhoto ? (
+          <>
+            <CheckCircle2 size={18} color="#10b981" strokeWidth={1.5} />
+            <span className="text-[9px]" style={{ color: "#10b981", fontWeight: 600 }}>사진 등록됨</span>
+          </>
         ) : (
           <>
             <Camera size={18} color="#d1d5db" strokeWidth={1.5} />
-            <span className="text-[9px] text-gray-300" style={{ fontWeight: 400 }}>사진 미등록</span>
+            <span className="text-[9px] text-gray-400" style={{ fontWeight: 400 }}>사진 미등록</span>
           </>
         )}
       </div>
@@ -253,6 +342,33 @@ function TermRow({
   );
 }
 
+function MissingRequirementsBox({ items }: { items: string[] }) {
+  if (items.length === 0) return null;
+  return (
+    <div
+      className="mx-4 mb-3 rounded-xl px-3.5 py-3.5"
+      style={{ background: "#fff5f5", border: "1px solid #fecaca" }}
+    >
+      <p className="text-[11px] mb-2.5" style={{ color: PRIMARY, fontWeight: 700 }}>
+        확정 전에 필요한 증빙이 남아 있어요.
+      </p>
+      <ul className="flex flex-col gap-1.5">
+        {items.map((item) => (
+          <li key={item} className="flex items-start gap-2">
+            <div
+              className="w-1 h-1 rounded-full shrink-0 mt-1.5"
+              style={{ background: "#fca5a5" }}
+            />
+            <p className="text-[11px]" style={{ color: "#991b1b", fontWeight: 400 }}>
+              {item}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 // ── Main Inner Component ─────────────────────────────────────────
 
 type Params = { id: string };
@@ -271,15 +387,24 @@ function AgreementInner({ id }: { id: string }) {
     confirmedAt: initialStatus === "CONFIRMED" ? "2026.05.26 14:23" : null,
   });
 
+  // ── Derived validation state ─────────────────────────────────
+  const missingRequirements = computeMissingRequirements(agreement);
+  const canConfirm = missingRequirements.length === 0;
+
   const cfg = STATUS_CONFIG[agreement.status];
-  const isLocked = agreement.status === "CONFIRMED";
+  const isLocked     = agreement.status === "CONFIRMED";
   const isTerminated = agreement.status === "CANCELLED" || agreement.status === "DISPUTED";
+  const needsAction  = agreement.status === "DRAFT"
+    || agreement.status === "PENDING_CONFIRMATION"
+    || agreement.status === "CHANGE_REQUESTED";
 
   function handleConfirmRequest() {
+    if (!canConfirm) return;
     setAgreement((p) => ({ ...p, status: "PENDING_CONFIRMATION", myConfirmed: true }));
   }
 
   function handleConfirm() {
+    if (!canConfirm) return;
     setAgreement((p) => ({
       ...p, status: "CONFIRMED",
       myConfirmed: true, partnerConfirmed: true, confirmedAt: "2026.05.26 14:23",
@@ -348,9 +473,14 @@ function AgreementInner({ id }: { id: string }) {
         <CompareRow label="감정사"  myVal={myCard.gradingCompany} partnerVal={partnerCard.gradingCompany} />
         <CompareRow label="등급"    myVal={myCard.grade}          partnerVal={partnerCard.grade} />
         <CompareRow label="인증번호" myVal={myCard.certificateNumber} partnerVal={partnerCard.certificateNumber} mono />
-        <CompareRow label="예상가"  myVal={`${myCard.estimatedPrice.toLocaleString()}원`} partnerVal={`${partnerCard.estimatedPrice.toLocaleString()}원`} priceRow />
+        <CompareRow
+          label="예상가"
+          myVal={`${myCard.estimatedPrice.toLocaleString()}원`}
+          partnerVal={`${partnerCard.estimatedPrice.toLocaleString()}원`}
+          priceRow
+        />
 
-        {/* 사진 등록 안내 */}
+        {/* 사진 등록 안내 (미확정 상태만) */}
         {!isLocked && (
           <div className="mx-4 mt-2 mb-4 rounded-xl px-3 py-2.5 flex items-start gap-2" style={{ background: "#f9fafb" }}>
             <Camera size={12} color="#9ca3af" strokeWidth={1.5} className="shrink-0 mt-0.5" />
@@ -386,6 +516,11 @@ function AgreementInner({ id }: { id: string }) {
         <TermRow label="분쟁 처리"      value={terms.disputeHandling} />
         <div className="h-4" />
       </div>
+
+      {/* ── 확정 조건 검증 박스 (미확정 상태만) ── */}
+      {needsAction && (
+        <MissingRequirementsBox items={missingRequirements} />
+      )}
 
       {/* ── 확정 상태 블록 (CONFIRMED) ── */}
       {isLocked && (
@@ -443,15 +578,23 @@ function AgreementInner({ id }: { id: string }) {
 
       {/* ── 하단 액션 버튼 ── */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 px-4 py-3">
+
         {agreement.status === "DRAFT" && (
           <button
             onClick={handleConfirmRequest}
+            disabled={!canConfirm}
             className="w-full py-3.5 rounded-2xl text-sm text-white"
-            style={{ background: PRIMARY, fontWeight: 700 }}
+            style={{
+              background: PRIMARY,
+              fontWeight: 700,
+              opacity: canConfirm ? 1 : 0.35,
+              cursor: canConfirm ? "pointer" : "default",
+            }}
           >
             확정 요청하기
           </button>
         )}
+
         {agreement.status === "PENDING_CONFIRMATION" && (
           <div className="flex gap-2">
             <button
@@ -463,13 +606,20 @@ function AgreementInner({ id }: { id: string }) {
             </button>
             <button
               onClick={handleConfirm}
+              disabled={!canConfirm}
               className="flex-1 py-3.5 rounded-2xl text-sm text-white"
-              style={{ background: PRIMARY, fontWeight: 700 }}
+              style={{
+                background: PRIMARY,
+                fontWeight: 700,
+                opacity: canConfirm ? 1 : 0.35,
+                cursor: canConfirm ? "pointer" : "default",
+              }}
             >
               확정하기
             </button>
           </div>
         )}
+
         {agreement.status === "CONFIRMED" && (
           <button
             onClick={() => router.push("/chat")}
@@ -479,6 +629,7 @@ function AgreementInner({ id }: { id: string }) {
             채팅하기
           </button>
         )}
+
         {agreement.status === "CHANGE_REQUESTED" && (
           <div className="flex gap-2">
             <button
@@ -490,13 +641,20 @@ function AgreementInner({ id }: { id: string }) {
             </button>
             <button
               onClick={handleConfirm}
+              disabled={!canConfirm}
               className="flex-1 py-3.5 rounded-2xl text-sm text-white"
-              style={{ background: PRIMARY, fontWeight: 700 }}
+              style={{
+                background: PRIMARY,
+                fontWeight: 700,
+                opacity: canConfirm ? 1 : 0.35,
+                cursor: canConfirm ? "pointer" : "default",
+              }}
             >
               재동의하기
             </button>
           </div>
         )}
+
         {isTerminated && (
           <button
             className="w-full py-3.5 rounded-2xl text-sm border"

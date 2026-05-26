@@ -77,7 +77,7 @@ const CARD_DB: Record<string, {
     priceHistory: [38000, 39000, 40000, 41000, 40000, 42000],
     tradeType: "parcel",
     passport: {
-      tcg: "Pokemon", rarity: "SAR", language: "Korean", distribution: "Booster Set",
+      tcg: "Pokemon", rarity: "SAR", language: "English", distribution: "Booster Set",
       condition: "Excellent", grade: "Ungraded", photoVerified: false, safeTrade: false,
       pricePosition: "Fair Price", scarcity: "High", cardId: "SV3pt5-173",
     },
@@ -126,8 +126,9 @@ type ApiSpec = {
   regulationMark: string; rarity: string; image: string;
 } | null;
 
-function CardPassport({ name, data }: { name: string; data: PassportData }) {
+function CardPassport({ name, nameKo, data }: { name: string; nameKo: string; data: PassportData }) {
   const chip = RARITY_CHIP[data.rarity] ?? { bg: "#f9fafb", color: "#6b7280" };
+  const displayName = data.language === "Korean" ? nameKo : name;
 
   const row1 = [
     { label: "Language",  value: data.language     },
@@ -165,7 +166,7 @@ function CardPassport({ name, data }: { name: string; data: PassportData }) {
           <p className="text-[9px] text-gray-400 uppercase mb-1" style={{ fontWeight: 500, letterSpacing: "0.1em" }}>
             Card Name
           </p>
-          <p className="text-sm text-gray-900" style={{ fontWeight: 700 }}>{name}</p>
+          <p className="text-sm text-gray-900" style={{ fontWeight: 700 }}>{displayName}</p>
         </div>
         <span
           className="text-[11px] px-2.5 py-1 rounded shrink-0 ml-3"
@@ -359,7 +360,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
 
       {/* Card Passport */}
       <div className="mx-4 mt-3">
-        <CardPassport name={card.name} data={card.passport} />
+        <CardPassport name={card.name} nameKo={card.nameKo} data={card.passport} />
       </div>
 
       {/* ① 거래 방식 선택 */}

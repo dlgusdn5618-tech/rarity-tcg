@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const PRIMARY = "#E53E3E";
@@ -50,7 +50,7 @@ const DEFAULT_SETTINGS: Record<ToggleKeys, boolean> = {
 
 export default function NotificationsPage() {
   const router = useRouter();
-  const [settings, setSettings] = useState(() => {
+  const [settings, setSettings] = useState<Record<ToggleKeys, boolean>>(() => {
     if (typeof window === "undefined") return DEFAULT_SETTINGS;
     const saved = localStorage.getItem("notif_settings");
     return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;

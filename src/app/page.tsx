@@ -264,14 +264,16 @@ export default function Home() {
         </div>
       </div>
 
-      {/* + 판매 플로팅 버튼 */}
-      <button
-        onClick={() => router.push("/sell")}
-        className="fixed bottom-20 right-4 text-white text-sm px-5 py-3 rounded-full shadow-lg flex items-center gap-1.5 z-10 transition-opacity hover:opacity-90"
-        style={{ background: PRIMARY, fontWeight: 600 }}
-      >
-        <span className="text-base">+</span> 판매
-      </button>
+      {/* + 판매 플로팅 버튼 — 앱 프레임(max-w-sm) 기준 우하단 */}
+      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-sm px-4 pointer-events-none z-10">
+        <button
+          onClick={() => router.push("/sell")}
+          className="ml-auto flex pointer-events-auto text-white text-sm px-5 py-3 rounded-full shadow-lg items-center gap-1.5 transition-opacity hover:opacity-90"
+          style={{ background: PRIMARY, fontWeight: 600 }}
+        >
+          <span className="text-base">+</span> 판매
+        </button>
+      </div>
 
       {/* 하단 탭 */}
       <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100">

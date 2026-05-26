@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect, use } from "react";
-import { Shield } from "lucide-react";
+import { Shield, Share2, Heart, Eye, Package, Store, Users, ShieldCheck, type LucideIcon } from "lucide-react";
 
 const PRIMARY = "#E53E3E";
 
@@ -48,7 +48,7 @@ const TYPE_EMOJI: Record<string, string> = {
 
 const CARD_DB: Record<string, {
   apiId: string; name: string; nameKo: string; price: number;
-  emoji: string; condition: string; category: string; views: number; likes: number;
+  condition: string; category: string; views: number; likes: number;
   seller: string; sellerGrade: string; sellerTrades: number;
   desc: string; priceHistory: number[];
   tradeType: "parcel" | "half" | "direct" | "safe";
@@ -56,7 +56,7 @@ const CARD_DB: Record<string, {
 }> = {
   "1": {
     apiId: "sv3pt5-183", nameKo: "리자몽 ex", name: "Charizard ex",
-    price: 85000, emoji: "🔥", condition: "S급", category: "포켓몬",
+    price: 85000, condition: "S급", category: "포켓몬",
     views: 1240, likes: 320,
     seller: "포켓마스터", sellerGrade: "⭐ 우수판매자", sellerTrades: 247,
     desc: "구입 후 슬리브 보관. 모서리·표면 흠집 전혀 없음. 직거래 가능(강남).",
@@ -70,7 +70,7 @@ const CARD_DB: Record<string, {
   },
   "2": {
     apiId: "sv3pt5-173", nameKo: "피카츄 ex", name: "Pikachu",
-    price: 42000, emoji: "⚡", condition: "A급", category: "포켓몬",
+    price: 42000, condition: "A급", category: "포켓몬",
     views: 980, likes: 210,
     seller: "카드킹", sellerGrade: "⭐ 우수판매자", sellerTrades: 182,
     desc: "개봉 직후 슬리브 보관. 아주 미세한 표면 광택 차이 있으나 육안으로 식별 어려움.",
@@ -84,7 +84,7 @@ const CARD_DB: Record<string, {
   },
   "3": {
     apiId: "sv3pt5-205", nameKo: "뮤츠 ex", name: "Mew ex",
-    price: 120000, emoji: "🌀", condition: "S급", category: "포켓몬",
+    price: 120000, condition: "S급", category: "포켓몬",
     views: 870, likes: 180,
     seller: "레어헌터", sellerGrade: "🔥 파워판매자", sellerTrades: 503,
     desc: "PSA 9 등급 상당 컨디션. 완전 민트. 하드케이스 보관 중.",
@@ -104,17 +104,17 @@ const CONDITION_INFO: Record<string, { color: string; bg: string; desc: string }
   "B급": { color: "#718096", bg: "#F7FAFC", desc: "사용감 있음" },
 };
 
-const TRADE_OPTIONS = [
-  { key: "parcel", label: "택배",    icon: "📦", desc: "일반 택배사" },
-  { key: "half",   label: "반값택배", icon: "🏪", desc: "편의점 접수" },
-  { key: "direct", label: "직거래",  icon: "🤝", desc: "직접 만남" },
-  { key: "safe",   label: "안전거래", icon: "🛡️", desc: "레어리티 보호" },
-] as const;
+const TRADE_OPTIONS: { key: "parcel" | "half" | "direct" | "safe"; label: string; Icon: LucideIcon; desc: string }[] = [
+  { key: "parcel", label: "택배",    Icon: Package,    desc: "일반 택배사" },
+  { key: "half",   label: "반값택배", Icon: Store,      desc: "편의점 접수" },
+  { key: "direct", label: "직거래",  Icon: Users,      desc: "직접 만남" },
+  { key: "safe",   label: "안전거래", Icon: ShieldCheck, desc: "레어리티 보호" },
+];
 
 const SIMILAR = [
-  { id: 2, name: "피카츄 ex",  grade: "SAR", price: 42000,  emoji: "⚡" },
-  { id: 3, name: "뮤츠 ex",    grade: "UR",  price: 120000, emoji: "🌀" },
-  { id: 5, name: "꼬부기 ex",  grade: "SR",  price: 55000,  emoji: "💧" },
+  { id: 2, name: "피카츄 ex",  grade: "SAR", price: 42000  },
+  { id: 3, name: "뮤츠 ex",    grade: "UR",  price: 120000 },
+  { id: 5, name: "꼬부기 ex",  grade: "SR",  price: 55000  },
 ];
 
 type ApiSpec = {
@@ -305,7 +305,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
         </button>
         <span className="text-sm text-gray-900" style={{ fontWeight: 600 }}>카드 상세</span>
         <button className="w-8 h-8 flex items-center justify-center">
-          <span className="text-xl">⬆️</span>
+          <Share2 size={18} color="#374151" strokeWidth={1.5} />
         </button>
       </header>
 
@@ -315,7 +315,17 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
           style={{ background: "linear-gradient(135deg, #FFF5F5, #FED7D7)" }}>
           {spec?.image
             ? <img src={spec.image} alt={card.nameKo} className="h-52 object-contain drop-shadow-xl" />
-            : <span className="text-8xl drop-shadow-lg">{card.emoji}</span>
+            : (
+              <div className="w-32 h-44 rounded-2xl bg-white shadow-md flex flex-col overflow-hidden border border-gray-100">
+                <div className="h-3 w-full" style={{ background: PRIMARY }} />
+                <div className="flex-1 flex items-center justify-center">
+                  <span className="text-xs text-gray-300 select-none" style={{ fontWeight: 700 }}>TCG CARD</span>
+                </div>
+                <div className="h-10 bg-gray-50 flex items-center justify-center border-t border-gray-100 px-2">
+                  <span className="text-xs text-gray-500 text-center truncate" style={{ fontWeight: 700 }}>{card.nameKo}</span>
+                </div>
+              </div>
+            )
           }
           <div className="absolute top-3 left-3 flex items-center gap-1.5">
             <span className="text-xs px-2 py-1 rounded-lg"
@@ -328,10 +338,18 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
           </div>
           <button onClick={() => { setLiked(!liked); setLikeCount(liked ? likeCount - 1 : likeCount + 1); }}
             className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white shadow flex items-center justify-center">
-            <span className="text-lg">{liked ? "❤️" : "🤍"}</span>
+            <Heart
+              size={18}
+              strokeWidth={1.5}
+              fill={liked ? PRIMARY : "none"}
+              color={liked ? PRIMARY : "#374151"}
+            />
           </button>
           <div className="absolute bottom-3 right-3 bg-black/20 rounded-full px-2 py-0.5">
-            <span className="text-white text-[10px]">👁 {card.views.toLocaleString()}</span>
+            <div className="flex items-center gap-1 text-white text-[10px]">
+              <Eye size={10} strokeWidth={2} color="white" />
+              {card.views.toLocaleString()}
+            </div>
           </div>
         </div>
 
@@ -353,7 +371,10 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
             <p className="text-2xl text-gray-900" style={{ fontWeight: 800 }}>
               {card.price.toLocaleString()}<span className="text-sm" style={{ fontWeight: 400 }}>원</span>
             </p>
-            <p className="text-xs text-gray-400 mt-0.5">❤️ {likeCount.toLocaleString()}</p>
+            <p className="text-xs text-gray-400 mt-0.5 flex items-center justify-end gap-1">
+              <Heart size={10} strokeWidth={1.5} color="#9ca3af" />
+              {likeCount.toLocaleString()}
+            </p>
           </div>
         </div>
       </div>
@@ -376,7 +397,9 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
                   borderColor: active ? PRIMARY : "#E5E7EB",
                   background: active ? "#FFF5F5" : "white",
                 }}>
-                <span className="text-xl mb-1">{opt.icon}</span>
+                <div className="mb-1">
+                  <opt.Icon size={22} strokeWidth={1.5} color={active ? PRIMARY : "#6b7280"} />
+                </div>
                 <span className="text-xs" style={{ fontWeight: active ? 700 : 500, color: active ? PRIMARY : "#374151" }}>
                   {opt.label}
                 </span>
@@ -392,7 +415,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
       {/* ② 거래 방식 안내 배너 */}
       {tradeType === "parcel" && (
         <div className="mx-4 mt-3 rounded-2xl p-4 flex items-start gap-3 bg-blue-50">
-          <span className="text-2xl shrink-0">📦</span>
+          <Package size={22} strokeWidth={1.5} color="#2563eb" className="shrink-0 mt-0.5" />
           <div>
             <p className="text-sm text-gray-900" style={{ fontWeight: 700 }}>택배 거래</p>
             <p className="text-xs text-gray-500 mt-0.5 leading-relaxed" style={{ fontWeight: 400 }}>
@@ -404,7 +427,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
       )}
       {tradeType === "half" && (
         <div className="mx-4 mt-3 rounded-2xl p-4 flex items-start gap-3 bg-indigo-50">
-          <span className="text-2xl shrink-0">🏪</span>
+          <Store size={22} strokeWidth={1.5} color="#4f46e5" className="shrink-0 mt-0.5" />
           <div>
             <p className="text-sm text-gray-900" style={{ fontWeight: 700 }}>반값택배 거래</p>
             <p className="text-xs text-gray-500 mt-0.5 leading-relaxed" style={{ fontWeight: 400 }}>
@@ -416,7 +439,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
       )}
       {tradeType === "direct" && (
         <div className="mx-4 mt-3 rounded-2xl p-4 flex items-start gap-3 bg-green-50">
-          <span className="text-2xl shrink-0">🤝</span>
+          <Users size={22} strokeWidth={1.5} color="#16a34a" className="shrink-0 mt-0.5" />
           <div>
             <p className="text-sm text-gray-900" style={{ fontWeight: 700 }}>직거래</p>
             <p className="text-xs text-gray-500 mt-0.5 leading-relaxed" style={{ fontWeight: 400 }}>
@@ -429,7 +452,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
       {tradeType === "safe" && (
         <div className="mx-4 mt-3 rounded-2xl p-4 flex items-start gap-3"
           style={{ background: "linear-gradient(135deg, #FFF5F5, #FED7D7)" }}>
-          <span className="text-2xl shrink-0">🛡️</span>
+          <ShieldCheck size={22} strokeWidth={1.5} color={PRIMARY} className="shrink-0 mt-0.5" />
           <div>
             <p className="text-sm text-gray-900" style={{ fontWeight: 700 }}>레어리티 안전거래 적용 중</p>
             <p className="text-xs text-gray-500 mt-0.5 leading-relaxed" style={{ fontWeight: 400 }}>
@@ -558,7 +581,15 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
           {SIMILAR.map((c) => (
             <button key={c.id} onClick={() => router.push(`/card/${c.id}`)} className="shrink-0 w-24 text-left">
               <div className="bg-white rounded-xl h-24 flex items-center justify-center mb-1.5 border border-gray-100">
-                <span className="text-3xl">{c.emoji}</span>
+                <div className="w-12 h-[66px] rounded-lg bg-gray-50 flex flex-col overflow-hidden border border-gray-100">
+                  <div className="h-1 w-full" style={{ background: PRIMARY }} />
+                  <div className="flex-1 flex items-center justify-center">
+                    <span className="text-[8px] text-gray-200 select-none" style={{ fontWeight: 700 }}>TCG</span>
+                  </div>
+                  <div className="h-4 bg-gray-100 flex items-center justify-center">
+                    <span className="text-[7px] text-gray-400" style={{ fontWeight: 600 }}>{c.grade}</span>
+                  </div>
+                </div>
               </div>
               <p className="text-xs text-gray-900 truncate" style={{ fontWeight: 600 }}>{c.name}</p>
               <p className="text-xs text-gray-400" style={{ fontWeight: 400 }}>{c.grade}</p>
@@ -580,7 +611,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
           </button>
           <button className="flex-1 py-3 rounded-2xl border text-sm"
             style={{ borderColor: PRIMARY, color: PRIMARY, fontWeight: 700 }}>
-            💬 채팅하기
+            채팅하기
           </button>
         </div>
         <button className="w-full py-3.5 rounded-2xl text-white text-sm"

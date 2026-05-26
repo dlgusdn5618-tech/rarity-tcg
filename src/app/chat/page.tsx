@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Home, Search, Sparkles, MessageCircle, User, type LucideIcon } from "lucide-react";
+import { Home, Search, Sparkles, MessageCircle, User, Settings, type LucideIcon } from "lucide-react";
 
 const PRIMARY = "#E53E3E";
 
@@ -144,7 +144,7 @@ export default function ChatList() {
                 onClick={() => setShowSettings((v) => !v)}
                 className="p-1 -mr-1"
               >
-                <span className="text-xl">⚙️</span>
+                <Settings size={20} color="#374151" strokeWidth={1.5} />
               </button>
 
               {showSettings && (
@@ -256,10 +256,14 @@ export default function ChatList() {
             {/* 아바타 */}
             <div className="relative shrink-0">
               <div
-                className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-2xl transition-opacity"
-                style={{ opacity: selectMode && selectedIds.has(chat.id) ? 0.5 : 1 }}
+                className="w-12 h-12 rounded-full flex items-center justify-center text-sm text-white transition-opacity"
+                style={{
+                  background: "#E53E3E",
+                  opacity: selectMode && selectedIds.has(chat.id) ? 0.5 : 1,
+                  fontWeight: 700,
+                }}
               >
-                {chat.avatar}
+                {chat.user[0]}
               </div>
               {!selectMode && (
                 <span
@@ -300,7 +304,7 @@ export default function ChatList() {
 
       {filtered.length === 0 && !selectMode && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <span className="text-5xl mb-4">💬</span>
+          <MessageCircle size={48} strokeWidth={1} color="#d1d5db" className="mb-4" />
           <p className="text-gray-500 text-sm" style={{ fontWeight: 400 }}>아직 채팅이 없어요</p>
           <p className="text-gray-400 text-xs mt-1" style={{ fontWeight: 400 }}>마음에 드는 카드를 찾아 문의해보세요</p>
         </div>

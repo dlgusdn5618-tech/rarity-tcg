@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Home as HomeIcon, Search, Sparkles, MessageCircle, User, type LucideIcon } from "lucide-react";
+import { Home as HomeIcon, Search, Sparkles, MessageCircle, User, Bell, MapPin, Package, Star, RefreshCw, type LucideIcon } from "lucide-react";
 
 const PRIMARY = "#E53E3E";
 const PRIMARY_DARK = "#C53030";
@@ -28,7 +28,6 @@ const BANNERS = [
     sub: "전설의 카드들을 지금 만나보세요",
     bgFrom: "#E53E3E",
     bgTo: "#9B2C2C",
-    emoji: "🔥",
   },
   {
     id: 2,
@@ -37,7 +36,6 @@ const BANNERS = [
     sub: "시간 한정 특가 카드 모음",
     bgFrom: "#F6C90E",
     bgTo: "#D69E2E",
-    emoji: "⚡",
   },
   {
     id: 3,
@@ -46,40 +44,46 @@ const BANNERS = [
     sub: "원하는 카드와 바로 매칭",
     bgFrom: "#ED8936",
     bgTo: "#C05621",
-    emoji: "🔄",
   },
 ];
 
-const RECENT_CARDS: Record<string, { id: number; name: string; grade: string; price: number; emoji: string; condition: string }[]> = {
+const RECENT_CARDS: Record<string, { id: number; name: string; grade: string; price: number; condition: string }[]> = {
   홈: [
-    { id: 1, name: "리자몽 ex",     grade: "SR",  price: 85000,  emoji: "🔥", condition: "S급" },
-    { id: 2, name: "피카츄 ex",     grade: "SAR", price: 42000,  emoji: "⚡", condition: "A급" },
-    { id: 3, name: "뮤츠 ex",       grade: "UR",  price: 120000, emoji: "🌀", condition: "S급" },
-    { id: 4, name: "롤로노아 조로", grade: "SR",  price: 67000,  emoji: "⚔️", condition: "A급" },
-    { id: 5, name: "몽키 D. 루피",  grade: "SAR", price: 95000,  emoji: "👒", condition: "S급" },
+    { id: 1, name: "리자몽 ex",     grade: "SR",  price: 85000,  condition: "S급" },
+    { id: 2, name: "피카츄 ex",     grade: "SAR", price: 42000,  condition: "A급" },
+    { id: 3, name: "뮤츠 ex",       grade: "UR",  price: 120000, condition: "S급" },
+    { id: 4, name: "롤로노아 조로", grade: "SR",  price: 67000,  condition: "A급" },
+    { id: 5, name: "몽키 D. 루피",  grade: "SAR", price: 95000,  condition: "S급" },
   ],
   포켓몬: [
-    { id: 1, name: "리자몽 ex",  grade: "SR",  price: 85000,  emoji: "🔥", condition: "S급" },
-    { id: 2, name: "피카츄 ex",  grade: "SAR", price: 42000,  emoji: "⚡", condition: "A급" },
-    { id: 3, name: "뮤츠 ex",    grade: "UR",  price: 120000, emoji: "🌀", condition: "S급" },
-    { id: 4, name: "이상해꽃",   grade: "SR",  price: 38000,  emoji: "🌿", condition: "B급" },
-    { id: 5, name: "꼬부기 ex",  grade: "SR",  price: 55000,  emoji: "💧", condition: "A급" },
+    { id: 1, name: "리자몽 ex",  grade: "SR",  price: 85000,  condition: "S급" },
+    { id: 2, name: "피카츄 ex",  grade: "SAR", price: 42000,  condition: "A급" },
+    { id: 3, name: "뮤츠 ex",    grade: "UR",  price: 120000, condition: "S급" },
+    { id: 4, name: "이상해꽃",   grade: "SR",  price: 38000,  condition: "B급" },
+    { id: 5, name: "꼬부기 ex",  grade: "SR",  price: 55000,  condition: "A급" },
   ],
   원피스: [
-    { id: 1, name: "몽키 D. 루피",  grade: "SAR", price: 95000,  emoji: "👒", condition: "S급" },
-    { id: 2, name: "롤로노아 조로", grade: "SR",  price: 67000,  emoji: "⚔️", condition: "A급" },
-    { id: 3, name: "나미",          grade: "SR",  price: 45000,  emoji: "🍊", condition: "A급" },
-    { id: 4, name: "상디",          grade: "R",   price: 22000,  emoji: "🍳", condition: "B급" },
-    { id: 5, name: "에이스",        grade: "UR",  price: 130000, emoji: "🔥", condition: "S급" },
+    { id: 1, name: "몽키 D. 루피",  grade: "SAR", price: 95000,  condition: "S급" },
+    { id: 2, name: "롤로노아 조로", grade: "SR",  price: 67000,  condition: "A급" },
+    { id: 3, name: "나미",          grade: "SR",  price: 45000,  condition: "A급" },
+    { id: 4, name: "상디",          grade: "R",   price: 22000,  condition: "B급" },
+    { id: 5, name: "에이스",        grade: "UR",  price: 130000, condition: "S급" },
   ],
 };
 
 const NEWS = [
-  { id: 1, tag: "전시회",   tagColor: "bg-red-100 text-red-600",    title: "2026 포켓몬 카드 게임 공식 전시회", desc: "코엑스 B홀 · 6월 14일~16일",             emoji: "🏛️", bg: "bg-red-50"    },
-  { id: 2, tag: "신상 박스", tagColor: "bg-orange-100 text-orange-600", title: "\"페어리 킹덤\" 신규 박스 출시",  desc: "6월 7일 전국 동시 발매 · SR 3종 포함", emoji: "📦", bg: "bg-orange-50" },
-  { id: 3, tag: "이벤트",   tagColor: "bg-yellow-100 text-yellow-700", title: "포켓몬 월드 챔피언십 예선",        desc: "국내 예선 접수 시작 · 7월 5일 마감",   emoji: "🏆", bg: "bg-yellow-50" },
-  { id: 4, tag: "재판 소식", tagColor: "bg-green-100 text-green-700",  title: "스칼렛·바이올렛 151 재판 확정",   desc: "공식 발표 · 7월 중 재입고 예정",       emoji: "🔁", bg: "bg-green-50"  },
+  { id: 1, tag: "전시회",    tagColor: "bg-red-100 text-red-600",       iconColor: "#dc2626", title: "2026 포켓몬 카드 게임 공식 전시회", desc: "코엑스 B홀 · 6월 14일~16일",             bg: "bg-red-50"    },
+  { id: 2, tag: "신상 박스", tagColor: "bg-orange-100 text-orange-600", iconColor: "#ea580c", title: "\"페어리 킹덤\" 신규 박스 출시",    desc: "6월 7일 전국 동시 발매 · SR 3종 포함", bg: "bg-orange-50" },
+  { id: 3, tag: "이벤트",    tagColor: "bg-yellow-100 text-yellow-700", iconColor: "#a16207", title: "포켓몬 월드 챔피언십 예선",          desc: "국내 예선 접수 시작 · 7월 5일 마감",   bg: "bg-yellow-50" },
+  { id: 4, tag: "재판 소식", tagColor: "bg-green-100 text-green-700",   iconColor: "#15803d", title: "스칼렛·바이올렛 151 재판 확정",     desc: "공식 발표 · 7월 중 재입고 예정",       bg: "bg-green-50"  },
 ];
+
+const NEWS_ICONS: Record<string, typeof MapPin> = {
+  "전시회":   MapPin,
+  "신상 박스": Package,
+  "이벤트":   Star,
+  "재판 소식": RefreshCw,
+};
 
 export default function Home() {
   const router = useRouter();
@@ -119,7 +123,7 @@ export default function Home() {
         </div>
         <div className="flex items-center gap-3">
           <button className="relative">
-            <span className="text-xl">🔔</span>
+            <Bell size={20} color="#374151" strokeWidth={1.5} />
             <span
               className="absolute -top-1 -right-1 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center"
               style={{ background: PRIMARY, fontWeight: 700 }}
@@ -127,7 +131,7 @@ export default function Home() {
               3
             </span>
           </button>
-          <button><span className="text-xl">🔍</span></button>
+          <button><Search size={20} color="#374151" strokeWidth={1.5} /></button>
         </div>
       </header>
 
@@ -177,7 +181,6 @@ export default function Home() {
             </h2>
             <p className="text-white/80 text-xs mt-1" style={{ fontWeight: 300 }}>{banner.sub}</p>
           </div>
-          <div className="absolute top-4 right-5 text-6xl opacity-20">{banner.emoji}</div>
           <div className="absolute top-4 right-5 bg-black/20 text-white text-xs px-2 py-0.5 rounded-full" style={{ fontWeight: 500 }}>
             {bannerIdx + 1}/{BANNERS.length}
           </div>
@@ -189,32 +192,29 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 홍보 카드 — 후루츠와 완전히 다른 컨셉 */}
+      {/* 홍보 카드 */}
       <div className="px-4 pt-3">
         <div
-          className="rounded-2xl p-4 flex items-center justify-between overflow-hidden relative"
+          className="rounded-2xl p-4 flex items-center justify-between overflow-hidden"
           style={{ background: "linear-gradient(135deg, #FFF7ED, #FEF3C7)" }}
         >
-          <div className="z-10">
+          <div>
             <p className="text-gray-900 text-sm" style={{ fontWeight: 700 }}>
               중복 카드, 모아두지 말고
             </p>
             <p className="text-gray-900 text-sm" style={{ fontWeight: 700 }}>
-              지금 바로 현금으로 🎴
+              지금 바로 현금으로
             </p>
             <p className="text-gray-500 text-xs mt-1.5" style={{ fontWeight: 400 }}>등록 무료 · 팔릴 때만 수수료</p>
           </div>
-          <div className="flex flex-col items-center shrink-0 z-10">
-            <span className="text-4xl">💰</span>
+          <div>
             <span
-              className="text-xs text-white px-2 py-0.5 rounded-full mt-1"
+              className="text-xs text-white px-3 py-1.5 rounded-full"
               style={{ background: PRIMARY, fontWeight: 700 }}
             >
               지금 팔기
             </span>
           </div>
-          {/* 배경 장식 */}
-          <div className="absolute -right-4 -bottom-4 text-8xl opacity-10 select-none">🎴</div>
         </div>
       </div>
 
@@ -227,11 +227,16 @@ export default function Home() {
         <div className="flex gap-3 px-4 overflow-x-auto scrollbar-none pb-2">
           {RECENT_CARDS[activeCategory].map((card) => (
             <div key={card.id} className="shrink-0 w-28 cursor-pointer" onClick={() => router.push(`/card/${card.id}`)}>
-              <div className="bg-gray-100 rounded-xl h-28 flex items-center justify-center mb-2 relative">
-                <span className="text-4xl">{card.emoji}</span>
-                <span className="absolute top-1.5 left-1.5 text-[10px] bg-white/90 text-gray-600 px-1.5 py-0.5 rounded-md" style={{ fontWeight: 500 }}>
-                  {card.grade}
-                </span>
+              <div className="bg-gray-100 rounded-xl h-28 flex items-center justify-center mb-2">
+                <div className="w-14 h-[78px] rounded-lg bg-white shadow-sm flex flex-col overflow-hidden border border-gray-200">
+                  <div className="h-1.5 w-full" style={{ background: PRIMARY }} />
+                  <div className="flex-1 flex items-center justify-center">
+                    <span className="text-[9px] text-gray-200 select-none" style={{ fontWeight: 700 }}>TCG</span>
+                  </div>
+                  <div className="h-5 bg-gray-50 flex items-center justify-center border-t border-gray-100">
+                    <span className="text-[9px] text-gray-500" style={{ fontWeight: 700 }}>{card.grade}</span>
+                  </div>
+                </div>
               </div>
               <p className="text-xs text-gray-900 truncate" style={{ fontWeight: 600 }}>{card.name}</p>
               <p className="text-xs text-gray-400" style={{ fontWeight: 400 }}>{card.condition}</p>
@@ -241,30 +246,35 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 포켓몬 소식 */}
+      {/* 카드 소식 */}
       <div className="pt-6 pb-2">
         <div className="flex items-center justify-between px-4 mb-3">
           <h3 className="text-gray-900" style={{ fontWeight: 700 }}>카드 소식</h3>
           <button className="text-gray-400 text-sm" style={{ fontWeight: 400 }}>›</button>
         </div>
         <div className="flex flex-col gap-2 px-4">
-          {NEWS.map((item) => (
-            <div key={item.id} className={`${item.bg} rounded-2xl p-4 flex items-center gap-3 cursor-pointer active:opacity-80`}>
-              <div className="text-3xl w-10 text-center shrink-0">{item.emoji}</div>
-              <div className="flex-1 min-w-0">
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-md inline-block mb-1 ${item.tagColor}`} style={{ fontWeight: 600 }}>
-                  {item.tag}
-                </span>
-                <p className="text-sm text-gray-900 leading-snug truncate" style={{ fontWeight: 600 }}>{item.title}</p>
-                <p className="text-xs text-gray-500 mt-0.5" style={{ fontWeight: 400 }}>{item.desc}</p>
+          {NEWS.map((item) => {
+            const NewsIcon = NEWS_ICONS[item.tag];
+            return (
+              <div key={item.id} className={`${item.bg} rounded-2xl p-4 flex items-center gap-3 cursor-pointer active:opacity-80`}>
+                <div className="w-10 h-10 rounded-xl bg-white/60 flex items-center justify-center shrink-0">
+                  {NewsIcon && <NewsIcon size={20} strokeWidth={1.5} color={item.iconColor} />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-md inline-block mb-1 ${item.tagColor}`} style={{ fontWeight: 600 }}>
+                    {item.tag}
+                  </span>
+                  <p className="text-sm text-gray-900 leading-snug truncate" style={{ fontWeight: 600 }}>{item.title}</p>
+                  <p className="text-xs text-gray-500 mt-0.5" style={{ fontWeight: 400 }}>{item.desc}</p>
+                </div>
+                <span className="text-gray-300 text-lg shrink-0">›</span>
               </div>
-              <span className="text-gray-300 text-lg shrink-0">›</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
-      {/* + 판매 플로팅 버튼 — 앱 프레임(max-w-sm) 기준 우하단 */}
+      {/* + 판매 플로팅 버튼 */}
       <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-sm px-4 pointer-events-none z-10">
         <button
           onClick={() => router.push("/sell")}

@@ -187,8 +187,11 @@ export default function TradesPage() {
               <div className="flex items-center gap-2">
                 {/* 내 카드 */}
                 <div className="flex-1 bg-gray-50 rounded-xl p-3 flex items-center gap-2">
-                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-xl shrink-0">
-                    {trade.myCard.emoji}
+                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex flex-col overflow-hidden shrink-0 border border-gray-200">
+                    <div className="h-1 w-full" style={{ background: "#E53E3E" }} />
+                    <div className="flex-1 flex items-center justify-center">
+                      <span className="text-[10px] text-gray-600 leading-none" style={{ fontWeight: 700 }}>{trade.myCard.grade}</span>
+                    </div>
                   </div>
                   <div className="min-w-0">
                     <p className="text-[10px] text-gray-400" style={{ fontWeight: 400 }}>내 카드</p>
@@ -214,8 +217,11 @@ export default function TradesPage() {
 
                 {/* 상대방 카드 */}
                 <div className="flex-1 bg-gray-50 rounded-xl p-3 flex items-center gap-2">
-                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-xl shrink-0">
-                    {trade.theirCard.emoji}
+                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex flex-col overflow-hidden shrink-0 border border-gray-200">
+                    <div className="h-1 w-full" style={{ background: "#E53E3E" }} />
+                    <div className="flex-1 flex items-center justify-center">
+                      <span className="text-[10px] text-gray-600 leading-none" style={{ fontWeight: 700 }}>{trade.theirCard.grade}</span>
+                    </div>
                   </div>
                   <div className="min-w-0">
                     <p className="text-[10px] text-gray-400" style={{ fontWeight: 400 }}>상대 카드</p>

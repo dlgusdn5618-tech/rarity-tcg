@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Package, Truck, Users, Lock, CreditCard, Ban, LogOut } from "lucide-react";
 
 const PRIMARY = "#E53E3E";
 
@@ -133,8 +134,8 @@ export default function ChatRoom({ params }: { params: { id: string } }) {
       {/* 헤더 */}
       <header className="flex items-center gap-3 px-4 pt-5 pb-3 bg-white border-b border-gray-100 shrink-0">
         <button onClick={() => router.push("/chat")} className="text-gray-700 text-xl">‹</button>
-        <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-xl shrink-0">
-          {chat.avatar}
+        <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm text-white shrink-0" style={{ background: "#E53E3E", fontWeight: 700 }}>
+          {chat.user[0]}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm text-gray-900 leading-none" style={{ fontWeight: 700 }}>{chat.user}</p>
@@ -160,21 +161,21 @@ export default function ChatRoom({ params }: { params: { id: string } }) {
                   className="w-full flex items-center gap-2.5 px-4 py-3.5 border-b border-gray-100 active:bg-gray-50"
                   onClick={() => { setShowMenu(false); router.push("/card/1"); }}
                 >
-                  <span className="text-base">🎴</span>
+                  <CreditCard size={16} color="#374151" strokeWidth={1.5} />
                   <span className="text-sm text-gray-800" style={{ fontWeight: 500 }}>거래 카드 보기</span>
                 </button>
                 <button
                   className="w-full flex items-center gap-2.5 px-4 py-3.5 border-b border-gray-100 active:bg-gray-50"
                   onClick={() => { setShowMenu(false); }}
                 >
-                  <span className="text-base">🚫</span>
+                  <Ban size={16} color="#374151" strokeWidth={1.5} />
                   <span className="text-sm text-gray-800" style={{ fontWeight: 500 }}>사용자 차단</span>
                 </button>
                 <button
                   className="w-full flex items-center gap-2.5 px-4 py-3.5 active:bg-red-50"
                   onClick={() => { setShowMenu(false); setShowLeaveConfirm(true); }}
                 >
-                  <span className="text-base">🚪</span>
+                  <LogOut size={16} color={PRIMARY} strokeWidth={1.5} />
                   <span className="text-sm" style={{ fontWeight: 600, color: PRIMARY }}>채팅방 나가기</span>
                 </button>
               </div>
@@ -188,8 +189,11 @@ export default function ChatRoom({ params }: { params: { id: string } }) {
         className="mx-4 mt-3 rounded-2xl p-3 flex items-center gap-3 shrink-0"
         style={{ background: "#fef9f9", border: "1px solid #fee2e2" }}
       >
-        <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-2xl shrink-0">
-          {chat.cardEmoji}
+        <div className="w-12 h-12 rounded-xl bg-gray-100 flex flex-col overflow-hidden shrink-0 border border-gray-200">
+          <div className="h-1.5 w-full" style={{ background: "#E53E3E" }} />
+          <div className="flex-1 flex items-center justify-center">
+            <span className="text-[8px] text-gray-300 select-none" style={{ fontWeight: 700 }}>TCG</span>
+          </div>
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-xs text-gray-400" style={{ fontWeight: 500 }}>{chat.grade}</p>
@@ -215,8 +219,8 @@ export default function ChatRoom({ params }: { params: { id: string } }) {
             className={`flex items-end gap-2 ${msg.from === "me" ? "flex-row-reverse" : "flex-row"}`}
           >
             {msg.from === "them" && (
-              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-base shrink-0">
-                {chat.avatar}
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs text-white shrink-0" style={{ background: "#6b7280", fontWeight: 700 }}>
+                {chat.user[0]}
               </div>
             )}
             <div className={`flex flex-col ${msg.from === "me" ? "items-end" : "items-start"}`}>
@@ -306,10 +310,10 @@ export default function ChatRoom({ params }: { params: { id: string } }) {
             <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
             <h3 className="text-base text-gray-900 mb-4" style={{ fontWeight: 700 }}>거래 방식 선택</h3>
             {[
-              { icon: "📦", label: "택배 거래",      desc: "판매자 → 구매자 택배 발송" },
-              { icon: "🚚", label: "반값 택배",       desc: "CJ대한통운 반값 택배 이용" },
-              { icon: "🤝", label: "직거래",          desc: "직접 만나서 거래" },
-              { icon: "🔒", label: "안전거래",        desc: "플랫폼 보호 · 수수료 3%" },
+              { Icon: Package, label: "택배 거래",  desc: "판매자 → 구매자 택배 발송" },
+              { Icon: Truck,   label: "반값 택배",  desc: "CJ대한통운 반값 택배 이용" },
+              { Icon: Users,   label: "직거래",     desc: "직접 만나서 거래" },
+              { Icon: Lock,    label: "안전거래",   desc: "플랫폼 보호 · 수수료 3%" },
             ].map((opt) => (
               <button
                 key={opt.label}
@@ -321,14 +325,14 @@ export default function ChatRoom({ params }: { params: { id: string } }) {
                     {
                       id: prev.length + 1,
                       from: "me",
-                      text: `[거래 제안] ${opt.label}으로 거래 희망합니다 😊`,
+                      text: `[거래 제안] ${opt.label}으로 거래 희망합니다`,
                       time: new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" }),
                     },
                   ]);
                   setShowOffer(false);
                 }}
               >
-                <span className="text-2xl">{opt.icon}</span>
+                <opt.Icon size={22} strokeWidth={1.5} color="#374151" />
                 <div className="text-left">
                   <p className="text-sm text-gray-900" style={{ fontWeight: 600 }}>{opt.label}</p>
                   <p className="text-xs text-gray-400" style={{ fontWeight: 400 }}>{opt.desc}</p>

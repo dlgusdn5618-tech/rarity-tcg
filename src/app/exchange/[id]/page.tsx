@@ -33,9 +33,7 @@ const ESCROW_STEPS = (currentStep: number): ExchangeStep[] => [
 
 type Params = { id: string };
 
-// id will be used for API call after Supabase integration
 function ExchangeDetailInner({ id }: { id: string }) {
-  void id;
   const router = useRouter();
   const searchParams = useSearchParams();
   const method = searchParams.get("method") ?? "face";
@@ -101,6 +99,26 @@ function ExchangeDetailInner({ id }: { id: string }) {
           <p className="text-xs text-gray-400" style={{ fontWeight: 400 }}>상대방</p>
           <p className="text-xs text-gray-700" style={{ fontWeight: 600 }}>{partner.name}</p>
         </div>
+      </div>
+
+      {/* 교환 조건 확정서 진입 */}
+      <div className="bg-white mt-2 px-4 py-4 border-b border-gray-50">
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-xs text-gray-700" style={{ fontWeight: 600 }}>교환 조건 확정서</p>
+          <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "#f3f4f6", color: "#6b7280", fontWeight: 600 }}>
+            조율 중
+          </span>
+        </div>
+        <p className="text-[11px] text-gray-400 mb-3" style={{ fontWeight: 400 }}>
+          카드 정보, 추가금, 배송 조건을 확정하면 분쟁 시 기준이 됩니다.
+        </p>
+        <button
+          onClick={() => router.push(`/exchange/${id}/agreement?status=DRAFT`)}
+          className="w-full py-2.5 rounded-xl text-xs border"
+          style={{ borderColor: "#e5e7eb", color: "#374151", fontWeight: 600 }}
+        >
+          확정서 작성하기
+        </button>
       </div>
 
       {/* 진행도 */}

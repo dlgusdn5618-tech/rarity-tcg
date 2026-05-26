@@ -58,14 +58,41 @@ export default function SellPage() {
 
   const GRADES: Record<string, string[]> = {
     PSA: ["10", "9", "8", "7", "6", "5", "4", "3", "2", "1"],
-    BGS: ["10", "9.5", "9", "8.5", "8", "7.5", "7", "6.5", "6"],
-    CGC: ["10", "9.5", "9", "8.5", "8", "7.5", "7", "6.5", "6"],
+    BGS: ["Black Label 10", "Pristine 10", "9.5", "9", "8.5", "8", "7.5", "7", "6.5", "6"],
+    CGC: ["Pristine 10", "Gem Mint 10", "9.5", "9", "8.5", "8", "7.5", "7", "6.5", "6"],
     BRG: ["10", "9", "8", "7", "6", "5", "4", "3", "2", "1"],
   };
 
   const handleGradingCo = (co: string) => {
     setGradingCo(co);
     setGrade(GRADES[co][0]);
+  };
+
+  const getGradeStyle = (co: string, g: string, selected: boolean) => {
+    if (co === "BGS" && g === "Black Label 10") return {
+      background: "#111111",
+      color: "#F6C90E",
+      border: "1.5px solid #111111",
+      fontWeight: 700,
+    };
+    if (g === "Pristine 10") return {
+      background: selected ? "#d97706" : "#fef3c7",
+      color: selected ? "white" : "#d97706",
+      border: "1.5px solid #d97706",
+      fontWeight: 700,
+    };
+    if (co === "CGC" && g === "Gem Mint 10") return {
+      background: selected ? "#3b82f6" : "#eff6ff",
+      color: selected ? "white" : "#3b82f6",
+      border: "1.5px solid #3b82f6",
+      fontWeight: 700,
+    };
+    return {
+      background: selected ? PRIMARY : "white",
+      color: selected ? "white" : "#374151",
+      border: `1.5px solid ${selected ? PRIMARY : "#e5e7eb"}`,
+      fontWeight: selected ? 700 : 500,
+    };
   };
 
   // 입력값이 품번인지 감지
@@ -518,12 +545,7 @@ export default function SellPage() {
                             key={g}
                             onClick={() => setGrade(g)}
                             className="px-3 py-1.5 rounded-lg text-xs transition-all"
-                            style={{
-                              background: grade === g ? PRIMARY : "white",
-                              color: grade === g ? "white" : "#374151",
-                              border: `1.5px solid ${grade === g ? PRIMARY : "#e5e7eb"}`,
-                              fontWeight: grade === g ? 700 : 500,
-                            }}
+                            style={getGradeStyle(gradingCo, g, grade === g)}
                           >
                             {g}
                           </button>

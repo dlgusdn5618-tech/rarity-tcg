@@ -50,12 +50,11 @@ const DEFAULT_SETTINGS: Record<ToggleKeys, boolean> = {
 
 export default function NotificationsPage() {
   const router = useRouter();
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
-
-  useEffect(() => {
+  const [settings, setSettings] = useState(() => {
+    if (typeof window === "undefined") return DEFAULT_SETTINGS;
     const saved = localStorage.getItem("notif_settings");
-    if (saved) setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(saved) });
-  }, []);
+    return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
+  });
 
   function toggle(key: ToggleKeys) {
     setSettings((prev) => {

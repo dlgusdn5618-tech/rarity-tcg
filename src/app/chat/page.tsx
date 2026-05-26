@@ -43,17 +43,16 @@ export default function ChatList() {
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
 
   // 알림 토글 — localStorage 저장
-  const [notifMsg, setNotifMsg] = useState(true);
-  const [notifVibrate, setNotifVibrate] = useState(true);
-
-  useEffect(() => {
+  const [notifMsg, setNotifMsg] = useState(() => {
+    if (typeof window === "undefined") return true;
     const saved = localStorage.getItem("chat_settings");
-    if (saved) {
-      const p = JSON.parse(saved);
-      setNotifMsg(p.notifMsg ?? true);
-      setNotifVibrate(p.notifVibrate ?? true);
-    }
-  }, []);
+    return saved ? (JSON.parse(saved).notifMsg ?? true) : true;
+  });
+  const [notifVibrate, setNotifVibrate] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const saved = localStorage.getItem("chat_settings");
+    return saved ? (JSON.parse(saved).notifVibrate ?? true) : true;
+  });
 
   function saveToggle(key: string, value: boolean) {
     const prev = JSON.parse(localStorage.getItem("chat_settings") ?? "{}");

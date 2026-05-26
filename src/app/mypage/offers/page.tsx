@@ -203,7 +203,7 @@ export default function OffersPage() {
                   className="mt-3 px-3 py-2 rounded-xl text-xs text-gray-500"
                   style={{ background: "#f9fafb", fontWeight: 400 }}
                 >
-                  "{offer.message}"
+                  &ldquo;{offer.message}&rdquo;
                 </div>
               )}
 

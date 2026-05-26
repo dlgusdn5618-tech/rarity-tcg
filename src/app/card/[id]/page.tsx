@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect, use } from "react";
+import { Shield } from "lucide-react";
 
 const PRIMARY = "#E53E3E";
 
@@ -16,6 +17,29 @@ const RARITY_KO: Record<string, string> = {
   "Hyper Rare": "UR",
 };
 
+type PassportData = {
+  tcg: string; rarity: string; language: string; distribution: string;
+  condition: string; grade: string; photoVerified: boolean; safeTrade: boolean;
+  pricePosition: string; scarcity: string; cardId: string;
+};
+
+const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
+  TROPHY: { bg: "#111111", color: "#F6C90E" },
+  SAR:    { bg: "#fff8e6", color: "#b45309" },
+  UR:     { bg: "#f3e8ff", color: "#7c3aed" },
+  PROMO:  { bg: "#eff6ff", color: "#2563eb" },
+  SR:     { bg: "#fff5f5", color: "#dc2626" },
+  IR:     { bg: "#f0fdfa", color: "#0d9488" },
+  RR:     { bg: "#f8fafc", color: "#475569" },
+};
+
+const SCARCITY_COLOR: Record<string, string> = {
+  Grail:  "#b45309",
+  High:   "#2563eb",
+  Rare:   "#0d9488",
+  Common: "#9ca3af",
+};
+
 const TYPE_EMOJI: Record<string, string> = {
   Fire: "🔥", Water: "💧", Grass: "🌿", Lightning: "⚡",
   Psychic: "🔮", Fighting: "👊", Darkness: "🌑", Metal: "⚙️",
@@ -28,6 +52,7 @@ const CARD_DB: Record<string, {
   seller: string; sellerGrade: string; sellerTrades: number;
   desc: string; priceHistory: number[];
   tradeType: "parcel" | "half" | "direct" | "safe";
+  passport: PassportData;
 }> = {
   "1": {
     apiId: "sv3pt5-183", nameKo: "리자몽 ex", name: "Charizard ex",
@@ -37,6 +62,11 @@ const CARD_DB: Record<string, {
     desc: "구입 후 슬리브 보관. 모서리·표면 흠집 전혀 없음. 직거래 가능(강남).",
     priceHistory: [72000, 75000, 78000, 76000, 82000, 85000],
     tradeType: "safe",
+    passport: {
+      tcg: "Pokemon", rarity: "SAR", language: "Japanese", distribution: "Booster Set",
+      condition: "Near Mint", grade: "PSA 10", photoVerified: true, safeTrade: true,
+      pricePosition: "30D Top 18%", scarcity: "Grail", cardId: "SV3pt5-183",
+    },
   },
   "2": {
     apiId: "sv3pt5-173", nameKo: "피카츄 ex", name: "Pikachu",
@@ -46,6 +76,11 @@ const CARD_DB: Record<string, {
     desc: "개봉 직후 슬리브 보관. 아주 미세한 표면 광택 차이 있으나 육안으로 식별 어려움.",
     priceHistory: [38000, 39000, 40000, 41000, 40000, 42000],
     tradeType: "parcel",
+    passport: {
+      tcg: "Pokemon", rarity: "SAR", language: "Korean", distribution: "Booster Set",
+      condition: "Excellent", grade: "Ungraded", photoVerified: false, safeTrade: false,
+      pricePosition: "Fair Price", scarcity: "High", cardId: "SV3pt5-173",
+    },
   },
   "3": {
     apiId: "sv3pt5-205", nameKo: "뮤츠 ex", name: "Mew ex",
@@ -55,6 +90,11 @@ const CARD_DB: Record<string, {
     desc: "PSA 9 등급 상당 컨디션. 완전 민트. 하드케이스 보관 중.",
     priceHistory: [105000, 108000, 112000, 110000, 118000, 120000],
     tradeType: "safe",
+    passport: {
+      tcg: "Pokemon", rarity: "UR", language: "Japanese", distribution: "Booster Set",
+      condition: "Near Mint", grade: "Ungraded", photoVerified: true, safeTrade: true,
+      pricePosition: "30D Top 5%", scarcity: "Grail", cardId: "SV3pt5-205",
+    },
   },
 };
 
@@ -85,6 +125,131 @@ type ApiSpec = {
   setTotal: number; releaseDate: string; artist: string;
   regulationMark: string; rarity: string; image: string;
 } | null;
+
+function CardPassport({ name, data }: { name: string; data: PassportData }) {
+  const chip = RARITY_CHIP[data.rarity] ?? { bg: "#f9fafb", color: "#6b7280" };
+
+  const row1 = [
+    { label: "Language",  value: data.language     },
+    { label: "Distrib.",  value: data.distribution },
+    { label: "Grade",     value: data.grade        },
+  ];
+  const row2 = [
+    { label: "Condition", value: data.condition,     accent: undefined                        },
+    { label: "Market",    value: data.pricePosition, accent: undefined                        },
+    { label: "Scarcity",  value: data.scarcity,      accent: SCARCITY_COLOR[data.scarcity]   },
+  ];
+
+  return (
+    <div className="rounded-lg overflow-hidden" style={{ border: "1px solid #e5e7eb" }}>
+
+      {/* Header */}
+      <div
+        className="flex items-center justify-between px-4 py-2.5"
+        style={{ background: "#f9fafb", borderBottom: "1px solid #e5e7eb" }}
+      >
+        <span className="text-[10px] text-gray-900" style={{ fontWeight: 700, letterSpacing: "0.12em" }}>
+          CARD PASSPORT
+        </span>
+        <span className="text-[10px] text-gray-400" style={{ fontWeight: 500, letterSpacing: "0.08em" }}>
+          RARITY ID
+        </span>
+      </div>
+
+      {/* Card name + rarity chip */}
+      <div
+        className="flex items-start justify-between px-4 py-3"
+        style={{ borderBottom: "1px solid #f3f4f6" }}
+      >
+        <div>
+          <p className="text-[9px] text-gray-400 uppercase mb-1" style={{ fontWeight: 500, letterSpacing: "0.1em" }}>
+            Card Name
+          </p>
+          <p className="text-sm text-gray-900" style={{ fontWeight: 700 }}>{name}</p>
+        </div>
+        <span
+          className="text-[11px] px-2.5 py-1 rounded shrink-0 ml-3"
+          style={{ background: chip.bg, color: chip.color, fontWeight: 700, border: `1px solid ${chip.color}33` }}
+        >
+          {data.rarity}
+        </span>
+      </div>
+
+      {/* Row 1 */}
+      <div className="grid grid-cols-3" style={{ borderBottom: "1px solid #f3f4f6" }}>
+        {row1.map((f, i) => (
+          <div
+            key={f.label}
+            className="px-3 py-3"
+            style={{ borderRight: i < 2 ? "1px solid #f3f4f6" : "none" }}
+          >
+            <p className="text-[9px] text-gray-400 uppercase mb-1" style={{ fontWeight: 500, letterSpacing: "0.08em" }}>
+              {f.label}
+            </p>
+            <p className="text-xs text-gray-900" style={{ fontWeight: 600 }}>{f.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Row 2 */}
+      <div className="grid grid-cols-3" style={{ borderBottom: "1px solid #f3f4f6" }}>
+        {row2.map((f, i) => (
+          <div
+            key={f.label}
+            className="px-3 py-3"
+            style={{ borderRight: i < 2 ? "1px solid #f3f4f6" : "none" }}
+          >
+            <p className="text-[9px] text-gray-400 uppercase mb-1" style={{ fontWeight: 500, letterSpacing: "0.08em" }}>
+              {f.label}
+            </p>
+            <p className="text-xs" style={{ fontWeight: 600, color: f.accent ?? "#111111" }}>{f.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Tags */}
+      <div className="flex flex-wrap items-center gap-1.5 px-4 py-3">
+        {data.photoVerified && (
+          <span
+            className="text-[10px] px-2 py-0.5 rounded"
+            style={{ background: "#f0fdf4", color: "#16a34a", fontWeight: 600, border: "1px solid #bbf7d0" }}
+          >
+            Photo Verified
+          </span>
+        )}
+        {data.safeTrade && (
+          <span
+            className="text-[10px] px-2 py-0.5 rounded inline-flex items-center gap-1"
+            style={{ background: "#fff5f5", color: "#dc2626", fontWeight: 600, border: "1px solid #fecaca" }}
+          >
+            <Shield size={9} strokeWidth={2.5} />
+            Safe Trade
+          </span>
+        )}
+        {data.grade !== "Ungraded" && (
+          <span
+            className="text-[10px] px-2 py-0.5 rounded"
+            style={{ background: "#f9fafb", color: "#374151", fontWeight: 600, border: "1px solid #e5e7eb" }}
+          >
+            {data.grade}
+          </span>
+        )}
+        <span
+          className="text-[10px] px-2 py-0.5 rounded"
+          style={{ background: chip.bg, color: chip.color, fontWeight: 600, border: `1px solid ${chip.color}33` }}
+        >
+          {data.rarity}
+        </span>
+        <span
+          className="text-[10px] px-2 py-0.5 rounded"
+          style={{ background: "#f9fafb", color: "#9ca3af", fontWeight: 400, border: "1px solid #e5e7eb", fontFamily: "monospace" }}
+        >
+          #{data.cardId}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export default function CardDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -190,6 +355,11 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
             <p className="text-xs text-gray-400 mt-0.5">❤️ {likeCount.toLocaleString()}</p>
           </div>
         </div>
+      </div>
+
+      {/* Card Passport */}
+      <div className="mx-4 mt-3">
+        <CardPassport name={card.name} data={card.passport} />
       </div>
 
       {/* ① 거래 방식 선택 */}

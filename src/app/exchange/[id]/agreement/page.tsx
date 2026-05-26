@@ -61,6 +61,7 @@ type ExchangeAgreement = {
   confirmedAt: string | null;
   myConfirmed: boolean;
   partnerConfirmed: boolean;
+  requestedBy: "me" | "partner" | null;
 };
 
 // ── Status config ────────────────────────────────────────────────
@@ -78,7 +79,7 @@ const STATUS_CONFIG: Record<
   PENDING_CONFIRMATION: {
     label: "확정 대기",
     bg: "#fffbeb", color: "#d97706",
-    banner: "포켓마스터가 확정을 요청했습니다. 내용을 확인하고 동의하면 교환 조건이 고정됩니다.",
+    banner: "",   // 동적 문구 — AgreementInner에서 requestedBy 기준으로 처리
     bannerBg: "#fffbeb", bannerColor: "#92400e",
   },
   CONFIRMED: {
@@ -220,7 +221,8 @@ const MOCK: ExchangeAgreement = {
   },
   confirmedAt: null,
   myConfirmed: false,
-  partnerConfirmed: true,
+  partnerConfirmed: false,
+  requestedBy: null,
 };
 
 // ── Sub-components ───────────────────────────────────────────────
@@ -382,37 +384,76 @@ function AgreementInner({ id }: { id: string }) {
   const [agreement, setAgreement] = useState<ExchangeAgreement>({
     ...MOCK,
     status: initialStatus,
-    myConfirmed: initialStatus === "CONFIRMED",
-    partnerConfirmed: initialStatus === "CONFIRMED" || initialStatus === "PENDING_CONFIRMATION",
-    confirmedAt: initialStatus === "CONFIRMED" ? "2026.05.26 14:23" : null,
+    // URL query로 진입 시: PENDING_CONFIRMATION = 상대방이 요청한 상태로 초기화
+    requestedBy: initialStatus === "PENDING_CONFIRMATION" ? "partner"
+               : initialStatus === "CONFIRMED"            ? "partner"
+               : null,
+    myConfirmed:     initialStatus === "CONFIRMED",
+    partnerConfirmed: initialStatus === "CONFIRMED",
+    confirmedAt:     initialStatus === "CONFIRMED" ? "2026.05.26 14:23" : null,
   });
 
   // ── Derived validation state ─────────────────────────────────
   const missingRequirements = computeMissingRequirements(agreement);
   const canConfirm = missingRequirements.length === 0;
 
-  const cfg = STATUS_CONFIG[agreement.status];
-  const isLocked     = agreement.status === "CONFIRMED";
-  const isTerminated = agreement.status === "CANCELLED" || agreement.status === "DISPUTED";
-  const needsAction  = agreement.status === "DRAFT"
+  const cfg           = STATUS_CONFIG[agreement.status];
+  const isLocked      = agreement.status === "CONFIRMED";
+  const isTerminated  = agreement.status === "CANCELLED" || agreement.status === "DISPUTED";
+  const needsAction   = agreement.status === "DRAFT"
     || agreement.status === "PENDING_CONFIRMATION"
     || agreement.status === "CHANGE_REQUESTED";
 
+  // PENDING_CONFIRMATION 배너는 requestedBy에 따라 동적으로 결정
+  const bannerText = agreement.status === "PENDING_CONFIRMATION"
+    ? agreement.requestedBy === "me"
+      ? "상대방의 확인을 기다리고 있어요. 상대방이 동의하면 교환 조건이 고정됩니다."
+      : "상대방이 확정을 요청했습니다. 내용을 확인하고 동의하면 교환 조건이 고정됩니다."
+    : cfg.banner;
+
+  // ── 핸들러 ────────────────────────────────────────────────────
   function handleConfirmRequest() {
     if (!canConfirm) return;
-    setAgreement((p) => ({ ...p, status: "PENDING_CONFIRMATION", myConfirmed: true }));
-  }
-
-  function handleConfirm() {
-    if (!canConfirm) return;
     setAgreement((p) => ({
-      ...p, status: "CONFIRMED",
-      myConfirmed: true, partnerConfirmed: true, confirmedAt: "2026.05.26 14:23",
+      ...p,
+      status: "PENDING_CONFIRMATION",
+      requestedBy: "me",
+      myConfirmed: true,
+      partnerConfirmed: false,
     }));
   }
 
+  // 상대방이 요청한 경우에만 내가 확정할 수 있음
+  function handleConfirm() {
+    if (!canConfirm || agreement.requestedBy !== "partner") return;
+    setAgreement((p) => ({
+      ...p,
+      status: "CONFIRMED",
+      myConfirmed: true,
+      partnerConfirmed: true,
+      confirmedAt: "2026.05.26 14:23",
+    }));
+  }
+
+  // 거절: DRAFT로 복귀, 요청 정보 초기화
   function handleReject() {
-    setAgreement((p) => ({ ...p, status: "DRAFT", myConfirmed: false, partnerConfirmed: false }));
+    setAgreement((p) => ({
+      ...p,
+      status: "DRAFT",
+      requestedBy: null,
+      myConfirmed: false,
+      partnerConfirmed: false,
+    }));
+  }
+
+  // 내가 보낸 요청 취소
+  function handleCancelRequest() {
+    setAgreement((p) => ({
+      ...p,
+      status: "DRAFT",
+      requestedBy: null,
+      myConfirmed: false,
+    }));
   }
 
   const { myCard, partnerCard, terms } = agreement;
@@ -433,7 +474,7 @@ function AgreementInner({ id }: { id: string }) {
       {/* 상태 배너 */}
       <div className="px-4 py-3.5 border-b border-gray-100" style={{ background: cfg.bannerBg }}>
         <p className="text-[11px]" style={{ color: cfg.bannerColor, fontWeight: 400, lineHeight: 1.65 }}>
-          {cfg.banner}
+          {bannerText}
         </p>
         {isLocked && agreement.confirmedAt && (
           <p className="text-[10px] mt-1.5" style={{ color: "#9ca3af", fontWeight: 400 }}>
@@ -595,7 +636,26 @@ function AgreementInner({ id }: { id: string }) {
           </button>
         )}
 
-        {agreement.status === "PENDING_CONFIRMATION" && (
+        {agreement.status === "PENDING_CONFIRMATION" && agreement.requestedBy === "me" && (
+          <div className="flex gap-2">
+            <button
+              onClick={handleCancelRequest}
+              className="flex-1 py-3.5 rounded-2xl text-sm border"
+              style={{ borderColor: "#e5e7eb", color: "#374151", fontWeight: 600 }}
+            >
+              요청 취소
+            </button>
+            <button
+              onClick={() => router.push("/chat")}
+              className="flex-1 py-3.5 rounded-2xl text-sm border"
+              style={{ borderColor: "#374151", color: "#374151", fontWeight: 600 }}
+            >
+              채팅하기
+            </button>
+          </div>
+        )}
+
+        {agreement.status === "PENDING_CONFIRMATION" && agreement.requestedBy === "partner" && (
           <div className="flex gap-2">
             <button
               onClick={handleReject}

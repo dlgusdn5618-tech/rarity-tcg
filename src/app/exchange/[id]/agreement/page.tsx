@@ -217,7 +217,7 @@ const MOCK: ExchangeAgreement = {
     depositRequired: true,
     depositAmount: 85000,
     inspectionCenterRequired: false,
-    disputeHandling: "레어리티 중재",
+    disputeHandling: "레어리티 분쟁 처리 지원",
   },
   confirmedAt: null,
   myConfirmed: false,
@@ -578,7 +578,7 @@ function AgreementInner({ id }: { id: string }) {
             </div>
           </div>
           <p className="text-[10px] text-gray-400 mt-3 text-center" style={{ fontWeight: 400 }}>
-            이 확정서는 분쟁 발생 시 레어리티 중재의 기준이 됩니다
+            이 확정서는 분쟁 발생 시 증빙 자료로 활용됩니다
           </p>
         </div>
       )}
@@ -610,9 +610,8 @@ function AgreementInner({ id }: { id: string }) {
         <div className="flex items-start gap-2">
           <Shield size={12} color="#9ca3af" strokeWidth={1.5} className="shrink-0 mt-0.5" />
           <p className="text-[10px] text-gray-400" style={{ fontWeight: 400, lineHeight: 1.65 }}>
-            본 확정서는 이용자 간 자율 합의 기록입니다. 레어리티는 「전자상거래 등에서의 소비자보호에 관한 법률」에 따른
-            통신판매중개업자로서 거래 당사자가 아니며, 교환 이행 책임은 각 이용자에게 있습니다.
-            분쟁 발생 시 전자상거래분쟁조정위원회에 조정을 신청할 수 있습니다.
+            본 확정서는 이용자 간 교환 조건을 기록하기 위한 화면입니다. 레어리티는 안전한 거래를 돕기 위해 조건 기록, 증빙 보관, 신고 접수 기능을 제공하며, 분쟁 발생 시 운영정책과 관련 법령에 따라 처리를 지원합니다.
+            실제 책임 범위와 보증금 처리 기준은 정식 이용약관 및 안전거래 정책에서 정합니다.
           </p>
         </div>
       </div>

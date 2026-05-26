@@ -7,6 +7,7 @@ import {
   Ticket, Gem, MapPin, CreditCard, Bell, Shield,
   Megaphone, HelpCircle, FileText, ChevronRight,
   Home, Search, Sparkles, MessageCircle, User,
+  Settings, Pencil,
   type LucideIcon,
 } from "lucide-react";
 
@@ -82,16 +83,16 @@ export default function MyPage() {
       <header className="flex items-center justify-between px-4 pt-5 pb-3 bg-white">
         <h1 className="text-xl text-gray-900" style={{ fontWeight: 800, letterSpacing: "-0.5px" }}>마이</h1>
         <div className="flex items-center gap-3">
-          <button className="relative">
-            <span className="text-xl">🔔</span>
+          <button className="relative p-1">
+            <Bell size={22} strokeWidth={1.5} color="#374151" />
             <span
-              className="absolute -top-1 -right-1 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center"
+              className="absolute top-0 right-0 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center"
               style={{ background: PRIMARY, fontWeight: 700 }}
             >
               3
             </span>
           </button>
-          <button><span className="text-xl">⚙️</span></button>
+          <button className="p-1"><Settings size={22} strokeWidth={1.5} color="#374151" /></button>
         </div>
       </header>
 
@@ -100,16 +101,16 @@ export default function MyPage() {
         <div className="flex items-center gap-4">
           <div className="relative shrink-0">
             <div
-              className="w-[72px] h-[72px] rounded-full flex items-center justify-center text-3xl"
+              className="w-[72px] h-[72px] rounded-full flex items-center justify-center"
               style={{ background: "linear-gradient(135deg, #E53E3E, #F6C90E)" }}
             >
-              🎴
+              <span className="text-white text-2xl" style={{ fontWeight: 800, letterSpacing: "-0.5px" }}>R</span>
             </div>
             <button
-              className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-white flex items-center justify-center text-xs border"
+              className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-white flex items-center justify-center border"
               style={{ borderColor: "#e5e7eb" }}
             >
-              ✏️
+              <Pencil size={11} color="#374151" strokeWidth={2} />
             </button>
           </div>
           <div className="flex-1 min-w-0">

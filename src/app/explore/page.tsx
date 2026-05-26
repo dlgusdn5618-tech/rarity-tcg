@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Home, Search, Sparkles, MessageCircle, User, type LucideIcon } from "lucide-react";
+import { Home, Search, Sparkles, MessageCircle, User, SlidersHorizontal, type LucideIcon } from "lucide-react";
 
 const RECENT_SEARCHES = ["리자몽 ex SR", "피카츄 SAR", "루피 SAR", "뮤츠 UR"];
 
@@ -95,7 +95,7 @@ export default function ExplorePage() {
             </button>
           )}
           <div className="flex-1 flex items-center bg-gray-100 rounded-xl px-3 py-2.5 gap-2">
-            <span className="text-gray-400 text-sm">🔍</span>
+            <Search size={14} color="#9ca3af" strokeWidth={1.5} className="shrink-0" />
             <input
               type="text"
               value={query}
@@ -112,8 +112,8 @@ export default function ExplorePage() {
             )}
           </div>
           {!isSearching && (
-            <button onClick={() => setShowFilter(!showFilter)}>
-              <span className="text-xl">⚙️</span>
+            <button onClick={() => setShowFilter(!showFilter)} className="p-1">
+              <SlidersHorizontal size={20} color={showFilter ? "#111" : "#6b7280"} strokeWidth={1.5} />
             </button>
           )}
         </div>
@@ -281,8 +281,13 @@ export default function ExplorePage() {
                 onClick={() => router.push(`/card/${card.id}`)}
               className="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
               >
-                <div className="bg-gray-50 h-36 flex items-center justify-center relative">
-                  <span className="text-5xl">{card.emoji}</span>
+                <div className="bg-gray-50 h-36 flex items-center justify-center relative overflow-hidden">
+                  <div className="w-[72px] h-24 rounded-lg flex flex-col overflow-hidden" style={{ border: "1.5px solid #e5e7eb", background: "#fff" }}>
+                    <div className="h-2 w-full shrink-0" style={{ background: "#E53E3E" }} />
+                    <div className="flex-1 flex items-center justify-center">
+                      <span className="text-[9px] text-gray-300 select-none" style={{ fontWeight: 700, letterSpacing: "0.08em" }}>TCG</span>
+                    </div>
+                  </div>
                   <span
                     className="absolute top-2 left-2 text-[10px] bg-white px-1.5 py-0.5 rounded-md text-gray-600 border border-gray-100"
                     style={{ fontWeight: 500 }}
@@ -311,7 +316,7 @@ export default function ExplorePage() {
 
           {filteredCards.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <span className="text-4xl mb-3">🔍</span>
+              <Search size={36} color="#d1d5db" strokeWidth={1.2} className="mb-3" />
               <p className="text-gray-900 text-sm" style={{ fontWeight: 600 }}>검색 결과가 없어요</p>
               <p className="text-gray-400 text-xs mt-1" style={{ fontWeight: 400 }}>다른 키워드로 검색해보세요</p>
             </div>

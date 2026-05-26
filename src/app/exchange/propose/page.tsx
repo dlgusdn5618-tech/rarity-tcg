@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Shield, ChevronRight, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Shield, ChevronRight, CheckCircle2, AlertTriangle, Users, Lock } from "lucide-react";
 
 const PRIMARY = "#E53E3E";
 
@@ -17,21 +17,21 @@ const MY_CARDS = [
 
 const FACE_TERMS = [
   { icon: "🤝", title: "P2P 직거래 방식", body: "본 교환은 이용자 간 직접 거래이며, 레어리티(주식회사 레어리티)는 거래 중개 플랫폼으로서 거래 당사자가 아닙니다." },
-  { icon: "⚖️", title: "법적 책임 부인", body: "레어리티는 직거래 교환 과정에서 발생하는 분쟁, 손해, 사기 등에 대해 민·형사상 어떠한 법적 책임도 부담하지 않습니다." },
-  { icon: "📍", title: "공공장소 이용 권고", body: "교환 장소는 경찰청, 지하철역, 은행 등 CCTV가 설치된 공공장소를 강력히 권고합니다. 사적 장소 이용으로 인한 불이익은 이용자 본인이 감수합니다." },
+  { icon: "⚖️", title: "직거래 유의사항", body: "직거래는 이용자 간 직접 진행되는 방식입니다. 레어리티는 안전한 거래를 돕기 위해 기록과 신고 기능을 제공하며, 분쟁 발생 시 관련 증빙 확인을 지원합니다." },
+  { icon: "📍", title: "공공장소 이용 권고", body: "교환 장소는 경찰청, 지하철역, 은행 등 CCTV가 설치된 공공장소를 권고합니다. 안전한 장소를 사전에 함께 정하고 진행하세요." },
   { icon: "🔍", title: "실물 확인 후 교환", body: "카드를 직접 눈으로 확인한 뒤 교환하세요. 교환 완료 후에는 취소·반품이 불가합니다. 감정서 및 케이스 상태를 반드시 현장에서 검증하시기 바랍니다." },
   { icon: "🚨", title: "사기 피해 신고 경로", body: "사기 피해 발생 시 경찰청 112 또는 사이버범죄 신고시스템(ECRM)에 즉시 신고하시기 바랍니다. 레어리티는 수사기관 요청 시 관련 로그를 적극 협조합니다." },
   { icon: "📣", title: "플랫폼 분쟁 신고", body: "거래 관련 분쟁이 발생하면 레어리티 고객센터(support@rarity.kr)에 신고하세요. 악성 이용자는 이용 제한 조치될 수 있습니다." },
 ];
 
 const ESCROW_TERMS = [
-  { icon: "🔐", title: "토스페이먼츠 에스크로", body: "보증금은 토스페이먼츠 에스크로 서비스를 통해 예치됩니다. 레어리티는 보증금을 직접 보유하지 않으며, 결제 대행사가 중립적으로 관리합니다." },
+  { icon: "🔐", title: "보증금 예치형 안전교환", body: "보증금 예치형 안전교환은 제휴 PG 연동을 전제로 한 정책 예시입니다. 레어리티는 보증금을 직접 보유하지 않으며, 연동된 결제 대행사가 중립적으로 관리합니다." },
   { icon: "💰", title: "보증금 = 카드 가액", body: "보증금 금액은 상대방 카드의 거래 예상가액과 동일합니다. 이는 발송 이행을 담보하기 위한 금액으로, 수수료나 거래 대금이 아닙니다." },
   { icon: "✅", title: "수령 확인 후 전액 환급", body: "상대방이 수령 확인을 완료하면 보증금 전액이 즉시 환급됩니다. 환급 소요 시간은 카드사·은행 정책에 따라 1~3 영업일이 걸릴 수 있습니다." },
-  { icon: "⏱️", title: "72시간 발송 의무", body: "교환 수락 후 72시간(3일) 내에 카드를 발송해야 합니다. 기한 내 미발송 시 보증금은 자동 몰수되며 상대방에게 귀속됩니다. 이 조건에 동의하는 경우에만 진행하세요." },
+  { icon: "⏱️", title: "72시간 발송 의무", body: "교환 수락 후 72시간(3일) 내에 카드를 발송해야 합니다. 정해진 발송 기한을 지키지 않거나 허위 발송이 확인되면, 보증금 처리는 운영정책과 증빙 자료에 따라 검토됩니다." },
   { icon: "📸", title: "발송 전 사진 등록 필수", body: "발송 전 카드 실물, 포장 상태, 운송장 번호가 포함된 사진을 앱에 등록해야 합니다. 미등록 시 발송 처리가 되지 않습니다." },
-  { icon: "🏛️", title: "레어리티 중재 권한", body: "분쟁 발생 시 레어리티는 양측의 증거자료를 검토하여 보증금 귀속을 결정합니다. 결정에 불복하는 경우 전자상거래분쟁조정위원회에 조정을 신청할 수 있습니다." },
-  { icon: "📜", title: "전자상거래분쟁조정위원회", body: "본 교환 거래는 전자상거래 등에서의 소비자보호에 관한 법률의 적용을 받으며, 분쟁 발생 시 한국소비자원 산하 전자상거래분쟁조정위원회에 조정을 신청할 수 있습니다." },
+  { icon: "🏛️", title: "분쟁 처리 지원", body: "분쟁 발생 시 레어리티는 양측이 제출한 사진, 운송장, 채팅 기록 등 증빙 자료를 바탕으로 분쟁 처리를 지원합니다. 이의가 있는 경우 전자상거래분쟁조정위원회에 조정을 신청할 수 있습니다." },
+  { icon: "📜", title: "분쟁 조정 안내", body: "분쟁 발생 시 한국소비자원 산하 전자상거래분쟁조정위원회에 조정을 신청할 수 있습니다. 관련 법령 및 운영정책에 따라 처리를 지원합니다." },
 ];
 
 function ProposeInner() {
@@ -116,7 +116,7 @@ function ProposeInner() {
             }}
           >
             <div className="flex items-start gap-3">
-              <span className="text-2xl">🤝</span>
+              <Users size={24} strokeWidth={1.5} color={method === "face" ? PRIMARY : "#6b7280"} className="shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm text-gray-900" style={{ fontWeight: 700 }}>직거래</p>
                 <p className="text-xs text-gray-500 mt-0.5" style={{ fontWeight: 400 }}>
@@ -143,16 +143,16 @@ function ProposeInner() {
             }}
           >
             <div className="flex items-start gap-3">
-              <span className="text-2xl">🔐</span>
+              <Lock size={24} strokeWidth={1.5} color={method === "escrow" ? PRIMARY : "#6b7280"} className="shrink-0 mt-0.5" />
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm text-gray-900" style={{ fontWeight: 700 }}>보증금 에스크로</p>
-                  <span className="text-[10px] text-white px-1.5 py-0.5 rounded-full" style={{ background: "#2563eb", fontWeight: 600 }}>
-                    토스페이먼츠
+                  <p className="text-sm text-gray-900" style={{ fontWeight: 700 }}>보증금 안전교환</p>
+                  <span className="text-[10px] text-white px-1.5 py-0.5 rounded-full" style={{ background: "#6b7280", fontWeight: 600 }}>
+                    PG 연동 예정
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 mt-0.5" style={{ fontWeight: 400 }}>
-                  카드 가액만큼의 보증금을 예치하고 택배로 교환해요. 72시간 내 미발송 시 보증금이 몰수돼요.
+                  카드 가액만큼의 보증금을 예치하고 택배로 교환해요. 발송 기한을 지키지 않으면 운영정책에 따라 검토됩니다.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {["원거리 가능", "보증금 담보", "72h 발송 의무"].map((t) => (
@@ -202,8 +202,11 @@ function ProposeInner() {
                   background: selectedCard === card.id ? "#fff5f5" : "white",
                 }}
               >
-                <div className="w-full aspect-square rounded-xl bg-gray-100 flex items-center justify-center text-3xl mb-2 relative">
-                  {card.emoji}
+                <div className="w-full aspect-square rounded-xl bg-gray-100 flex flex-col overflow-hidden mb-2 relative">
+                  <div className="h-2 w-full shrink-0" style={{ background: selectedCard === card.id ? PRIMARY : "#e5e7eb" }} />
+                  <div className="flex-1 flex items-center justify-center">
+                    <span className="text-[10px] text-gray-300 select-none" style={{ fontWeight: 700 }}>TCG</span>
+                  </div>
                   <span
                     className="absolute top-1 left-1 text-[9px] bg-white/90 text-gray-600 px-1 py-0.5 rounded"
                     style={{ fontWeight: 600 }}
@@ -236,7 +239,7 @@ function ProposeInner() {
         <div className="flex-1 flex flex-col">
           <div className="px-4 pt-5 pb-2">
             <p className="text-sm text-gray-700" style={{ fontWeight: 600 }}>
-              {method === "face" ? "직거래 이용 약관" : "보증금 에스크로 이용 약관"}
+              {method === "face" ? "직거래 안전거래 안내" : "보증금 안전교환 안내"}
             </p>
             <p className="text-xs text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>
               아래 내용을 끝까지 확인하고 동의해주세요
@@ -287,13 +290,13 @@ function ProposeInner() {
               </div>
             ))}
 
-            {/* 법적 면책 박스 */}
+            {/* 안전거래 안내 박스 */}
             <div className="rounded-2xl px-4 py-3 border" style={{ background: "#fff5f5", borderColor: "#fecaca" }}>
               <div className="flex items-start gap-2">
                 <Shield size={14} color={PRIMARY} strokeWidth={2} className="shrink-0 mt-0.5" />
                 <p className="text-[11px]" style={{ color: PRIMARY, fontWeight: 400, lineHeight: 1.6 }}>
-                  레어리티는 「전자상거래 등에서의 소비자보호에 관한 법률」 및 「정보통신망 이용촉진 및 정보보호 등에 관한 법률」에 따른
-                  통신판매중개업자로서, 개별 거래의 당사자가 아니며 거래 결과에 대한 책임을 부담하지 않습니다.
+                  본 화면은 이용자 간 교환 조건을 기록하기 위한 안내 화면입니다. 레어리티는 안전한 거래를 돕기 위해
+                  기록과 신고 기능을 제공하며, 분쟁 발생 시 관련 법령 및 운영정책에 따라 처리를 지원합니다.
                 </p>
               </div>
             </div>

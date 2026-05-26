@@ -37,10 +37,14 @@
 19. **마이페이지 거래 신뢰 지표** — 팔로워/팔로잉 → 거래완료·응답시간·안전결제·최근접속 4칸 그리드, 감정 카드 경험 태그
 20. **카드 등록 컬렉터 감성 강화** — Step 0 키워드 힌트(PSA/PROMO/SAR/Trophy), Step 2 PSA 등급 토글, 완료 화면 컬렉터 마켓 감성
 21. **Card Passport** — 카드 상세에 여권 형태 카드 정보 섹션 추가 (TCG·희귀도·언어·등급·시장위치·희소성 표시, 한글판 카드는 한글명 표시)
-22. **교환 기능** — 직거래·보증금 에스크로 2가지 방식, 3단계 제안 플로우 (/exchange/propose), 교환 진행 추적 페이지 (/exchange/[id]), 카드 상세 하단에 ⇄ 교환 제안 버튼 추가, 전자상거래법 기반 P2P 중개 면책 약관 삽입
-23. **교환 조건 확정서** (/exchange/[id]/agreement) — DRAFT→PENDING_CONFIRMATION→CONFIRMED→CHANGE_REQUESTED·CANCELLED·DISPUTED 6가지 상태, 카드 비교 테이블(내카드/상대카드), 교환 조건 항목(추가금·배송·보증금·검수·분쟁처리), 양측 서명란, 확정 시 "고정됨" 잠금 칩, 법적 면책 고지 포함
+22. **교환 기능** — 직거래·보증금 안전교환 2가지 방식, 3단계 제안 플로우 (/exchange/propose), 교환 진행 추적 페이지 (/exchange/[id]), 카드 상세 하단에 ⇄ 교환 제안 버튼 추가, 안전교환 정책 예시 및 분쟁 처리 지원 안내 삽입
+23. **교환 조건 확정서** (/exchange/[id]/agreement) — DRAFT→PENDING_CONFIRMATION→CONFIRMED→CHANGE_REQUESTED·CANCELLED·DISPUTED 6가지 상태, 카드 비교 테이블(내카드/상대카드), 교환 조건 항목(추가금·배송·보증금·검수·분쟁처리), 양측 서명란, 확정 시 "고정됨" 잠금 칩, 정식 약관 확정 전 안내 문구로 완화
 24. **교환 밸런스 보드** (src/components/ExchangeBalanceBoard.tsx) — TCG 교환 전용 가치 비교 UI, 시세 밸런스 바(내 카드 vs 상대 카드 비율), 차액·추가금 추천·희소성·상태 비교 분석, 교환 적정도 % 칩, /mypage/trades에서 진행중/대기중 교환 아이템에 "밸런스 분석" 버튼으로 인라인 확장
-25. **이모지 UI 제거 (20~30대 컬렉터 마켓 톤)** — 앱 전체에서 장식용 이모지를 lucide-react 아이콘 및 미니 카드 프레임으로 대체: 홈(Bell/Search 아이콘·뉴스 MapPin/Package/Star/RefreshCw·카드 썸네일 TCG 프레임), 카드 상세(Share2·Heart·Eye·Package/Store/Users/ShieldCheck 거래방식·비슷한카드 프레임), 채팅목록(Settings·초성 원형 아바타·MessageCircle 빈상태), 채팅방(초성 아바타·TCG 카드 프레임·CreditCard/Ban/LogOut 드롭다운·Package/Truck/Users/Lock 거래제안), 교환내역(등급 배지 카드 썸네일)
+25. **이모지 UI 1차 제거 (20~30대 컬렉터 마켓 톤)** — 주요 거래 화면 중심으로 이모지 → lucide 아이콘·TCG 카드 프레임 교체 (1차): 홈(Bell/Search·뉴스 MapPin/Package/Star/RefreshCw·카드 썸네일 TCG 프레임), 카드 상세(Share2·Heart·Eye·Package/Store/Users/ShieldCheck 거래방식·비슷한카드 프레임), 채팅목록(Settings·초성 아바타·MessageCircle 빈상태), 채팅방(초성 아바타·TCG 프레임·CreditCard/Ban/LogOut·Package/Truck/Users/Lock 거래제안), 교환내역(등급 배지 카드 썸네일)
+26. **법적/에스크로 문구 안전 표현으로 교체** — 교환 제안·교환 진행·교환 확정서 화면에서 "법적 책임 부인", "자동 몰수", "토스페이먼츠", "전자상거래법" 등 단정 표현을 "운영정책에 따라 검토", "PG 연동 예정", "분쟁 처리 지원" 등 신중한 표현으로 완화 (프로토타입 단계 안전 처리)
+27. **이모지 추가 정리 + Next.js 16 params 수정** — /mypage(🔔→Bell, ⚙️→Settings, 🎴→이니셜 아바타, ✏️→Pencil), /explore(🔍→Search, ⚙️→SlidersHorizontal, 카드 그리드→TCG 프레임), /sell(카테고리·TRADE_OPTIONS·검색힌트·완료화면 이모지 전부 아이콘/TCG 프레임으로), /exchange/propose·[id](교환방식 버튼·카드 프리뷰→lucide+TCG 프레임), /chat/[id] Next.js 16 params Promise 패턴 적용
+28. **카드 등록 사진 가이드 (판매자)** — /sell Step 1에 named 슬롯 그리드 추가: BASE(앞면/뒷면/모서리/반사 필수 4개) + 감정카드 ON 시 GRADED(감정케이스/감정번호) + 미개봉 ON 시 SEALED(박스앞뒤/봉인씰/모서리) 조건부 슬롯; Camera 아이콘 플레이스홀더, 슬롯별 사진 촬영 후 체크마크·삭제 버튼, 충족 카운터, 미개봉 토글; 슬롯키 기반 Record<string,string> 상태로 교체
+29. **사진 인증 섹션 (구매자)** — /card/[id] Card Passport 아래에 PhotoCertSection 추가: 슬롯별 충족률 %, 색상 분기 진행 바(100%=초록/75~99%=황색/미만=빨강), 2열 체크리스트(CheckCircle2/AlertCircle + 필수 뱃지), 감정카드 여부에 따라 감정 슬롯 조건부 표시, 누락 시 추가 사진 요청 버튼(탭 후 완료 상태 전환), "거래 확정 후 상태 분쟁 시 기준 자료" 안내 문구
 
 ## 다음 작업 🔜
 - **Supabase 연결** — Auth + DB

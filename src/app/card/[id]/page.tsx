@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect, use } from "react";
-import { Shield, Share2, Heart, Eye, Package, Store, Users, ShieldCheck, type LucideIcon } from "lucide-react";
+import { Shield, Share2, Heart, Eye, Package, Store, Users, ShieldCheck, Camera, CheckCircle2, AlertCircle, MessageSquarePlus, type LucideIcon } from "lucide-react";
 
 const PRIMARY = "#E53E3E";
 
@@ -17,10 +17,20 @@ const RARITY_KO: Record<string, string> = {
   "Hyper Rare": "UR",
 };
 
+const PHOTO_SLOT_DEFS: { key: string; label: string; required: boolean; gradedOnly?: boolean }[] = [
+  { key: "front",   label: "앞면 전체",        required: true              },
+  { key: "back",    label: "뒷면 전체",        required: true              },
+  { key: "corner",  label: "네 모서리",        required: true              },
+  { key: "glare",   label: "표면 빛 반사",     required: true              },
+  { key: "slab",    label: "감정 케이스 전체",  required: true, gradedOnly: true },
+  { key: "slabnum", label: "감정번호 클로즈업", required: true, gradedOnly: true },
+];
+
 type PassportData = {
   tcg: string; rarity: string; language: string; distribution: string;
   condition: string; grade: string; photoVerified: boolean; safeTrade: boolean;
   pricePosition: string; scarcity: string; cardId: string;
+  photoSlots: Record<string, boolean>;
 };
 
 const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
@@ -66,6 +76,7 @@ const CARD_DB: Record<string, {
       tcg: "Pokemon", rarity: "SAR", language: "Japanese", distribution: "Booster Set",
       condition: "Near Mint", grade: "PSA 10", photoVerified: true, safeTrade: true,
       pricePosition: "30D Top 18%", scarcity: "Grail", cardId: "SV3pt5-183",
+      photoSlots: { front: true, back: true, corner: true, glare: true, slab: true, slabnum: true },
     },
   },
   "2": {
@@ -80,6 +91,7 @@ const CARD_DB: Record<string, {
       tcg: "Pokemon", rarity: "SAR", language: "English", distribution: "Booster Set",
       condition: "Excellent", grade: "Ungraded", photoVerified: false, safeTrade: false,
       pricePosition: "Fair Price", scarcity: "High", cardId: "SV3pt5-173",
+      photoSlots: { front: true, back: true },
     },
   },
   "3": {
@@ -94,6 +106,7 @@ const CARD_DB: Record<string, {
       tcg: "Pokemon", rarity: "UR", language: "Japanese", distribution: "Booster Set",
       condition: "Near Mint", grade: "Ungraded", photoVerified: true, safeTrade: true,
       pricePosition: "30D Top 5%", scarcity: "Grail", cardId: "SV3pt5-205",
+      photoSlots: { front: true, back: true, corner: true },
     },
   },
 };
@@ -125,6 +138,107 @@ type ApiSpec = {
   setTotal: number; releaseDate: string; artist: string;
   regulationMark: string; rarity: string; image: string;
 } | null;
+
+function PhotoCertSection({
+  photoSlots, isGraded,
+}: {
+  photoSlots: Record<string, boolean>;
+  isGraded: boolean;
+}) {
+  const [requested, setRequested] = useState(false);
+  const activeSlots = PHOTO_SLOT_DEFS.filter((s) => !s.gradedOnly || isGraded);
+  const filledCount = activeSlots.filter((s) => photoSlots[s.key]).length;
+  const totalCount = activeSlots.length;
+  const pct = Math.round((filledCount / totalCount) * 100);
+
+  const chipColor = pct === 100 ? "#10b981" : pct >= 75 ? "#d97706" : PRIMARY;
+  const chipBg   = pct === 100 ? "#f0fdf4" : pct >= 75 ? "#fffbeb" : "#fff5f5";
+  const missingSlots = activeSlots.filter((s) => !photoSlots[s.key]);
+
+  return (
+    <div className="bg-white rounded-2xl p-4">
+      {/* 헤더 */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Camera size={14} strokeWidth={1.5} color="#374151" />
+          <p className="text-sm text-gray-900" style={{ fontWeight: 700 }}>사진 인증</p>
+        </div>
+        <span
+          className="text-[11px] px-2 py-0.5 rounded-full"
+          style={{ background: chipBg, color: chipColor, fontWeight: 700 }}
+        >
+          {pct}% 충족
+        </span>
+      </div>
+
+      {/* 진행 바 */}
+      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: `${pct}%`, background: chipColor }}
+        />
+      </div>
+
+      {/* 슬롯 체크리스트 */}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 mb-4">
+        {activeSlots.map((slot) => {
+          const filled = !!photoSlots[slot.key];
+          return (
+            <div key={slot.key} className="flex items-center gap-1.5 min-w-0">
+              {filled
+                ? <CheckCircle2 size={13} color="#10b981" strokeWidth={2.5} className="shrink-0" />
+                : <AlertCircle  size={13} color="#fca5a5" strokeWidth={2}   className="shrink-0" />
+              }
+              <span
+                className="text-xs truncate"
+                style={{ color: filled ? "#374151" : "#9ca3af", fontWeight: filled ? 600 : 400 }}
+              >
+                {slot.label}
+              </span>
+              {slot.required && !filled && (
+                <span
+                  className="text-[8px] px-1 rounded shrink-0"
+                  style={{ background: "#fff5f5", color: PRIMARY, fontWeight: 700 }}
+                >
+                  필수
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 추가 사진 요청 버튼 */}
+      {missingSlots.length > 0 && (
+        <button
+          onClick={() => setRequested(true)}
+          disabled={requested}
+          className="w-full py-2.5 rounded-xl border text-xs flex items-center justify-center gap-1.5 mb-3 transition-all"
+          style={{
+            borderColor: requested ? "#d1d5db" : PRIMARY,
+            color:       requested ? "#9ca3af" : PRIMARY,
+            background:  requested ? "#f9fafb" : "white",
+            fontWeight: 600,
+          }}
+        >
+          {requested
+            ? <><CheckCircle2 size={12} color="#9ca3af" strokeWidth={2.5} />요청 완료</>
+            : <><MessageSquarePlus size={13} strokeWidth={1.5} />추가 사진 요청</>
+          }
+        </button>
+      )}
+
+      {/* 분쟁 안내 */}
+      <div className="flex items-start gap-2 rounded-xl px-3 py-2.5" style={{ background: "#f9fafb" }}>
+        <Shield size={11} color="#9ca3af" strokeWidth={1.5} className="shrink-0 mt-0.5" />
+        <p className="text-[10px] text-gray-400" style={{ fontWeight: 400, lineHeight: 1.6 }}>
+          등록된 사진은 <span style={{ fontWeight: 600 }}>거래 확정 후 상태 분쟁 시 기준 자료</span>로 활용됩니다.
+          {missingSlots.length > 0 && <> 누락된 필수 사진이 있으면 분쟁 처리 시 불리할 수 있어요.</>}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 function CardPassport({ name, nameKo, data }: { name: string; nameKo: string; data: PassportData }) {
   const chip = RARITY_CHIP[data.rarity] ?? { bg: "#f9fafb", color: "#6b7280" };
@@ -382,6 +496,14 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
       {/* Card Passport */}
       <div className="mx-4 mt-3">
         <CardPassport name={card.name} nameKo={card.nameKo} data={card.passport} />
+      </div>
+
+      {/* 사진 인증 */}
+      <div className="mx-4 mt-3">
+        <PhotoCertSection
+          photoSlots={card.passport.photoSlots}
+          isGraded={card.passport.grade !== "Ungraded"}
+        />
       </div>
 
       {/* ① 거래 방식 선택 */}

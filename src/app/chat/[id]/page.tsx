@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, use, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Package, Truck, Users, Lock, CreditCard, Ban, LogOut } from "lucide-react";
+
+type Params = { id: string };
 
 const PRIMARY = "#E53E3E";
 
@@ -98,9 +100,9 @@ const CHAT_DATA: Record<string, {
   },
 };
 
-export default function ChatRoom({ params }: { params: { id: string } }) {
+function ChatRoomInner({ id }: { id: string }) {
   const router = useRouter();
-  const chat = CHAT_DATA[params.id] ?? CHAT_DATA["1"];
+  const chat = CHAT_DATA[id] ?? CHAT_DATA["1"];
 
   const [messages, setMessages] = useState(chat.messages);
   const [input, setInput] = useState("");
@@ -345,4 +347,17 @@ export default function ChatRoom({ params }: { params: { id: string } }) {
       )}
     </div>
   );
+}
+
+function ChatRoomWrapper({ params }: { params: Promise<Params> }) {
+  const { id } = use(params);
+  return (
+    <Suspense>
+      <ChatRoomInner id={id} />
+    </Suspense>
+  );
+}
+
+export default function ChatRoom({ params }: { params: Promise<Params> }) {
+  return <ChatRoomWrapper params={params} />;
 }

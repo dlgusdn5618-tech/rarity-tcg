@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { Package, Truck, Users, ShieldCheck, Search, Info, Camera, CheckCircle2, X, type LucideIcon } from "lucide-react";
 
 const PRIMARY = "#E53E3E";
 
@@ -11,12 +12,29 @@ const CONDITION_OPTIONS = [
   { key: "B",  label: "B급", desc: "사용감 있음 · 흠집 있음",    color: "#718096", bg: "#F7FAFC" },
 ];
 
-const TRADE_OPTIONS = [
-  { key: "parcel", label: "택배",    icon: "📦", sub: "일반 택배사" },
-  { key: "half",   label: "반값택배", icon: "🏪", sub: "편의점 접수" },
-  { key: "direct", label: "직거래",  icon: "🤝", sub: "직접 만남" },
-  { key: "safe",   label: "안전거래", icon: "🛡️", sub: "레어리티 보호" },
-] as const;
+const TRADE_OPTIONS: { key: TradeKey; label: string; Icon: LucideIcon; sub: string }[] = [
+  { key: "parcel", label: "택배",    Icon: Package,    sub: "일반 택배사" },
+  { key: "half",   label: "반값택배", Icon: Truck,      sub: "편의점 접수" },
+  { key: "direct", label: "직거래",  Icon: Users,      sub: "직접 만남" },
+  { key: "safe",   label: "안전거래", Icon: ShieldCheck, sub: "레어리티 보호" },
+];
+
+const BASE_PHOTO_SLOTS = [
+  { key: "front",        label: "앞면 전체",        required: true  },
+  { key: "back",         label: "뒷면 전체",        required: true  },
+  { key: "corner",       label: "네 모서리",        required: true  },
+  { key: "glare",        label: "표면 빛 반사",     required: true  },
+];
+const GRADED_PHOTO_SLOTS = [
+  { key: "slab",         label: "감정 케이스 전체",  required: true  },
+  { key: "slabnum",      label: "감정번호 클로즈업", required: true  },
+];
+const SEALED_PHOTO_SLOTS = [
+  { key: "boxfront",     label: "박스 앞면",         required: true  },
+  { key: "boxback",      label: "박스 뒷면",         required: true  },
+  { key: "seal",         label: "봉인씰",             required: true  },
+  { key: "sealedcorner", label: "모서리 상태",        required: false },
+];
 
 const RARITY_KO: Record<string, string> = {
   "Common": "C", "Uncommon": "U", "Rare": "R", "Double Rare": "RR",
@@ -38,6 +56,7 @@ const STEPS = ["카테고리", "카드 선택", "상태·거래", "가격·설�
 export default function SellPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const slotTargetRef = useRef<string | null>(null);
 
   const [step, setStep] = useState(0);
   const [category, setCategory] = useState<"포켓몬" | "원피스" | "">("");
@@ -45,7 +64,7 @@ export default function SellPage() {
   const [searchResults, setSearchResults] = useState<ApiCard[]>([]);
   const [selectedCard, setSelectedCard] = useState<ApiCard | null>(null);
   const [searching, setSearching] = useState(false);
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [slotPhotos, setSlotPhotos] = useState<Record<string, string>>({});
   const [condition, setCondition] = useState("");
   const [tradeType, setTradeType] = useState<TradeKey>("parcel");
   const [price, setPrice] = useState("");
@@ -53,6 +72,7 @@ export default function SellPage() {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [isGraded, setIsGraded] = useState(false);
+  const [isSealedProduct, setIsSealedProduct] = useState(false);
   const [gradingCo, setGradingCo] = useState("");
   const [grade, setGrade] = useState("10");
 
@@ -153,15 +173,30 @@ export default function SellPage() {
     }
   };
 
-  const handlePhotoAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        setPhotos((prev) => [...prev, ev.target?.result as string].slice(0, 5));
-      };
-      reader.readAsDataURL(file);
+  const handleSlotClick = (key: string) => {
+    slotTargetRef.current = key;
+    fileInputRef.current?.click();
+  };
+
+  const deleteSlotPhoto = (key: string) => {
+    setSlotPhotos((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
     });
+  };
+
+  const handlePhotoAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const key = slotTargetRef.current;
+    if (!key) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setSlotPhotos((prev) => ({ ...prev, [key]: ev.target?.result as string }));
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
   };
 
   const handleSubmit = () => {
@@ -176,11 +211,23 @@ export default function SellPage() {
     price !== "" && Number(price) > 0,
   ];
 
+  const photoSlots = [
+    ...BASE_PHOTO_SLOTS,
+    ...(isGraded ? GRADED_PHOTO_SLOTS : []),
+    ...(isSealedProduct ? SEALED_PHOTO_SLOTS : []),
+  ];
+  const uploadedCount = photoSlots.filter((s) => slotPhotos[s.key]).length;
+
   // 완료 화면
   if (done) {
     return (
       <div className="min-h-screen bg-white max-w-sm mx-auto flex flex-col items-center justify-center px-8 text-center">
-        <div className="text-7xl mb-5">🎴</div>
+        <div className="w-20 h-28 rounded-xl flex flex-col overflow-hidden mx-auto mb-5" style={{ border: "1.5px solid #e5e7eb", background: "#f9fafb" }}>
+        <div className="h-3 w-full shrink-0" style={{ background: PRIMARY }} />
+        <div className="flex-1 flex items-center justify-center">
+          <span className="text-[10px] text-gray-300 select-none" style={{ fontWeight: 700, letterSpacing: "0.1em" }}>TCG</span>
+        </div>
+      </div>
         <h2 className="text-xl text-gray-900 mb-2" style={{ fontWeight: 800 }}>매물 등록 완료</h2>
         <p className="text-sm text-gray-500 mb-1" style={{ fontWeight: 400 }}>
           <span style={{ fontWeight: 700, color: "#111" }}>{selectedCard?.name}</span>이(가)<br />레어리티 컬렉터 마켓에 올라갔어요
@@ -193,7 +240,7 @@ export default function SellPage() {
           style={{ background: PRIMARY, fontWeight: 700 }}>
           홈으로 돌아가기
         </button>
-        <button onClick={() => { setDone(false); setStep(0); setCategory(""); setSelectedCard(null); setPhotos([]); setCondition(""); setPrice(""); setDesc(""); setIsGraded(false); setGradingCo(""); setGrade("10"); }}
+        <button onClick={() => { setDone(false); setStep(0); setCategory(""); setSelectedCard(null); setSlotPhotos({}); setIsSealedProduct(false); setCondition(""); setPrice(""); setDesc(""); setIsGraded(false); setGradingCo(""); setGrade("10"); }}
           className="w-full py-4 rounded-2xl border text-sm mt-2"
           style={{ borderColor: PRIMARY, color: PRIMARY, fontWeight: 600 }}>
           매물 추가 등록
@@ -252,8 +299,8 @@ export default function SellPage() {
             <p className="text-xs text-gray-400 mb-5" style={{ fontWeight: 400 }}>카테고리를 먼저 선택해주세요</p>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { key: "포켓몬" as const, emoji: "🔥", desc: "포켓몬 트레이딩 카드" },
-                { key: "원피스" as const, emoji: "⚔️", desc: "원피스 카드 게임" },
+                { key: "포켓몬" as const, badge: "PKM", desc: "포켓몬 트레이딩 카드" },
+                { key: "원피스" as const, badge: "OP",  desc: "원피스 카드 게임" },
               ].map((cat) => (
                 <button key={cat.key} onClick={() => setCategory(cat.key)}
                   className="flex flex-col items-center py-8 rounded-2xl border-2 transition-all"
@@ -261,7 +308,12 @@ export default function SellPage() {
                     borderColor: category === cat.key ? PRIMARY : "#E5E7EB",
                     background: category === cat.key ? "#FFF5F5" : "white",
                   }}>
-                  <span className="text-5xl mb-3">{cat.emoji}</span>
+                  <div className="w-14 h-20 rounded-lg flex flex-col overflow-hidden mb-3" style={{ border: `1.5px solid ${category === cat.key ? PRIMARY : "#e5e7eb"}`, background: category === cat.key ? "#fff5f5" : "#f9fafb" }}>
+                    <div className="h-2 w-full shrink-0" style={{ background: category === cat.key ? PRIMARY : "#e5e7eb" }} />
+                    <div className="flex-1 flex items-center justify-center">
+                      <span className="text-xs select-none" style={{ fontWeight: 700, color: category === cat.key ? PRIMARY : "#9ca3af", letterSpacing: "0.05em" }}>{cat.badge}</span>
+                    </div>
+                  </div>
                   <span className="text-sm" style={{ fontWeight: 700, color: category === cat.key ? PRIMARY : "#111" }}>
                     {cat.key}
                   </span>
@@ -299,12 +351,12 @@ export default function SellPage() {
             {/* 검색 방법 안내 */}
             <div className="bg-gray-50 rounded-2xl p-3 mb-3 flex flex-col gap-1.5">
               {[
-                { icon: "🔤", label: "영문 이름",  example: "Charizard ex, Pikachu",    tip: "가장 정확해요" },
-                { icon: "🇰🇷", label: "한글 이름",  example: "리자몽, 피카츄",             tip: "일부 검색 가능" },
-                { icon: "🔢", label: "카드 품번",  example: "183 · 183/207 · sv3pt5-183", tip: "가장 정확한 방법" },
+                { icon: "Aa", label: "영문 이름",  example: "Charizard ex, Pikachu",     tip: "가장 정확해요" },
+                { icon: "가나", label: "한글 이름", example: "리자몽, 피카츄",              tip: "일부 검색 가능" },
+                { icon: "#",  label: "카드 품번",  example: "183 · 183/207 · sv3pt5-183", tip: "가장 정확한 방법" },
               ].map((row) => (
                 <div key={row.label} className="flex items-center gap-2">
-                  <span className="text-sm w-5 text-center">{row.icon}</span>
+                  <span className="text-[10px] w-6 text-center text-gray-400 shrink-0" style={{ fontWeight: 700 }}>{row.icon}</span>
                   <span className="text-xs text-gray-500 w-16 shrink-0" style={{ fontWeight: 600 }}>{row.label}</span>
                   <span className="text-xs text-gray-400 flex-1" style={{ fontWeight: 400 }}>{row.example}</span>
                   <span className="text-[10px] px-1.5 py-0.5 rounded-md shrink-0"
@@ -318,7 +370,7 @@ export default function SellPage() {
 
             {/* 품번 위치 안내 이미지 대체 텍스트 */}
             <div className="bg-yellow-50 border border-yellow-100 rounded-xl px-3 py-2 mb-3 flex items-center gap-2">
-              <span className="text-base">💡</span>
+              <Info size={15} color="#d97706" strokeWidth={1.5} className="shrink-0" />
               <p className="text-xs text-yellow-700" style={{ fontWeight: 400 }}>
                 품번은 카드 <span style={{ fontWeight: 700 }}>우측 하단</span>에 적힌 숫자예요
                 <span className="text-yellow-500"> (예: 183/207)</span>
@@ -328,7 +380,7 @@ export default function SellPage() {
             {/* 검색창 */}
             <div className="flex items-center bg-white rounded-xl px-3 py-3 gap-2 border-2 mb-3"
               style={{ borderColor: searchQuery ? PRIMARY : "#E5E7EB" }}>
-              <span className="text-gray-400">🔍</span>
+              <Search size={16} color="#9ca3af" strokeWidth={1.5} className="shrink-0" />
               <input
                 type="text"
                 value={searchQuery}
@@ -355,8 +407,8 @@ export default function SellPage() {
                     color: detectSearchMode(searchQuery) === "name" ? "#3182CE" : PRIMARY,
                     fontWeight: 600,
                   }}>
-                  {detectSearchMode(searchQuery) === "id" ? "🎯 품번 직접 조회" :
-                   detectSearchMode(searchQuery) === "number" ? "🔢 품번 검색" : "🔤 이름 검색"}
+                  {detectSearchMode(searchQuery) === "id" ? "품번 직접 조회" :
+                   detectSearchMode(searchQuery) === "number" ? "품번 검색" : "이름 검색"}
                 </span>
               </div>
             )}
@@ -369,7 +421,12 @@ export default function SellPage() {
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 ${i > 0 ? "border-t border-gray-50" : ""}`}>
                     {c.image
                       ? <img src={c.image} alt={c.name} className="w-10 h-14 object-contain rounded-lg shrink-0" />
-                      : <div className="w-10 h-14 bg-gray-100 rounded-lg shrink-0 flex items-center justify-center text-xl">🎴</div>
+                      : <div className="w-10 h-14 bg-gray-100 rounded-lg shrink-0 flex flex-col overflow-hidden">
+                          <div className="h-1.5 w-full shrink-0" style={{ background: "#e5e7eb" }} />
+                          <div className="flex-1 flex items-center justify-center">
+                            <span className="text-[8px] text-gray-300 select-none" style={{ fontWeight: 700 }}>TCG</span>
+                          </div>
+                        </div>
                     }
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-gray-900 truncate" style={{ fontWeight: 600 }}>{c.name}</p>
@@ -392,7 +449,12 @@ export default function SellPage() {
                 <div className="flex items-center gap-3 mb-3">
                   {selectedCard.image
                     ? <img src={selectedCard.image} alt={selectedCard.name} className="w-14 h-20 object-contain rounded-xl" />
-                    : <div className="w-14 h-20 bg-gray-100 rounded-xl flex items-center justify-center text-3xl">🎴</div>
+                    : <div className="w-14 h-20 bg-gray-100 rounded-xl flex flex-col overflow-hidden shrink-0">
+                        <div className="h-2 w-full shrink-0" style={{ background: "#e5e7eb" }} />
+                        <div className="flex-1 flex items-center justify-center">
+                          <span className="text-[9px] text-gray-300 select-none" style={{ fontWeight: 700 }}>TCG</span>
+                        </div>
+                      </div>
                   }
                   <div>
                     <p className="text-base text-gray-900" style={{ fontWeight: 700 }}>{selectedCard.name}</p>
@@ -428,30 +490,81 @@ export default function SellPage() {
 
             {/* 사진 업로드 */}
             <div className="mt-4">
-              <p className="text-sm text-gray-900 mb-2" style={{ fontWeight: 700 }}>
-                카드 사진 <span className="text-gray-400" style={{ fontWeight: 400 }}>(최대 5장)</span>
-              </p>
-              <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
-                <button onClick={() => fileInputRef.current?.click()}
-                  className="w-20 h-24 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center shrink-0 bg-white">
-                  <span className="text-2xl text-gray-300">+</span>
-                  <span className="text-[10px] text-gray-400 mt-1" style={{ fontWeight: 400 }}>사진 추가</span>
-                </button>
-                {photos.map((src, i) => (
-                  <div key={i} className="relative shrink-0">
-                    <img src={src} alt="" className="w-20 h-24 object-cover rounded-xl" />
-                    <button onClick={() => setPhotos(photos.filter((_, j) => j !== i))}
-                      className="absolute -top-1 -right-1 w-5 h-5 bg-gray-900 rounded-full flex items-center justify-center">
-                      <span className="text-white text-[10px]">✕</span>
-                    </button>
-                    {i === 0 && (
-                      <span className="absolute bottom-1 left-1 text-[9px] bg-black/50 text-white px-1 rounded"
-                        style={{ fontWeight: 600 }}>대표</span>
-                    )}
-                  </div>
-                ))}
+              {/* 헤더 */}
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-sm text-gray-900" style={{ fontWeight: 700 }}>카드 사진 가이드</p>
+                <span className="text-[11px]" style={{ color: uploadedCount === photoSlots.length ? "#10b981" : "#9ca3af", fontWeight: 600 }}>
+                  {uploadedCount} / {photoSlots.length}
+                </span>
               </div>
-              <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoAdd} />
+              <p className="text-xs text-gray-400 mb-3" style={{ fontWeight: 400 }}>
+                각 슬롯을 탭하여 촬영 부위에 맞는 사진을 등록하세요
+              </p>
+
+              {/* 미개봉 토글 */}
+              <div className="flex items-center justify-between px-3 py-2.5 rounded-xl border border-gray-100 bg-white mb-3">
+                <div>
+                  <p className="text-xs text-gray-700" style={{ fontWeight: 600 }}>미개봉 상품</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>박스·봉인씰 사진 슬롯이 추가됩니다</p>
+                </div>
+                <button
+                  onClick={() => setIsSealedProduct((v) => !v)}
+                  className="w-11 h-6 rounded-full transition-all relative shrink-0"
+                  style={{ background: isSealedProduct ? PRIMARY : "#E5E7EB" }}
+                >
+                  <span
+                    className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all"
+                    style={{ left: isSealedProduct ? "calc(100% - 22px)" : "2px", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }}
+                  />
+                </button>
+              </div>
+
+              {/* 슬롯 그리드 */}
+              <div className="grid grid-cols-2 gap-2">
+                {photoSlots.map((slot, idx) => {
+                  const src = slotPhotos[slot.key];
+                  const isFirst = idx === 0;
+                  return (
+                    <div key={slot.key} className="relative">
+                      {src ? (
+                        <div className="relative rounded-xl overflow-hidden" style={{ height: 90 }}>
+                          <img src={src} alt={slot.label} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/20" />
+                          <div className="absolute top-1.5 left-1.5 flex items-center gap-1">
+                            <CheckCircle2 size={13} color="white" strokeWidth={2.5} />
+                            <span className="text-[9px] text-white" style={{ fontWeight: 700 }}>{slot.label}</span>
+                          </div>
+                          <button
+                            onClick={() => deleteSlotPhoto(slot.key)}
+                            className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-black/50 flex items-center justify-center"
+                          >
+                            <X size={10} color="white" strokeWidth={2.5} />
+                          </button>
+                          {isFirst && (
+                            <span className="absolute bottom-1.5 left-1.5 text-[9px] bg-black/50 text-white px-1.5 py-0.5 rounded" style={{ fontWeight: 600 }}>대표</span>
+                          )}
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleSlotClick(slot.key)}
+                          className="w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1 bg-white transition-all"
+                          style={{ height: 90, borderColor: slot.required ? "#fca5a5" : "#e5e7eb" }}
+                        >
+                          <Camera size={18} color={slot.required ? "#fca5a5" : "#d1d5db"} strokeWidth={1.5} />
+                          <span className="text-[10px] text-center leading-tight px-1" style={{ color: slot.required ? "#9ca3af" : "#d1d5db", fontWeight: slot.required ? 600 : 400 }}>
+                            {slot.label}
+                          </span>
+                          {slot.required && (
+                            <span className="text-[8px] px-1.5 py-0.5 rounded" style={{ background: "#fff5f5", color: PRIMARY, fontWeight: 700 }}>필수</span>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoAdd} />
             </div>
           </div>
         )}
@@ -571,7 +684,7 @@ export default function SellPage() {
                     borderColor: tradeType === opt.key ? PRIMARY : "#E5E7EB",
                     background: tradeType === opt.key ? "#FFF5F5" : "white",
                   }}>
-                  <span className="text-2xl mb-1.5">{opt.icon}</span>
+                  <opt.Icon size={22} strokeWidth={1.5} color={tradeType === opt.key ? PRIMARY : "#374151"} className="mb-1.5" />
                   <span className="text-xs" style={{ fontWeight: tradeType === opt.key ? 700 : 600, color: tradeType === opt.key ? PRIMARY : "#374151" }}>
                     {opt.label}
                   </span>
@@ -586,7 +699,7 @@ export default function SellPage() {
             {{
               parcel: (
                 <div className="mt-3 rounded-2xl p-3 flex items-start gap-2 bg-blue-50">
-                  <span className="text-lg shrink-0">📦</span>
+                  <Package size={18} strokeWidth={1.5} color="#2563eb" className="shrink-0 mt-0.5" />
                   <p className="text-xs text-gray-600 leading-relaxed" style={{ fontWeight: 400 }}>
                     발송 전 카드를 <span style={{ fontWeight: 700 }}>여러 각도로 촬영</span>해두세요.
                     하드케이스·뽁뽁이로 꼼꼼히 포장하고, 운송장 번호를 구매자에게 공유해주세요.
@@ -595,7 +708,7 @@ export default function SellPage() {
               ),
               half: (
                 <div className="mt-3 rounded-2xl p-3 flex items-start gap-2 bg-indigo-50">
-                  <span className="text-lg shrink-0">🏪</span>
+                  <Truck size={18} strokeWidth={1.5} color="#4f46e5" className="shrink-0 mt-0.5" />
                   <div>
                     <p className="text-xs text-gray-600 leading-relaxed" style={{ fontWeight: 400 }}>
                       <span style={{ fontWeight: 700 }}>CU·GS25 편의점</span>에서 접수하는 반값 배송이에요.
@@ -610,7 +723,7 @@ export default function SellPage() {
               ),
               direct: (
                 <div className="mt-3 rounded-2xl p-3 flex items-start gap-2 bg-green-50">
-                  <span className="text-lg shrink-0">🤝</span>
+                  <Users size={18} strokeWidth={1.5} color="#16a34a" className="shrink-0 mt-0.5" />
                   <p className="text-xs text-gray-600 leading-relaxed" style={{ fontWeight: 400 }}>
                     <span style={{ fontWeight: 700 }}>공공장소(카페, 편의점 등)</span>에서 만나 거래하세요.
                     구매자가 실물을 직접 확인 후 결제하는 가장 안전한 방법이에요.
@@ -619,7 +732,7 @@ export default function SellPage() {
               ),
               safe: (
                 <div className="mt-3 rounded-2xl p-3 flex items-start gap-2" style={{ background: "#FFF5F5" }}>
-                  <span className="text-lg shrink-0">🛡️</span>
+                  <ShieldCheck size={18} strokeWidth={1.5} color={PRIMARY} className="shrink-0 mt-0.5" />
                   <p className="text-xs text-gray-600 leading-relaxed" style={{ fontWeight: 400 }}>
                     구매자가 카드를 받고 확인한 후 판매자에게 대금이 지급돼요.
                     가품 판정 시 <span style={{ fontWeight: 700 }}>100% 환불</span>됩니다.
@@ -718,7 +831,7 @@ export default function SellPage() {
               fontWeight: 700,
               opacity: canNext[3] ? 1 : 0.4,
             }}>
-            {submitting ? "등록 중..." : "카드 등록하기 🎴"}
+            {submitting ? "등록 중..." : "카드 등록하기"}
           </button>
         )}
       </div>

@@ -52,6 +52,8 @@ export default function SellPage() {
   const [desc, setDesc] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [isPsa, setIsPsa] = useState(false);
+  const [psaGrade, setPsaGrade] = useState("10");
 
   // 입력값이 품번인지 감지
   // 품번 형식: "sv3pt5-183" / "183/207" / "183" (순수 숫자)
@@ -138,20 +140,23 @@ export default function SellPage() {
   if (done) {
     return (
       <div className="min-h-screen bg-white max-w-sm mx-auto flex flex-col items-center justify-center px-8 text-center">
-        <div className="text-7xl mb-5">🎉</div>
-        <h2 className="text-xl text-gray-900 mb-2" style={{ fontWeight: 800 }}>등록 완료!</h2>
-        <p className="text-sm text-gray-500 mb-8" style={{ fontWeight: 400 }}>
-          {selectedCard?.name} 카드가<br />레어리티에 등록됐어요
+        <div className="text-7xl mb-5">🎴</div>
+        <h2 className="text-xl text-gray-900 mb-2" style={{ fontWeight: 800 }}>매물 등록 완료</h2>
+        <p className="text-sm text-gray-500 mb-1" style={{ fontWeight: 400 }}>
+          <span style={{ fontWeight: 700, color: "#111" }}>{selectedCard?.name}</span>이(가)<br />레어리티 컬렉터 마켓에 올라갔어요
+        </p>
+        <p className="text-xs text-gray-400 mb-8" style={{ fontWeight: 400 }}>
+          PSA · PROMO · SAR 매물은 상단 노출 우선순위가 높아요
         </p>
         <button onClick={() => router.push("/")}
           className="w-full py-4 rounded-2xl text-white text-sm"
           style={{ background: PRIMARY, fontWeight: 700 }}>
           홈으로 돌아가기
         </button>
-        <button onClick={() => { setDone(false); setStep(0); setCategory(""); setSelectedCard(null); setPhotos([]); setCondition(""); setPrice(""); setDesc(""); }}
+        <button onClick={() => { setDone(false); setStep(0); setCategory(""); setSelectedCard(null); setPhotos([]); setCondition(""); setPrice(""); setDesc(""); setIsPsa(false); setPsaGrade("10"); }}
           className="w-full py-4 rounded-2xl border text-sm mt-2"
           style={{ borderColor: PRIMARY, color: PRIMARY, fontWeight: 600 }}>
-          카드 추가 등록
+          매물 추가 등록
         </button>
       </div>
     );
@@ -203,7 +208,7 @@ export default function SellPage() {
         {/* ── STEP 0: 카테고리 선택 ── */}
         {step === 0 && (
           <div>
-            <p className="text-base text-gray-900 mb-1" style={{ fontWeight: 700 }}>어떤 카드를 등록할까요?</p>
+            <p className="text-base text-gray-900 mb-1" style={{ fontWeight: 700 }}>매물을 등록할 카드를 선택하세요</p>
             <p className="text-xs text-gray-400 mb-5" style={{ fontWeight: 400 }}>카테고리를 먼저 선택해주세요</p>
             <div className="grid grid-cols-2 gap-3">
               {[
@@ -223,6 +228,22 @@ export default function SellPage() {
                   <span className="text-xs text-gray-400 mt-1" style={{ fontWeight: 400 }}>{cat.desc}</span>
                 </button>
               ))}
+            </div>
+
+            {/* 희귀 카드 키워드 힌트 */}
+            <div className="mt-4 px-3 py-3 rounded-2xl border border-gray-100 bg-gray-50 flex flex-col gap-2">
+              <p className="text-[11px] text-gray-400" style={{ fontWeight: 500 }}>희귀 카드도 모두 등록 가능해요</p>
+              <div className="flex flex-wrap gap-1.5">
+                {["PSA 10", "PSA 9", "PROMO", "SAR", "UR", "Trophy Card", "미개봉"].map((kw) => (
+                  <span
+                    key={kw}
+                    className="text-[11px] px-2 py-0.5 rounded-lg"
+                    style={{ background: "white", border: "1px solid #e5e7eb", color: "#374151", fontWeight: 600 }}
+                  >
+                    {kw}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -427,6 +448,51 @@ export default function SellPage() {
               ))}
             </div>
 
+            {/* PSA 등급 카드 */}
+            <div
+              className="flex items-center justify-between px-4 py-3 rounded-2xl border-2 mb-6 transition-all"
+              style={{ borderColor: isPsa ? PRIMARY : "#E5E7EB", background: isPsa ? "#FFF5F5" : "white" }}
+            >
+              <div className="flex flex-col gap-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-900" style={{ fontWeight: 700 }}>PSA 등급 카드</span>
+                  <span
+                    className="text-[10px] px-1.5 py-0.5 rounded"
+                    style={{ background: "#fefce8", color: "#d97706", fontWeight: 600 }}
+                  >
+                    선택
+                  </span>
+                </div>
+                <span className="text-xs text-gray-400" style={{ fontWeight: 400 }}>
+                  PSA 슬랩 카드라면 등급을 표기하세요
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {isPsa && (
+                  <select
+                    value={psaGrade}
+                    onChange={(e) => setPsaGrade(e.target.value)}
+                    className="text-xs rounded-lg px-2 py-1.5 outline-none"
+                    style={{ border: `1.5px solid ${PRIMARY}`, color: PRIMARY, fontWeight: 700 }}
+                  >
+                    {["10", "9", "8", "7", "6", "5"].map((g) => (
+                      <option key={g} value={g}>PSA {g}</option>
+                    ))}
+                  </select>
+                )}
+                <button
+                  onClick={() => setIsPsa((v) => !v)}
+                  className="w-11 h-6 rounded-full transition-all relative"
+                  style={{ background: isPsa ? PRIMARY : "#E5E7EB" }}
+                >
+                  <span
+                    className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all"
+                    style={{ left: isPsa ? "calc(100% - 22px)" : "2px", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }}
+                  />
+                </button>
+              </div>
+            </div>
+
             {/* 거래 방식 */}
             <p className="text-base text-gray-900 mb-3" style={{ fontWeight: 700 }}>거래 방식</p>
             <div className="grid grid-cols-2 gap-2">
@@ -545,6 +611,7 @@ export default function SellPage() {
               {[
                 ["카드", selectedCard?.name ?? "-"],
                 ["레어도", selectedCard?.rarity ?? "-"],
+                ["PSA 등급", isPsa ? `PSA ${psaGrade}` : "-"],
                 ["상태", condition ? condition + "급" : "-"],
                 ["거래", TRADE_OPTIONS.find(t => t.key === tradeType)?.label ?? "-"],
                 ["가격", price ? Number(price).toLocaleString() + "원" : "-"],

@@ -127,20 +127,27 @@ export default function MyPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 mt-4 pl-1">
-          <button className="flex items-center gap-1.5">
-            <span className="text-sm text-gray-900" style={{ fontWeight: 700 }}>128</span>
-            <span className="text-xs text-gray-400" style={{ fontWeight: 400 }}>팔로워</span>
-          </button>
-          <span className="text-gray-200 text-sm">·</span>
-          <button className="flex items-center gap-1.5">
-            <span className="text-sm text-gray-900" style={{ fontWeight: 700 }}>64</span>
-            <span className="text-xs text-gray-400" style={{ fontWeight: 400 }}>팔로잉</span>
-          </button>
+        {/* 거래 신뢰 지표 */}
+        <div className="grid grid-cols-4 gap-1.5 mt-4">
+          {[
+            { label: "거래완료", value: "18건"  },
+            { label: "응답시간", value: "~30분" },
+            { label: "안전결제", value: "사용중" },
+            { label: "최근접속", value: "오늘"  },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className="flex flex-col items-center gap-0.5 py-2 rounded-xl"
+              style={{ background: "#f9fafb" }}
+            >
+              <span className="text-xs text-gray-900" style={{ fontWeight: 700 }}>{stat.value}</span>
+              <span className="text-[10px] text-gray-400" style={{ fontWeight: 400 }}>{stat.label}</span>
+            </div>
+          ))}
         </div>
 
         <div className="flex flex-wrap gap-1.5 mt-4">
-          {["PSA 10", "일본판 위주", "PROMO 수집", "SAR 관심", "미개봉 선호"].map((tag) => (
+          {["PSA 10", "일본판 위주", "PROMO 수집", "SAR 관심", "감정 카드 경험"].map((tag) => (
             <span key={tag} className="text-xs px-2.5 py-1 rounded-full" style={{ border: "1px solid #d1d5db", color: "#6b7280", fontWeight: 500 }}>
               {tag}
             </span>

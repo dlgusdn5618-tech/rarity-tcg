@@ -570,16 +570,23 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
 
       {/* 하단 버튼 */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 px-4 py-3">
-        <div className="flex gap-2">
-          <button className="flex-1 py-3.5 rounded-2xl border text-sm"
+        <div className="flex gap-2 mb-2">
+          <button
+            onClick={() => router.push(`/exchange/propose?cardId=${id}&cardName=${encodeURIComponent(card.nameKo)}`)}
+            className="flex-1 py-3 rounded-2xl border text-sm"
+            style={{ borderColor: "#e5e7eb", color: "#374151", fontWeight: 600 }}
+          >
+            ⇄ 교환 제안
+          </button>
+          <button className="flex-1 py-3 rounded-2xl border text-sm"
             style={{ borderColor: PRIMARY, color: PRIMARY, fontWeight: 700 }}>
             💬 채팅하기
           </button>
-          <button className="flex-1 py-3.5 rounded-2xl text-white text-sm"
-            style={{ background: PRIMARY, fontWeight: 700 }}>
-            바로 구매
-          </button>
         </div>
+        <button className="w-full py-3.5 rounded-2xl text-white text-sm"
+          style={{ background: PRIMARY, fontWeight: 700 }}>
+          바로 구매
+        </button>
       </div>
     </div>
   );

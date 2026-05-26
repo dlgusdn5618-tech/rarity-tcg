@@ -52,8 +52,21 @@ export default function SellPage() {
   const [desc, setDesc] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
-  const [isPsa, setIsPsa] = useState(false);
-  const [psaGrade, setPsaGrade] = useState("10");
+  const [isGraded, setIsGraded] = useState(false);
+  const [gradingCo, setGradingCo] = useState("");
+  const [grade, setGrade] = useState("10");
+
+  const GRADES: Record<string, string[]> = {
+    PSA: ["10", "9", "8", "7", "6", "5", "4", "3", "2", "1"],
+    BGS: ["10", "9.5", "9", "8.5", "8", "7.5", "7", "6.5", "6"],
+    CGC: ["10", "9.5", "9", "8.5", "8", "7.5", "7", "6.5", "6"],
+    BRG: ["10", "9", "8", "7", "6", "5", "4", "3", "2", "1"],
+  };
+
+  const handleGradingCo = (co: string) => {
+    setGradingCo(co);
+    setGrade(GRADES[co][0]);
+  };
 
   // 입력값이 품번인지 감지
   // 품번 형식: "sv3pt5-183" / "183/207" / "183" (순수 숫자)
@@ -153,7 +166,7 @@ export default function SellPage() {
           style={{ background: PRIMARY, fontWeight: 700 }}>
           홈으로 돌아가기
         </button>
-        <button onClick={() => { setDone(false); setStep(0); setCategory(""); setSelectedCard(null); setPhotos([]); setCondition(""); setPrice(""); setDesc(""); setIsPsa(false); setPsaGrade("10"); }}
+        <button onClick={() => { setDone(false); setStep(0); setCategory(""); setSelectedCard(null); setPhotos([]); setCondition(""); setPrice(""); setDesc(""); setIsGraded(false); setGradingCo(""); setGrade("10"); }}
           className="w-full py-4 rounded-2xl border text-sm mt-2"
           style={{ borderColor: PRIMARY, color: PRIMARY, fontWeight: 600 }}>
           매물 추가 등록
@@ -448,49 +461,82 @@ export default function SellPage() {
               ))}
             </div>
 
-            {/* PSA 등급 카드 */}
+            {/* 감정 카드 등급 */}
             <div
-              className="flex items-center justify-between px-4 py-3 rounded-2xl border-2 mb-6 transition-all"
-              style={{ borderColor: isPsa ? PRIMARY : "#E5E7EB", background: isPsa ? "#FFF5F5" : "white" }}
+              className="rounded-2xl border-2 mb-6 overflow-hidden transition-all"
+              style={{ borderColor: isGraded && gradingCo ? PRIMARY : "#E5E7EB", background: isGraded ? "#FFF5F5" : "white" }}
             >
-              <div className="flex flex-col gap-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-900" style={{ fontWeight: 700 }}>PSA 등급 카드</span>
-                  <span
-                    className="text-[10px] px-1.5 py-0.5 rounded"
-                    style={{ background: "#fefce8", color: "#d97706", fontWeight: 600 }}
-                  >
-                    선택
-                  </span>
+              {/* 토글 행 */}
+              <div className="flex items-center justify-between px-4 py-3">
+                <div className="flex flex-col gap-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-900" style={{ fontWeight: 700 }}>감정 카드</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "#fefce8", color: "#d97706", fontWeight: 600 }}>선택</span>
+                  </div>
+                  <span className="text-xs text-gray-400" style={{ fontWeight: 400 }}>PSA · BGS · CGC · BRG 슬랩 카드</span>
                 </div>
-                <span className="text-xs text-gray-400" style={{ fontWeight: 400 }}>
-                  PSA 슬랩 카드라면 등급을 표기하세요
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                {isPsa && (
-                  <select
-                    value={psaGrade}
-                    onChange={(e) => setPsaGrade(e.target.value)}
-                    className="text-xs rounded-lg px-2 py-1.5 outline-none"
-                    style={{ border: `1.5px solid ${PRIMARY}`, color: PRIMARY, fontWeight: 700 }}
-                  >
-                    {["10", "9", "8", "7", "6", "5"].map((g) => (
-                      <option key={g} value={g}>PSA {g}</option>
-                    ))}
-                  </select>
-                )}
                 <button
-                  onClick={() => setIsPsa((v) => !v)}
-                  className="w-11 h-6 rounded-full transition-all relative"
-                  style={{ background: isPsa ? PRIMARY : "#E5E7EB" }}
+                  onClick={() => { setIsGraded((v) => !v); setGradingCo(""); }}
+                  className="w-11 h-6 rounded-full transition-all relative shrink-0"
+                  style={{ background: isGraded ? PRIMARY : "#E5E7EB" }}
                 >
                   <span
                     className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all"
-                    style={{ left: isPsa ? "calc(100% - 22px)" : "2px", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }}
+                    style={{ left: isGraded ? "calc(100% - 22px)" : "2px", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }}
                   />
                 </button>
               </div>
+
+              {/* 감정사 + 등급 (토글 ON 시) */}
+              {isGraded && (
+                <div className="px-4 pb-4 flex flex-col gap-3 border-t border-red-100">
+                  <p className="text-[11px] text-gray-400 mt-3" style={{ fontWeight: 500 }}>감정사 선택</p>
+                  <div className="flex gap-2">
+                    {["PSA", "BGS", "CGC", "BRG"].map((co) => (
+                      <button
+                        key={co}
+                        onClick={() => handleGradingCo(co)}
+                        className="flex-1 py-2 rounded-xl text-xs transition-all"
+                        style={{
+                          background: gradingCo === co ? PRIMARY : "white",
+                          color: gradingCo === co ? "white" : "#374151",
+                          border: `1.5px solid ${gradingCo === co ? PRIMARY : "#e5e7eb"}`,
+                          fontWeight: gradingCo === co ? 700 : 500,
+                        }}
+                      >
+                        {co}
+                      </button>
+                    ))}
+                  </div>
+
+                  {gradingCo && (
+                    <>
+                      <p className="text-[11px] text-gray-400" style={{ fontWeight: 500 }}>등급 선택</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {GRADES[gradingCo].map((g) => (
+                          <button
+                            key={g}
+                            onClick={() => setGrade(g)}
+                            className="px-3 py-1.5 rounded-lg text-xs transition-all"
+                            style={{
+                              background: grade === g ? PRIMARY : "white",
+                              color: grade === g ? "white" : "#374151",
+                              border: `1.5px solid ${grade === g ? PRIMARY : "#e5e7eb"}`,
+                              fontWeight: grade === g ? 700 : 500,
+                            }}
+                          >
+                            {g}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-center py-2 rounded-xl" style={{ background: "white" }}>
+                        <span className="text-sm" style={{ color: PRIMARY, fontWeight: 800 }}>{gradingCo} {grade}</span>
+                        <span className="text-xs text-gray-400 ml-1.5" style={{ fontWeight: 400 }}>로 등록됩니다</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* 거래 방식 */}
@@ -611,7 +657,7 @@ export default function SellPage() {
               {[
                 ["카드", selectedCard?.name ?? "-"],
                 ["레어도", selectedCard?.rarity ?? "-"],
-                ["PSA 등급", isPsa ? `PSA ${psaGrade}` : "-"],
+                ["감정 등급", isGraded && gradingCo ? `${gradingCo} ${grade}` : "-"],
                 ["상태", condition ? condition + "급" : "-"],
                 ["거래", TRADE_OPTIONS.find(t => t.key === tradeType)?.label ?? "-"],
                 ["가격", price ? Number(price).toLocaleString() + "원" : "-"],

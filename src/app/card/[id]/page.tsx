@@ -43,12 +43,6 @@ const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
   RR:     { bg: "#f8fafc", color: "#475569" },
 };
 
-const SCARCITY_COLOR: Record<string, string> = {
-  Grail:  "#b45309",
-  High:   "#2563eb",
-  Rare:   "#0d9488",
-  Common: "#9ca3af",
-};
 
 const TYPE_EMOJI: Record<string, string> = {
   Fire: "🔥", Water: "💧", Grass: "🌿", Lightning: "⚡",
@@ -142,6 +136,63 @@ type ApiSpec = {
   setTotal: number; releaseDate: string; artist: string;
   regulationMark: string; rarity: string; image: string;
 } | null;
+
+// ─── 표시 변환 헬퍼 ───────────────────────────────────────────────────────────
+
+function formatLanguage(v: string): string {
+  const m: Record<string, string> = { Japanese: "일본판", Korean: "한국판", English: "영문판" };
+  return m[v] ?? v;
+}
+
+function formatDistribution(v: string): string {
+  const m: Record<string, string> = {
+    "Booster Set": "확장팩 수록", "Promo": "프로모",
+    "Tournament Prize": "대회 상품", "Championship Prize": "챔피언십 상품",
+    "Trophy Card": "트로피 카드", "Product Bundle": "상품 동봉",
+  };
+  return m[v] ?? v;
+}
+
+function formatGrade(v: string): string {
+  return v === "Ungraded" ? "미감정" : v;
+}
+
+function formatCondition(v: string): { value: string; sub?: string } {
+  const m: Record<string, { value: string; sub: string }> = {
+    "Near Mint":    { value: "NM", sub: "거의 새 상품" },
+    "Excellent":    { value: "EX", sub: "상태 좋음"   },
+    "Light Played": { value: "LP", sub: "사용감 적음"  },
+    "Played":       { value: "PL", sub: "사용감 있음"  },
+    "Poor":         { value: "PO", sub: "손상 있음"   },
+    "Ungraded":     { value: "미감정", sub: ""        },
+  };
+  const r = m[v];
+  if (!r) return { value: v };
+  return { value: r.value, sub: r.sub || undefined };
+}
+
+function formatScarcity(v: string): { value: string; sub?: string; accent?: string } {
+  const m: Record<string, { value: string; sub?: string; accent: string }> = {
+    Grail:  { value: "Grail", sub: "최상급 희귀", accent: "#b45309" },
+    High:   { value: "높음",                     accent: "#2563eb" },
+    Rare:   { value: "희귀",                      accent: "#0d9488" },
+    Common: { value: "일반",                      accent: "#9ca3af" },
+  };
+  return m[v] ?? { value: v };
+}
+
+function formatPricePosition(v: string): { value: string; sub?: string } {
+  const match = v.match(/^30D Top (\d+)%$/);
+  if (match) return { value: `상위 ${match[1]}%`, sub: "최근 30일" };
+  const m: Record<string, string> = {
+    "Fair Price":   "시세 적정",
+    "Below Market": "평균가 이하",
+    "Above Market": "평균가 이상",
+  };
+  return { value: m[v] ?? v };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 function PhotoCertSection({
   photoSlots, isGraded,
@@ -264,13 +315,9 @@ function TrustStackSection({
   const totalCount   = activeSlots.length;
   const photoPct     = Math.round((filledCount / totalCount) * 100);
 
-  const langLabel: Record<string, string> = {
-    Japanese: "일본판", English: "영어판", Korean: "한국판",
-  };
-
   const identityItems = [
-    { ok: true, text: "Card Passport 확인됨" },
-    { ok: true, text: `${rarity} · ${langLabel[language] ?? language} · ${distribution}` },
+    { ok: true, text: "카드 패스포트 확인됨" },
+    { ok: true, text: `${rarity} · ${formatLanguage(language)} · ${formatDistribution(distribution)}` },
     ...(grade !== "Ungraded" ? [{ ok: true, text: `${grade} 감정 카드` }] : []),
   ];
 
@@ -362,56 +409,70 @@ function TrustStackSection({
 }
 
 function CardPassport({ name, nameKo, data }: { name: string; nameKo: string; data: PassportData }) {
-  const chip = RARITY_CHIP[data.rarity] ?? { bg: "#f9fafb", color: "#6b7280" };
+  const chip        = RARITY_CHIP[data.rarity] ?? { bg: "#f9fafb", color: "#6b7280" };
   const displayName = data.language === "Korean" ? nameKo : name;
+  const showKoSub   = data.language !== "Korean";
 
-  const row1 = [
-    { label: "Language",  value: data.language     },
-    { label: "Distrib.",  value: data.distribution },
-    { label: "Grade",     value: data.grade        },
+  const condFmt  = formatCondition(data.condition);
+  const scarcFmt = formatScarcity(data.scarcity);
+  const mktFmt   = formatPricePosition(data.pricePosition);
+
+  const row1: { label: string; value: string }[] = [
+    { label: "언어",     value: formatLanguage(data.language)     },
+    { label: "배포 방식", value: formatDistribution(data.distribution) },
+    { label: "감정 등급", value: formatGrade(data.grade)          },
   ];
-  const row2 = [
-    { label: "Condition", value: data.condition,     accent: undefined                        },
-    { label: "Market",    value: data.pricePosition, accent: undefined                        },
-    { label: "Scarcity",  value: data.scarcity,      accent: SCARCITY_COLOR[data.scarcity]   },
+  const row2: { label: string; value: string; sub?: string; accent?: string }[] = [
+    { label: "상태",     value: condFmt.value,  sub: condFmt.sub,   accent: undefined         },
+    { label: "시세 위치", value: mktFmt.value,   sub: mktFmt.sub,    accent: undefined         },
+    { label: "희소성",   value: scarcFmt.value, sub: scarcFmt.sub,  accent: scarcFmt.accent   },
   ];
 
   return (
     <div className="rounded-lg overflow-hidden" style={{ border: "1px solid #e5e7eb" }}>
 
-      {/* Header */}
+      {/* 헤더 */}
       <div
-        className="flex items-center justify-between px-4 py-2.5"
+        className="flex items-start justify-between px-4 py-3"
         style={{ background: "#f9fafb", borderBottom: "1px solid #e5e7eb" }}
       >
-        <span className="text-[10px] text-gray-900" style={{ fontWeight: 700, letterSpacing: "0.12em" }}>
-          CARD PASSPORT
-        </span>
-        <span className="text-[10px] text-gray-400" style={{ fontWeight: 500, letterSpacing: "0.08em" }}>
-          RARITY ID
-        </span>
+        <div>
+          <p className="text-[13px] text-gray-900" style={{ fontWeight: 800, letterSpacing: "-0.2px" }}>
+            카드 패스포트
+          </p>
+          <p className="text-[9px] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>
+            Card Passport
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-[9px] text-gray-400" style={{ fontWeight: 500 }}>카드 ID</p>
+          <p className="text-[10px] text-gray-500 mt-0.5" style={{ fontWeight: 500, fontFamily: "monospace" }}>
+            #{data.cardId}
+          </p>
+        </div>
       </div>
 
-      {/* Card name + rarity chip */}
+      {/* 카드명 + 레어도 */}
       <div
         className="flex items-start justify-between px-4 py-3"
         style={{ borderBottom: "1px solid #f3f4f6" }}
       >
-        <div>
-          <p className="text-[9px] text-gray-400 uppercase mb-1" style={{ fontWeight: 500, letterSpacing: "0.1em" }}>
-            Card Name
-          </p>
+        <div className="min-w-0 mr-3">
+          <p className="text-[9px] text-gray-400 mb-1" style={{ fontWeight: 500 }}>카드명</p>
           <p className="text-sm text-gray-900" style={{ fontWeight: 700 }}>{displayName}</p>
+          {showKoSub && (
+            <p className="text-[10px] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>{nameKo}</p>
+          )}
         </div>
         <span
-          className="text-[11px] px-2.5 py-1 rounded shrink-0 ml-3"
+          className="text-[11px] px-2.5 py-1 rounded shrink-0"
           style={{ background: chip.bg, color: chip.color, fontWeight: 700, border: `1px solid ${chip.color}33` }}
         >
           {data.rarity}
         </span>
       </div>
 
-      {/* Row 1 */}
+      {/* Row 1: 언어 / 배포 방식 / 감정 등급 */}
       <div className="grid grid-cols-3" style={{ borderBottom: "1px solid #f3f4f6" }}>
         {row1.map((f, i) => (
           <div
@@ -419,7 +480,7 @@ function CardPassport({ name, nameKo, data }: { name: string; nameKo: string; da
             className="px-3 py-3"
             style={{ borderRight: i < 2 ? "1px solid #f3f4f6" : "none" }}
           >
-            <p className="text-[9px] text-gray-400 uppercase mb-1" style={{ fontWeight: 500, letterSpacing: "0.08em" }}>
+            <p className="text-[9px] text-gray-400 mb-1" style={{ fontWeight: 500 }}>
               {f.label}
             </p>
             <p className="text-xs text-gray-900" style={{ fontWeight: 600 }}>{f.value}</p>
@@ -427,7 +488,7 @@ function CardPassport({ name, nameKo, data }: { name: string; nameKo: string; da
         ))}
       </div>
 
-      {/* Row 2 */}
+      {/* Row 2: 상태 / 시세 위치 / 희소성 */}
       <div className="grid grid-cols-3" style={{ borderBottom: "1px solid #f3f4f6" }}>
         {row2.map((f, i) => (
           <div
@@ -435,22 +496,30 @@ function CardPassport({ name, nameKo, data }: { name: string; nameKo: string; da
             className="px-3 py-3"
             style={{ borderRight: i < 2 ? "1px solid #f3f4f6" : "none" }}
           >
-            <p className="text-[9px] text-gray-400 uppercase mb-1" style={{ fontWeight: 500, letterSpacing: "0.08em" }}>
+            <p className="text-[9px] text-gray-400 mb-1" style={{ fontWeight: 500 }}>
               {f.label}
             </p>
-            <p className="text-xs" style={{ fontWeight: 600, color: f.accent ?? "#111111" }}>{f.value}</p>
+            <p className="text-xs" style={{ fontWeight: 600, color: f.accent ?? "#111111" }}>
+              {f.value}
+            </p>
+            {f.sub && (
+              <p className="text-[9px] text-gray-400 mt-0.5 leading-tight" style={{ fontWeight: 400 }}>
+                {f.sub}
+              </p>
+            )}
           </div>
         ))}
       </div>
 
-      {/* Tags */}
+      {/* 태그 */}
       <div className="flex flex-wrap items-center gap-1.5 px-4 py-3">
         {data.photoVerified && (
           <span
-            className="text-[10px] px-2 py-0.5 rounded"
+            className="text-[10px] px-2 py-0.5 rounded inline-flex items-center gap-1"
             style={{ background: "#f0fdf4", color: "#16a34a", fontWeight: 600, border: "1px solid #bbf7d0" }}
           >
-            Photo Verified
+            <CheckCircle2 size={9} strokeWidth={2.5} />
+            사진 인증 완료
           </span>
         )}
         {data.safeTrade && (
@@ -459,7 +528,7 @@ function CardPassport({ name, nameKo, data }: { name: string; nameKo: string; da
             style={{ background: "#fff5f5", color: "#dc2626", fontWeight: 600, border: "1px solid #fecaca" }}
           >
             <Shield size={9} strokeWidth={2.5} />
-            Safe Trade
+            안전거래 가능
           </span>
         )}
         {data.grade !== "Ungraded" && (

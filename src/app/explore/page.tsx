@@ -387,7 +387,7 @@ export default function ExplorePage() {
             [
               { Icon: Home,          label: "홈",   href: "/"        },
               { Icon: Search,        label: "탐색", href: "/explore" },
-              { Icon: Sparkles,      label: "피드", href: "/"        },
+              { Icon: Sparkles,      label: "피드", href: "/feed"    },
               { Icon: MessageCircle, label: "채팅", href: "/chat"    },
               { Icon: User,          label: "마이", href: "/mypage"  },
             ] as { Icon: LucideIcon; label: string; href: string }[]

@@ -215,12 +215,9 @@ export default function Home() {
       {/* ── Heat Ticker ── */}
       <div className="flex items-center overflow-hidden bg-white border-b border-gray-100">
         {/* 레이블 */}
-        <div
-          className="flex items-center gap-1 px-3 py-2.5 shrink-0 border-r border-gray-100"
-          style={{ background: "#111" }}
-        >
+        <div className="flex items-center gap-1 px-3 py-2.5 shrink-0 border-r border-gray-100">
           <Flame size={10} color="#f97316" strokeWidth={2.5} />
-          <span className="text-[10px] text-white" style={{ fontWeight: 700, letterSpacing: "0.05em" }}>
+          <span className="text-[10px] text-gray-700" style={{ fontWeight: 700, letterSpacing: "0.05em" }}>
             SIGNAL
           </span>
         </div>

@@ -189,10 +189,30 @@ export default function SellPage() {
       const cat = result.tcg === "Pokemon" ? "포켓몬" : "원피스";
       setCategory(cat);
 
-      // 카드 검색: cardId로 정확히 찾기, 없으면 카드명
-      const q = result.cardId || result.name;
-      setSearchQuery(q);
-      void searchPokemonCard(q);
+      // 검색창 표시 (이름만 설정, API 호출 없음)
+      setSearchQuery(result.name);
+
+      // 스캔 결과로 카드 초안을 즉시 설정 — 외부 API 의존 없이 canNext[1] 충족
+      // setTotal: 0 → 표시 시 "/0" 생략 처리
+      const cardNumber = result.cardId.includes("-")
+        ? (result.cardId.split("-").pop() ?? result.cardId)
+        : result.cardId;
+      const syntheticCard: ApiCard = {
+        id:      result.cardId,
+        name:    result.name,
+        number:  cardNumber,
+        setName: result.series,
+        setTotal: 0,
+        rarity:  result.rarity,
+      };
+      setSelectedCard(syntheticCard);
+
+      // 스캐너에서 채워진 슬롯을 "scanner" 마커로 반영 — uploadedCount 충족
+      const filledSlots: Record<string, string> = {};
+      for (const [k, v] of Object.entries(result.photoSlots)) {
+        if (v) filledSlots[k] = "scanner";
+      }
+      if (Object.keys(filledSlots).length > 0) setSlotPhotos(filledSlots);
 
       // 감정 정보 반영
       if (result.isGraded && result.gradingCompany) {
@@ -555,7 +575,7 @@ export default function SellPage() {
                   <div>
                     <p className="text-base text-gray-900" style={{ fontWeight: 700 }}>{selectedCard.name}</p>
                     <p className="text-xs text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>
-                      {selectedCard.setName} · {selectedCard.number}/{selectedCard.setTotal}
+                      {selectedCard.setName}{selectedCard.number ? ` · ${selectedCard.number}${selectedCard.setTotal > 0 ? `/${selectedCard.setTotal}` : ""}` : ""}
                     </p>
                     <span className="inline-block mt-1.5 text-xs px-2 py-0.5 rounded-lg"
                       style={{ background: "#FFF5F5", color: PRIMARY, fontWeight: 700 }}>
@@ -622,7 +642,8 @@ export default function SellPage() {
                   const isFirst = idx === 0;
                   return (
                     <div key={slot.key} className="relative">
-                      {src ? (
+                      {src && (src.startsWith("data:") || src.startsWith("http")) ? (
+                        // 실제 업로드 이미지
                         <div className="relative rounded-xl overflow-hidden" style={{ height: 90 }}>
                           <img src={src} alt={slot.label} className="w-full h-full object-cover" />
                           <div className="absolute inset-0 bg-black/20" />
@@ -640,7 +661,33 @@ export default function SellPage() {
                             <span className="absolute bottom-1.5 left-1.5 text-[9px] bg-black/50 text-white px-1.5 py-0.5 rounded" style={{ fontWeight: 600 }}>대표</span>
                           )}
                         </div>
+                      ) : src === "scanner" ? (
+                        // AI 스캔 마커 — X 버튼으로 실제 사진으로 교체 가능
+                        <div
+                          className="relative rounded-xl flex flex-col items-center justify-center gap-1"
+                          style={{ height: 90, background: "#f0fdf4", border: "1.5px solid #bbf7d0" }}
+                        >
+                          <CheckCircle2 size={15} color="#16a34a" strokeWidth={2} />
+                          <span className="text-[10px]" style={{ color: "#16a34a", fontWeight: 700 }}>{slot.label}</span>
+                          <span className="text-[9px]" style={{ color: "#9ca3af", fontWeight: 400 }}>AI 스캔</span>
+                          {isFirst && (
+                            <span
+                              className="absolute bottom-1.5 left-1.5 text-[9px] px-1.5 py-0.5 rounded"
+                              style={{ background: "#dcfce7", color: "#16a34a", fontWeight: 600 }}
+                            >
+                              대표
+                            </span>
+                          )}
+                          <button
+                            onClick={() => deleteSlotPhoto(slot.key)}
+                            className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-white flex items-center justify-center"
+                            style={{ border: "1px solid #e5e7eb" }}
+                          >
+                            <X size={10} color="#9ca3af" strokeWidth={2.5} />
+                          </button>
+                        </div>
                       ) : (
+                        // 빈 슬롯
                         <button
                           onClick={() => handleSlotClick(slot.key)}
                           className="w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1 bg-white transition-all"

@@ -45,6 +45,7 @@
 27. **이모지 추가 정리 + Next.js 16 params 수정** — /mypage(🔔→Bell, ⚙️→Settings, 🎴→이니셜 아바타, ✏️→Pencil), /explore(🔍→Search, ⚙️→SlidersHorizontal, 카드 그리드→TCG 프레임), /sell(카테고리·TRADE_OPTIONS·검색힌트·완료화면 이모지 전부 아이콘/TCG 프레임으로), /exchange/propose·[id](교환방식 버튼·카드 프리뷰→lucide+TCG 프레임), /chat/[id] Next.js 16 params Promise 패턴 적용
 28. **카드 등록 사진 가이드 (판매자)** — /sell Step 1에 named 슬롯 그리드 추가: BASE(앞면/뒷면/모서리/반사 필수 4개) + 감정카드 ON 시 GRADED(감정케이스/감정번호) + 미개봉 ON 시 SEALED(박스앞뒤/봉인씰/모서리) 조건부 슬롯; Camera 아이콘 플레이스홀더, 슬롯별 사진 촬영 후 체크마크·삭제 버튼, 충족 카운터, 미개봉 토글; 슬롯키 기반 Record<string,string> 상태로 교체
 29. **사진 인증 섹션 (구매자)** — /card/[id] Card Passport 아래에 PhotoCertSection 추가: 슬롯별 충족률 %, 색상 분기 진행 바(100%=초록/75~99%=황색/미만=빨강), 2열 체크리스트(CheckCircle2/AlertCircle + 필수 뱃지), 감정카드 여부에 따라 감정 슬롯 조건부 표시, 누락 시 추가 사진 요청 버튼(탭 후 완료 상태 전환), "거래 확정 후 상태 분쟁 시 기준 자료" 안내 문구
+30. **구매 확신 스택 (구매 전 확인)** — /card/[id] 판매자 정보 다음에 TrustStackSection 추가: ① 카드 정체성(Card Passport 확인/레어도·언어·배포/감정등급) ② 가격 판단(TrendingDown/Up 아이콘, 30일 평균 대비 ±% + 평균가 표시) ③ 판매자 신뢰(사진인증 n/n, 안전거래 가능, 거래 완료 n회, 응답 시간 — CheckCircle2 / 회색 빈 원으로 ok 여부 구분); 하단 고정 CTA 위에 "사진 인증됨 · 안전거래 가능 · 평균가 대비 -6%" 한 줄 신뢰 요약; CARD_DB에 avgPrice30d·sellerResponseTime mock 데이터 추가
 
 ## 다음 작업 🔜
 - **Supabase 연결** — Auth + DB

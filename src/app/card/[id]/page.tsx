@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect, use } from "react";
-import { Shield, Share2, Heart, Eye, Package, Store, Users, ShieldCheck, Camera, CheckCircle2, AlertCircle, MessageSquarePlus, type LucideIcon } from "lucide-react";
+import { Shield, Share2, Heart, Eye, Package, Store, Users, ShieldCheck, Camera, CheckCircle2, AlertCircle, MessageSquarePlus, TrendingDown, TrendingUp, type LucideIcon } from "lucide-react";
 
 const PRIMARY = "#E53E3E";
 
@@ -62,6 +62,7 @@ const CARD_DB: Record<string, {
   seller: string; sellerGrade: string; sellerTrades: number;
   desc: string; priceHistory: number[];
   tradeType: "parcel" | "half" | "direct" | "safe";
+  avgPrice30d: number; sellerResponseTime: string;
   passport: PassportData;
 }> = {
   "1": {
@@ -72,6 +73,7 @@ const CARD_DB: Record<string, {
     desc: "구입 후 슬리브 보관. 모서리·표면 흠집 전혀 없음. 직거래 가능(강남).",
     priceHistory: [72000, 75000, 78000, 76000, 82000, 85000],
     tradeType: "safe",
+    avgPrice30d: 90500, sellerResponseTime: "보통 30분 내",
     passport: {
       tcg: "Pokemon", rarity: "SAR", language: "Japanese", distribution: "Booster Set",
       condition: "Near Mint", grade: "PSA 10", photoVerified: true, safeTrade: true,
@@ -87,6 +89,7 @@ const CARD_DB: Record<string, {
     desc: "개봉 직후 슬리브 보관. 아주 미세한 표면 광택 차이 있으나 육안으로 식별 어려움.",
     priceHistory: [38000, 39000, 40000, 41000, 40000, 42000],
     tradeType: "parcel",
+    avgPrice30d: 40000, sellerResponseTime: "보통 2시간 내",
     passport: {
       tcg: "Pokemon", rarity: "SAR", language: "English", distribution: "Booster Set",
       condition: "Excellent", grade: "Ungraded", photoVerified: false, safeTrade: false,
@@ -102,6 +105,7 @@ const CARD_DB: Record<string, {
     desc: "PSA 9 등급 상당 컨디션. 완전 민트. 하드케이스 보관 중.",
     priceHistory: [105000, 108000, 112000, 110000, 118000, 120000],
     tradeType: "safe",
+    avgPrice30d: 115000, sellerResponseTime: "보통 1시간 내",
     passport: {
       tcg: "Pokemon", rarity: "UR", language: "Japanese", distribution: "Booster Set",
       condition: "Near Mint", grade: "Ungraded", photoVerified: true, safeTrade: true,
@@ -235,6 +239,123 @@ function PhotoCertSection({
           등록된 사진은 <span style={{ fontWeight: 600 }}>거래 확정 후 상태 분쟁 시 기준 자료</span>로 활용됩니다.
           {missingSlots.length > 0 && <> 누락된 필수 사진이 있으면 분쟁 처리 시 불리할 수 있어요.</>}
         </p>
+      </div>
+    </div>
+  );
+}
+
+function TrustStackSection({
+  price, avgPrice30d,
+  rarity, language, distribution, grade,
+  safeTrade, sellerTrades, sellerResponseTime,
+  photoSlots, isGraded,
+}: {
+  price: number; avgPrice30d: number;
+  rarity: string; language: string; distribution: string; grade: string;
+  safeTrade: boolean; sellerTrades: number; sellerResponseTime: string;
+  photoSlots: Record<string, boolean>; isGraded: boolean;
+}) {
+  const priceDiffPct = Math.round(((price - avgPrice30d) / avgPrice30d) * 100);
+  const priceBelow   = priceDiffPct < 0;
+  const absDiff      = Math.abs(priceDiffPct);
+
+  const activeSlots  = PHOTO_SLOT_DEFS.filter((s) => !s.gradedOnly || isGraded);
+  const filledCount  = activeSlots.filter((s) => photoSlots[s.key]).length;
+  const totalCount   = activeSlots.length;
+  const photoPct     = Math.round((filledCount / totalCount) * 100);
+
+  const langLabel: Record<string, string> = {
+    Japanese: "일본판", English: "영어판", Korean: "한국판",
+  };
+
+  const identityItems = [
+    { ok: true, text: "Card Passport 확인됨" },
+    { ok: true, text: `${rarity} · ${langLabel[language] ?? language} · ${distribution}` },
+    ...(grade !== "Ungraded" ? [{ ok: true, text: `${grade} 감정 카드` }] : []),
+  ];
+
+  const sellerItems = [
+    { ok: photoPct === 100, text: `사진 인증 (${filledCount}/${totalCount})` },
+    { ok: safeTrade,        text: "안전거래 가능" },
+    { ok: sellerTrades >= 50, text: `거래 완료 ${sellerTrades.toLocaleString()}회` },
+    {
+      ok: !sellerResponseTime.includes("2시간") && !sellerResponseTime.includes("3시간"),
+      text: `${sellerResponseTime} 응답`,
+    },
+  ];
+
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden" style={{ border: "1px solid #f3f4f6" }}>
+
+      {/* 헤더 */}
+      <div className="px-4 py-3 border-b" style={{ borderColor: "#f3f4f6" }}>
+        <p className="text-sm text-gray-900" style={{ fontWeight: 700 }}>구매 전 확인</p>
+      </div>
+
+      {/* 섹션 1: 카드 정체성 */}
+      <div className="px-4 py-3 border-b" style={{ borderColor: "#f3f4f6" }}>
+        <p className="text-[9px] text-gray-400 mb-2.5"
+          style={{ fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          카드 정체성
+        </p>
+        <div className="flex flex-col gap-2">
+          {identityItems.map((item, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <CheckCircle2 size={13} color="#10b981" strokeWidth={2.5} className="shrink-0" />
+              <span className="text-xs text-gray-700" style={{ fontWeight: 500 }}>{item.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 섹션 2: 가격 판단 */}
+      <div className="px-4 py-3 border-b" style={{ borderColor: "#f3f4f6" }}>
+        <p className="text-[9px] text-gray-400 mb-2.5"
+          style={{ fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          가격
+        </p>
+        <div className="flex items-start gap-2">
+          {priceBelow
+            ? <TrendingDown size={15} color="#10b981" strokeWidth={2} className="shrink-0 mt-0.5" />
+            : <TrendingUp   size={15} color="#ef4444" strokeWidth={2} className="shrink-0 mt-0.5" />
+          }
+          <div>
+            <p className="text-xs" style={{ color: priceBelow ? "#10b981" : "#ef4444", fontWeight: 700 }}>
+              {priceBelow
+                ? `최근 30일 평균보다 ${absDiff}% 낮음`
+                : `최근 30일 평균보다 ${absDiff}% 높음`}
+            </p>
+            <p className="text-[10px] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>
+              30일 평균 {avgPrice30d.toLocaleString()}원
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 섹션 3: 판매자 신뢰 */}
+      <div className="px-4 py-3">
+        <p className="text-[9px] text-gray-400 mb-2.5"
+          style={{ fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          판매자 신뢰
+        </p>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+          {sellerItems.map((item, i) => (
+            <div key={i} className="flex items-center gap-1.5 min-w-0">
+              {item.ok
+                ? <CheckCircle2 size={13} color="#10b981" strokeWidth={2.5} className="shrink-0" />
+                : <span className="w-3.5 h-3.5 rounded-full border-2 border-gray-200 flex items-center justify-center shrink-0">
+                    <span className="w-1 h-1 rounded-full bg-gray-300" />
+                  </span>
+              }
+              <span
+                className="text-xs truncate"
+                style={{ color: item.ok ? "#374151" : "#9ca3af", fontWeight: item.ok ? 500 : 400 }}
+              >
+                {item.text}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -408,6 +529,16 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
 
   const maxPrice = Math.max(...card.priceHistory);
   const minPrice = Math.min(...card.priceHistory);
+
+  const isGradedCard   = card.passport.grade !== "Ungraded";
+  const activeSlots    = PHOTO_SLOT_DEFS.filter((s) => !s.gradedOnly || isGradedCard);
+  const photoCertPct   = Math.round(activeSlots.filter((s) => card.passport.photoSlots[s.key]).length / activeSlots.length * 100);
+  const priceDiffPct   = Math.round(((card.price - card.avgPrice30d) / card.avgPrice30d) * 100);
+  const trustTags: string[] = [
+    ...(photoCertPct === 100 ? ["사진 인증됨"] : []),
+    ...(card.passport.safeTrade ? ["안전거래 가능"] : []),
+    `평균가 대비 ${priceDiffPct > 0 ? "+" : ""}${priceDiffPct}%`,
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 max-w-sm mx-auto pb-28">
@@ -693,6 +824,23 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
         </button>
       </div>
 
+      {/* 구매 전 확인 */}
+      <div className="mx-4 mt-3">
+        <TrustStackSection
+          price={card.price}
+          avgPrice30d={card.avgPrice30d}
+          rarity={card.passport.rarity}
+          language={card.passport.language}
+          distribution={card.passport.distribution}
+          grade={card.passport.grade}
+          safeTrade={card.passport.safeTrade}
+          sellerTrades={card.sellerTrades}
+          sellerResponseTime={card.sellerResponseTime}
+          photoSlots={card.passport.photoSlots}
+          isGraded={isGradedCard}
+        />
+      </div>
+
       {/* 비슷한 카드 */}
       <div className="mt-4">
         <div className="flex items-center justify-between px-4 mb-3">
@@ -722,7 +870,16 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
       </div>
 
       {/* 하단 버튼 */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 px-4 py-3">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 px-4 pt-2.5 pb-3">
+        {/* 한 줄 신뢰 요약 */}
+        <div className="flex items-center justify-center gap-1.5 mb-2.5 flex-wrap">
+          {trustTags.map((tag, i) => (
+            <span key={i} className="flex items-center gap-1">
+              {i > 0 && <span className="text-gray-200 text-[10px] select-none">·</span>}
+              <span className="text-[10px] text-gray-500" style={{ fontWeight: 500 }}>{tag}</span>
+            </span>
+          ))}
+        </div>
         <div className="flex gap-2 mb-2">
           <button
             onClick={() => router.push(`/exchange/propose?cardId=${id}&cardName=${encodeURIComponent(card.nameKo)}`)}

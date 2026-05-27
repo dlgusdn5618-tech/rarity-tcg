@@ -9,7 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 type SignalType = "price" | "newListing" | "trade" | "seller" | "wishlist" | "rare";
 
@@ -125,23 +125,23 @@ const SIGNAL_META: Record<SignalType, { label: string; color: string; bg: string
 };
 
 const GRADE_COLORS: Record<string, string> = {
-  SAR: "#7c3aed",
-  UR:  "#dc2626",
-  SR:  "#d97706",
-  R:   "#2563eb",
+  SAR: "#B7791F",   // 앰버 골드 (TCG 카드 프레임 accent)
+  UR:  "#6D28D9",   // 딥 바이올렛
+  SR:  "#B91C1C",   // 크림슨
+  R:   "#1D4ED8",   // 블루
 };
 
 const CHIP_META: Record<string, { color: string; Icon?: LucideIcon }> = {
-  "사진 인증":   { color: "#6b7280", Icon: Camera       },
-  "안전거래":    { color: "#0891b2", Icon: ShieldCheck  },
-  "안전교환":    { color: "#0891b2", Icon: ShieldCheck  },
-  "Card Passport": { color: "#6b7280"                  },
-  "교환 가능":   { color: "#7c3aed"                     },
-  "PSA 10":      { color: "#d97706"                     },
-  "팔로우 셀러": { color: "#0891b2"                     },
-  "원피스":      { color: "#6b7280"                     },
-  "SAR":         { color: "#7c3aed"                     },
-  "일본판":      { color: "#6b7280"                     },
+  "사진 인증":   { color: "#71717A", Icon: Camera       },
+  "안전거래":    { color: "#0891B2", Icon: ShieldCheck  },
+  "안전교환":    { color: "#0891B2", Icon: ShieldCheck  },
+  "Card Passport": { color: "#71717A"                  },
+  "교환 가능":   { color: "#6D28D9"                     },
+  "PSA 10":      { color: "#1D4ED8"                     },   // PSA 브랜드 블루
+  "팔로우 셀러": { color: "#0891B2"                     },
+  "원피스":      { color: "#71717A"                     },
+  "SAR":         { color: "#92400E"                     },   // 앰버 골드
+  "일본판":      { color: "#71717A"                     },
 };
 
 type TabFilter = "전체" | "가격" | "새 매물" | "교환" | "셀러";

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Clock, Heart, Trash2 } from "lucide-react";
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 const RECENT = [
   { id: 1,  name: "피카츄 ex",       grade: "SAR", price: 280000, emoji: "⚡", condition: "S급", seller: "포켓마스터",    viewedAt: "방금 전",    category: "포켓몬" },

@@ -11,7 +11,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 const TRADE_ITEMS = [
   { Icon: Tag,            label: "판매내역",    href: "/mypage/sales"     },

@@ -1,32 +1,92 @@
 @import "tailwindcss";
 
+/* ── Design Tokens ──────────────────────────────────────────────────────────
+   TS 원천: src/lib/tokens.ts
+   CSS 변수로 노출 → Tailwind @theme에 등록 → 페이지 inline style에서도 참조 가능
+────────────────────────────────────────────────────────────────────────── */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: #E53E3E;
-  --primary-dark: #C53030;
-  --accent: #F6C90E;
+  /* Brand */
+  --primary:         #D62828;
+  --primary-dark:    #B01C1C;
+  --primary-surface: #FFF1F1;
+  --accent:          #F6C90E;
+
+  /* Rarity */
+  --rarity-sar-bg:   #FFFBEB;  --rarity-sar-fg:   #92400E;
+  --rarity-ur-bg:    #F3EEFF;  --rarity-ur-fg:    #6D28D9;
+  --rarity-sr-bg:    #FFF0F0;  --rarity-sr-fg:    #B91C1C;
+  --rarity-promo-bg: #EFF6FF;  --rarity-promo-fg: #1D4ED8;
+
+  /* Neutral surfaces */
+  --bg:            #FAFAFA;
+  --surface:       #FFFFFF;
+  --surface-alt:   #F4F4F5;
+  --border:        #E4E4E7;
+  --border-muted:  #F4F4F5;
+
+  /* Text hierarchy */
+  --text-title:     #18181B;
+  --text-body:      #3F3F46;
+  --text-secondary: #71717A;
+  --text-muted:     #A1A1AA;
+
+  /* Semantic */
+  --success:    #10B981;  --success-bg:  #F0FDF4;
+  --warning:    #D97706;  --warning-bg:  #FFFBEB;
+  --error:      #EF4444;  --error-bg:    #FEF2F2;
+  --info:       #3B82F6;  --info-bg:     #EFF6FF;
+
+  /* Radius */
+  --r-xs: 4px;  --r-sm: 8px;  --r-md: 12px;
+  --r-lg: 16px; --r-xl: 20px;
+
+  /* Shadow */
+  --shadow-subtle: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-card:   0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-float:  0 4px 12px rgba(0,0,0,0.08);
+  --shadow-sheet:  0 -4px 16px rgba(0,0,0,0.10);
+
+  /* Tailwind v4 @theme 참조용 */
+  --background: var(--surface);
+  --foreground: var(--text-title);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary:    var(--primary);
+  --font-sans:        var(--font-noto-sans-kr), -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:        var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text-body);
+  font-family: var(--font-noto-sans-kr), -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* 모바일 탭 하이라이트 제거 */
+* { -webkit-tap-highlight-color: transparent; }
+
+/* ── Utilities ────────────────────────────────────────────────────────────── */
+
+.scrollbar-none { scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* ── Animations ──────────────────────────────────────────────────────────── */
 
 @keyframes marquee {
   0%   { transform: translateX(0); }
@@ -38,7 +98,4 @@ body {
   animation: marquee 18s linear infinite;
   width: max-content;
 }
-
-.animate-marquee:hover {
-  animation-play-state: paused;
-}
+.animate-marquee:hover { animation-play-state: paused; }

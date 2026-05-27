@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 const STATUS_STYLE: Record<string, { bg: string; color: string; label: string }> = {
   "받은제안":   { bg: "#eff6ff", color: "#3b82f6",  label: "받은 제안"  },

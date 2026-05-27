@@ -4,7 +4,7 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Shield, ChevronRight, CheckCircle2, AlertTriangle, Users, Lock } from "lucide-react";
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 type Method = "face" | "escrow" | null;
 

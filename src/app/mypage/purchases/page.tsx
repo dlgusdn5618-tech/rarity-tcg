@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
   "진행중":   { bg: "#eff6ff", color: "#3b82f6" },

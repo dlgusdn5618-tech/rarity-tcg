@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Heart, SlidersHorizontal, Bell, BellRing, X } from "lucide-react";
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 const WISHLIST = [
   { id: 1, name: "피카츄 ex",    grade: "SAR", price: 280000, condition: "S급", seller: "포켓마스터",    category: "포켓몬" },
@@ -23,10 +23,10 @@ const ALERT_PRESETS = [
 ];
 
 const GRADE_COLORS: Record<string, string> = {
-  SAR: "#7c3aed",
-  UR:  "#dc2626",
-  SR:  "#d97706",
-  R:   "#2563eb",
+  SAR: "#B7791F",   // 앰버 골드
+  UR:  "#6D28D9",   // 딥 바이올렛
+  SR:  "#B91C1C",   // 크림슨
+  R:   "#1D4ED8",   // 블루
 };
 
 type Filter = "전체" | "포켓몬" | "원피스";

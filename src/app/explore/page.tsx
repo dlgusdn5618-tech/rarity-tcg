@@ -20,10 +20,10 @@ const SERIES = ["전체", "151", "스칼렛·바이올렛", "페어리킹덤", "
 const GRADES = ["전체", "SAR", "UR", "SR", "R"];
 
 const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
-  SAR: { bg: "#fff8e6", color: "#b45309" },
-  UR:  { bg: "#f3e8ff", color: "#7c3aed" },
-  SR:  { bg: "#fff5f5", color: "#dc2626" },
-  R:   { bg: "#f8fafc", color: "#475569" },
+  SAR: { bg: "#FFFBEB", color: "#92400E" },   // 앰버 골드
+  UR:  { bg: "#F3EEFF", color: "#6D28D9" },   // 딥 바이올렛
+  SR:  { bg: "#FFF0F0", color: "#B91C1C" },   // 크림슨
+  R:   { bg: "#F0F9FF", color: "#0369A1" },   // 스카이 블루
 };
 
 type CardEntry = {

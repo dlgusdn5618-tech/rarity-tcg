@@ -7,7 +7,7 @@ import {
   XCircle, Shield, Camera,
 } from "lucide-react";
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 // ── Demo toggle ──────────────────────────────────────────────────
 // false: 사진 미등록 → 확정 불가 상태

@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Package, Truck, Users, ShieldCheck, Search, Info, Camera, CheckCircle2, X, type LucideIcon } from "lucide-react";
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 const CONDITION_OPTIONS = [
   { key: "S",  label: "S급", desc: "완전 민트 · 개봉 직후 수준", color: "#D69E2E", bg: "#FFFFF0" },

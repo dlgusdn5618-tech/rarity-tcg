@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Home, Search, Sparkles, MessageCircle, User, Settings, type LucideIcon } from "lucide-react";
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 const INITIAL_CHATS = [
   { id: 1, user: "트레이너_루피", avatar: "👒", card: "리자몽 ex SR",     lastMsg: "네, 직거래 가능합니다! 강남역 어떠세요?",  time: "방금",     unread: 2, price: 85000,  isSelling: false },

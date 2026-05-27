@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, use } from "react";
 import { Shield, Share2, Heart, Eye, Package, Store, Users, ShieldCheck, Camera, CheckCircle2, AlertCircle, MessageSquarePlus, TrendingDown, TrendingUp, type LucideIcon } from "lucide-react";
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 const RARITY_KO: Record<string, string> = {
   "Common": "C",
@@ -34,13 +34,13 @@ type PassportData = {
 };
 
 const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
-  TROPHY: { bg: "#111111", color: "#F6C90E" },
-  SAR:    { bg: "#fff8e6", color: "#b45309" },
-  UR:     { bg: "#f3e8ff", color: "#7c3aed" },
-  PROMO:  { bg: "#eff6ff", color: "#2563eb" },
-  SR:     { bg: "#fff5f5", color: "#dc2626" },
-  IR:     { bg: "#f0fdfa", color: "#0d9488" },
-  RR:     { bg: "#f8fafc", color: "#475569" },
+  TROPHY: { bg: "#111111", color: "#F6C90E" },   // 검정/골드
+  SAR:    { bg: "#FFFBEB", color: "#92400E" },   // 앰버 골드
+  UR:     { bg: "#F3EEFF", color: "#6D28D9" },   // 딥 바이올렛
+  PROMO:  { bg: "#EFF6FF", color: "#1D4ED8" },   // 로얄 블루
+  SR:     { bg: "#FFF0F0", color: "#B91C1C" },   // 크림슨
+  IR:     { bg: "#F0FDFA", color: "#0D9488" },   // 틸
+  RR:     { bg: "#F8FAFC", color: "#475569" },   // 슬레이트
 };
 
 
@@ -173,10 +173,10 @@ function formatCondition(v: string): { value: string; sub?: string } {
 
 function formatScarcity(v: string): { value: string; sub?: string; accent?: string } {
   const m: Record<string, { value: string; sub?: string; accent: string }> = {
-    Grail:  { value: "Grail", sub: "최상급 희귀", accent: "#b45309" },
-    High:   { value: "높음",                     accent: "#2563eb" },
-    Rare:   { value: "희귀",                      accent: "#0d9488" },
-    Common: { value: "일반",                      accent: "#9ca3af" },
+    Grail:  { value: "Grail", sub: "최상급 희귀", accent: "#92400E" },
+    High:   { value: "높음",                     accent: "#1D4ED8" },
+    Rare:   { value: "희귀",                      accent: "#0D9488" },
+    Common: { value: "일반",                      accent: "#9CA3AF" },
   };
   return m[v] ?? { value: v };
 }

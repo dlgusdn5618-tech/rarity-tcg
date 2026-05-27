@@ -7,7 +7,7 @@ import {
   type BalanceReport,
 } from "@/components/ExchangeBalanceBoard";
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 const STATUS_STYLE: Record<string, { bg: string; color: string; label: string }> = {
   "진행중": { bg: "#eff6ff", color: "#3b82f6",  label: "교환 진행중" },

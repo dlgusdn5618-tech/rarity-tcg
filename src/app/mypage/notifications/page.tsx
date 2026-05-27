@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 type ToggleKeys =
   | "chat" | "tradeStatus" | "priceOffer"

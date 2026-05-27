@@ -22,7 +22,7 @@ export default function RootLayout({
     <html lang="ko" className={`${notoSansKR.variable} h-full`}>
       <body
         className="min-h-full flex flex-col antialiased"
-        style={{ fontFamily: "var(--font-noto-sans-kr), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" }}
+        style={{ background: "var(--bg)", fontFamily: "var(--font-noto-sans-kr), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" }}
       >
         {children}
       </body>

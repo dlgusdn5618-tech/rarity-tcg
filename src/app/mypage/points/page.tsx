@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 const HISTORY = [
   { id: 1, type: "적립", label: "리자몽 ex 거래 완료",    amount: +850,  balance: 1200, date: "2026.05.20" },

@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Home as HomeIcon, Search, Sparkles, MessageCircle, User, Bell, MapPin, Package, Star, RefreshCw, type LucideIcon } from "lucide-react";
 
-const PRIMARY = "#E53E3E";
-const PRIMARY_DARK = "#C53030";
+const PRIMARY = "#D62828";
+const PRIMARY_DARK = "#B01C1C";
 
 const RANKINGS = [
   { rank: 1,  name: "리자몽 ex",    grade: "SR",  up: true  },

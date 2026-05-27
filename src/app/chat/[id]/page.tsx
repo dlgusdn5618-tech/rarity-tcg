@@ -6,7 +6,7 @@ import { Package, Truck, Users, Lock, CreditCard, Ban, LogOut } from "lucide-rea
 
 type Params = { id: string };
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 const CHAT_DATA: Record<string, {
   user: string;

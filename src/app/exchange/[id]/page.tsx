@@ -4,7 +4,7 @@ import { use, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Shield, CheckCircle2, Clock, Package, AlertTriangle, Users, Lock, Camera, Truck, type LucideIcon } from "lucide-react";
 
-const PRIMARY = "#E53E3E";
+const PRIMARY = "#D62828";
 
 type ExchangeStep = {
   id: string;

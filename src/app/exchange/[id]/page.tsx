@@ -2,7 +2,7 @@
 
 import { use, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Shield, CheckCircle2, Clock, Package, AlertTriangle, Users, Lock } from "lucide-react";
+import { Shield, CheckCircle2, Clock, Package, AlertTriangle, Users, Lock, Camera, Truck, type LucideIcon } from "lucide-react";
 
 const PRIMARY = "#E53E3E";
 
@@ -33,6 +33,297 @@ const ESCROW_STEPS = (currentStep: number): ExchangeStep[] => [
 
 type Params = { id: string };
 
+// ──────────────────────────────────────────────
+// 교환 상태판 데이터 정의
+// ──────────────────────────────────────────────
+type BoardStateData = {
+  Icon: LucideIcon;
+  statusLabel: string;
+  statusColor: string;
+  statusBg: string;
+  headline: string;
+  myTodos: { done: boolean; text: string }[];
+  partnerTodos: { done: boolean; text: string }[];
+  deadline: string | null;
+  deadlineUrgent: boolean;
+  evidence: string[];
+  nextStep: string;
+  alertText?: string;
+};
+
+function getBoardState(step: number, isFace: boolean): BoardStateData {
+  if (isFace) {
+    const map: BoardStateData[] = [
+      {
+        Icon: Clock, statusLabel: "제안 보냄", statusColor: "#6b7280", statusBg: "#f3f4f6",
+        headline: "교환 제안을 보냈어요. 상대방이 확인하면 알림이 와요.",
+        myTodos:      [{ done: true,  text: "교환 제안 전송" }],
+        partnerTodos: [{ done: false, text: "교환 제안 확인 및 수락" }],
+        deadline: null, deadlineUrgent: false, evidence: [],
+        nextStep: "상대방 수락 후 채팅으로 만남 장소·시간을 조율하세요",
+      },
+      {
+        Icon: Clock, statusLabel: "수락 대기", statusColor: "#d97706", statusBg: "#fffbeb",
+        headline: "지금은 상대방의 수락을 기다리는 단계예요.",
+        myTodos:      [{ done: true, text: "교환 제안 전송" }],
+        partnerTodos: [{ done: false, text: "교환 제안 확인 및 수락" }],
+        deadline: null, deadlineUrgent: false, evidence: [],
+        nextStep: "수락 후 채팅으로 만남 장소·시간을 조율하세요",
+      },
+      {
+        Icon: Users, statusLabel: "만남 조율 중", statusColor: "#2563eb", statusBg: "#eff6ff",
+        headline: "채팅으로 만날 장소와 시간을 조율하고 있어요.",
+        myTodos:      [{ done: true, text: "교환 수락 완료" }, { done: false, text: "채팅으로 장소·시간 확정" }],
+        partnerTodos: [{ done: false, text: "채팅으로 장소·시간 확정" }],
+        deadline: null, deadlineUrgent: false, evidence: [],
+        nextStep: "장소·시간 확정 후 공공장소에서 실물을 확인하고 교환하세요",
+      },
+      {
+        Icon: Users, statusLabel: "직접 교환", statusColor: "#16a34a", statusBg: "#f0fdf4",
+        headline: "공공장소에서 실물 카드를 직접 확인하고 교환하세요.",
+        myTodos:      [{ done: false, text: "카드 실물 육안 확인" }, { done: false, text: "교환 후 앱에서 완료 확인" }],
+        partnerTodos: [{ done: false, text: "카드 실물 육안 확인" }, { done: false, text: "교환 후 앱에서 완료 확인" }],
+        deadline: null, deadlineUrgent: false, evidence: [],
+        nextStep: "양쪽 완료 확인 후 서로 리뷰를 남기면 교환이 종료돼요",
+      },
+      {
+        Icon: CheckCircle2, statusLabel: "교환 완료", statusColor: "#10b981", statusBg: "#f0fdf4",
+        headline: "교환이 완료됐어요. 서로 리뷰를 남겨주세요.",
+        myTodos:      [{ done: true, text: "교환 완료" }],
+        partnerTodos: [{ done: true, text: "교환 완료" }],
+        deadline: null, deadlineUrgent: false, evidence: [],
+        nextStep: "리뷰를 남기면 상대방 신뢰 지수에 반영돼요",
+      },
+    ];
+    return map[Math.min(step, map.length - 1)];
+  }
+
+  // 보증금 방식
+  const map: BoardStateData[] = [
+    {
+      Icon: Clock, statusLabel: "제안 보냄", statusColor: "#6b7280", statusBg: "#f3f4f6",
+      headline: "교환 제안을 보냈어요. 상대방이 확인하면 알림이 와요.",
+      myTodos:      [{ done: true,  text: "교환 제안 전송" }],
+      partnerTodos: [{ done: false, text: "교환 제안 확인 및 수락" }],
+      deadline: "7일 내 미수락 시 자동 취소", deadlineUrgent: false, evidence: [],
+      nextStep: "상대방 수락 후 양쪽 보증금 예치 단계로 넘어가요",
+    },
+    {
+      Icon: Clock, statusLabel: "수락 대기", statusColor: "#d97706", statusBg: "#fffbeb",
+      headline: "지금은 상대방의 수락을 기다리는 단계예요.",
+      myTodos:      [{ done: true,  text: "교환 제안 전송" }],
+      partnerTodos: [{ done: false, text: "교환 제안 확인 및 수락" }],
+      deadline: null, deadlineUrgent: false, evidence: [],
+      nextStep: "수락 후 양쪽 보증금 예치 단계로 넘어가요",
+    },
+    {
+      Icon: Package, statusLabel: "보증금 예치 대기", statusColor: "#d97706", statusBg: "#fffbeb",
+      headline: "카드 가액만큼 보증금을 예치해야 다음 단계로 넘어가요.",
+      myTodos:      [{ done: false, text: "내 보증금 예치 (PG 연동 예정)" }],
+      partnerTodos: [{ done: false, text: "상대방 보증금 예치" }],
+      deadline: "2026.06.02 23:59", deadlineUrgent: false, evidence: [],
+      nextStep: "양쪽 예치 완료 후 72시간 내 카드를 발송해야 해요",
+    },
+    {
+      Icon: Truck, statusLabel: "발송 대기", statusColor: "#2563eb", statusBg: "#eff6ff",
+      headline: "72시간 내에 카드를 발송하고 운송장 번호와 사진을 등록해야 해요.",
+      myTodos: [
+        { done: true,  text: "보증금 예치 완료" },
+        { done: false, text: "카드 발송 후 운송장 번호 등록" },
+        { done: false, text: "발송 사진 첨부 (앞면·포장·운송장)" },
+      ],
+      partnerTodos: [
+        { done: true,  text: "보증금 예치 완료" },
+        { done: false, text: "카드 발송 대기 중" },
+      ],
+      deadline: "2026.06.02 23:59", deadlineUrgent: true,
+      evidence: ["발송 사진 (앞면, 포장 상태)", "운송장 번호 사진"],
+      nextStep: "양쪽 발송 확인 후 수령 확인 단계로 넘어가요",
+      alertText: "기한 내 미발송 시 운영정책에 따라 보증금 처리가 검토될 수 있어요",
+    },
+    {
+      Icon: Package, statusLabel: "수령 확인 대기", statusColor: "#2563eb", statusBg: "#eff6ff",
+      headline: "상대방 카드가 도착했다면 앱에서 수령 확인 버튼을 눌러주세요.",
+      myTodos: [
+        { done: true,  text: "카드 발송 완료" },
+        { done: false, text: "카드 수령 후 앱에서 수령 확인" },
+      ],
+      partnerTodos: [
+        { done: true,  text: "카드 발송 완료" },
+        { done: false, text: "카드 수령 후 앱에서 수령 확인" },
+      ],
+      deadline: "2026.06.05 23:59", deadlineUrgent: false,
+      evidence: ["수령 확인 버튼 입력"],
+      nextStep: "양쪽 수령 확인 후 보증금이 전액 환급돼요",
+    },
+    {
+      Icon: CheckCircle2, statusLabel: "교환 완료", statusColor: "#10b981", statusBg: "#f0fdf4",
+      headline: "교환이 완료됐어요. 보증금이 전액 환급됩니다.",
+      myTodos:      [{ done: true, text: "교환 완료 및 보증금 환급" }],
+      partnerTodos: [{ done: true, text: "교환 완료 및 보증금 환급" }],
+      deadline: null, deadlineUrgent: false, evidence: [],
+      nextStep: "리뷰를 남기면 상대방 신뢰 지수에 반영돼요",
+    },
+  ];
+  return map[Math.min(step, map.length - 1)];
+}
+
+function StatusBoard({
+  boardState, partnerName,
+}: {
+  boardState: BoardStateData;
+  partnerName: string;
+}) {
+  const { Icon } = boardState;
+
+  return (
+    <div className="bg-white px-4 py-4">
+
+      {/* 상태 레이블 + 기한 칩 */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <div
+            className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: boardState.statusBg }}
+          >
+            <Icon size={14} color={boardState.statusColor} strokeWidth={2} />
+          </div>
+          <span className="text-sm" style={{ color: boardState.statusColor, fontWeight: 700 }}>
+            {boardState.statusLabel}
+          </span>
+        </div>
+        {boardState.deadline && (
+          <span
+            className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full"
+            style={{
+              background: boardState.deadlineUrgent ? "#fff5f5" : "#f3f4f6",
+              color:      boardState.deadlineUrgent ? PRIMARY   : "#6b7280",
+              fontWeight: 600,
+            }}
+          >
+            <Clock size={9} strokeWidth={2.5} />
+            {boardState.deadlineUrgent ? "기한 임박" : "기한 있음"}
+          </span>
+        )}
+      </div>
+
+      {/* 헤드라인 */}
+      <p className="text-[13px] text-gray-700 mb-4" style={{ fontWeight: 400, lineHeight: 1.65 }}>
+        {boardState.headline}
+      </p>
+
+      {/* 체크리스트 카드 */}
+      <div className="rounded-xl overflow-hidden border border-gray-100 mb-3">
+
+        {/* 내 할 일 */}
+        <div className="px-3 pt-3 pb-2.5 border-b border-gray-50">
+          <p className="text-[9px] text-gray-400 mb-2"
+            style={{ fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            내가 할 일
+          </p>
+          <div className="flex flex-col gap-1.5">
+            {boardState.myTodos.map((todo, i) => (
+              <div key={i} className="flex items-center gap-2">
+                {todo.done
+                  ? <CheckCircle2 size={13} color="#10b981" strokeWidth={2.5} className="shrink-0" />
+                  : <span className="w-3.5 h-3.5 rounded-full border-2 border-gray-300 flex items-center justify-center shrink-0">
+                      <span className="w-1 h-1 rounded-full bg-gray-300" />
+                    </span>
+                }
+                <span
+                  className="text-xs"
+                  style={{
+                    color: todo.done ? "#9ca3af" : "#111",
+                    fontWeight: todo.done ? 400 : 600,
+                    textDecoration: todo.done ? "line-through" : "none",
+                  }}
+                >
+                  {todo.text}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 상대방 할 일 */}
+        <div className="px-3 pt-2.5 pb-3">
+          <p className="text-[9px] text-gray-400 mb-2"
+            style={{ fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            {partnerName} 할 일
+          </p>
+          <div className="flex flex-col gap-1.5">
+            {boardState.partnerTodos.map((todo, i) => (
+              <div key={i} className="flex items-center gap-2">
+                {todo.done
+                  ? <CheckCircle2 size={13} color="#10b981" strokeWidth={2.5} className="shrink-0" />
+                  : <span className="w-3.5 h-3.5 rounded-full border-2 border-gray-200 shrink-0" />
+                }
+                <span
+                  className="text-xs text-gray-500"
+                  style={{ fontWeight: todo.done ? 400 : 400, color: todo.done ? "#9ca3af" : "#6b7280" }}
+                >
+                  {todo.text}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* 필요한 증빙 */}
+      {boardState.evidence.length > 0 && (
+        <div
+          className="flex flex-col gap-1.5 rounded-xl px-3 py-2.5 border border-gray-100 mb-3"
+          style={{ background: "#f9fafb" }}
+        >
+          <p className="text-[9px] text-gray-400 mb-0.5"
+            style={{ fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            필요한 증빙
+          </p>
+          {boardState.evidence.map((e, i) => (
+            <div key={i} className="flex items-center gap-1.5">
+              <Camera size={11} color="#6b7280" strokeWidth={1.5} className="shrink-0" />
+              <span className="text-xs text-gray-600" style={{ fontWeight: 400 }}>{e}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 기한 (날짜 형식) */}
+      {boardState.deadline && boardState.deadline.includes(".") && (
+        <div
+          className="flex items-center gap-2 rounded-xl px-3 py-2 mb-3"
+          style={{ background: boardState.deadlineUrgent ? "#fff5f5" : "#f9fafb" }}
+        >
+          <Clock size={12} color={boardState.deadlineUrgent ? PRIMARY : "#9ca3af"} strokeWidth={2} className="shrink-0" />
+          <p className="text-[11px]"
+            style={{ color: boardState.deadlineUrgent ? PRIMARY : "#6b7280", fontWeight: boardState.deadlineUrgent ? 600 : 400 }}>
+            {boardState.deadline}까지
+          </p>
+        </div>
+      )}
+
+      {/* 경고 */}
+      {boardState.alertText && (
+        <div className="flex items-start gap-2 rounded-xl px-3 py-2.5 mb-3" style={{ background: "#fffbeb" }}>
+          <AlertTriangle size={12} color="#d97706" strokeWidth={2} className="shrink-0 mt-0.5" />
+          <p className="text-[11px] text-amber-700" style={{ fontWeight: 400, lineHeight: 1.55 }}>
+            {boardState.alertText}
+          </p>
+        </div>
+      )}
+
+      {/* 다음 단계 */}
+      <div className="flex items-start gap-2 pt-3 border-t border-gray-50">
+        <span className="w-1.5 h-1.5 rounded-full bg-gray-300 shrink-0 mt-[6px]" />
+        <p className="text-[11px] text-gray-400" style={{ fontWeight: 400, lineHeight: 1.55 }}>
+          다음 단계: {boardState.nextStep}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function ExchangeDetailInner({ id }: { id: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -43,9 +334,7 @@ function ExchangeDetailInner({ id }: { id: string }) {
   const currentStep = 1;
 
   const steps = isFace ? FACE_STEPS(currentStep) : ESCROW_STEPS(currentStep);
-  const totalSteps = steps.length;
-  const doneCount = steps.filter((s) => s.done).length;
-  const progressPct = Math.round((doneCount / totalSteps) * 100);
+  const boardState = getBoardState(currentStep, isFace);
 
   const myCards: Record<string, { name: string; emoji: string; grade: string; value: number }> = {
     m1: { name: "피카츄 ex", emoji: "⚡", grade: "SAR", value: 280000 },
@@ -116,6 +405,11 @@ function ExchangeDetailInner({ id }: { id: string }) {
         </div>
       </div>
 
+      {/* 교환 상태판 */}
+      <div className="mt-2 border-b border-gray-50">
+        <StatusBoard boardState={boardState} partnerName={partner.name} />
+      </div>
+
       {/* 교환 조건 확정서 진입 */}
       <div className="bg-white mt-2 px-4 py-4 border-b border-gray-50">
         <div className="flex items-center justify-between mb-1">
@@ -134,20 +428,6 @@ function ExchangeDetailInner({ id }: { id: string }) {
         >
           확정서 작성하기
         </button>
-      </div>
-
-      {/* 진행도 */}
-      <div className="bg-white mt-2 px-4 py-4 border-b border-gray-50">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-gray-700" style={{ fontWeight: 600 }}>진행 상황</p>
-          <p className="text-xs text-gray-400" style={{ fontWeight: 400 }}>{progressPct}%</p>
-        </div>
-        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all"
-            style={{ background: PRIMARY, width: `${progressPct}%` }}
-          />
-        </div>
       </div>
 
       {/* 단계별 타임라인 */}

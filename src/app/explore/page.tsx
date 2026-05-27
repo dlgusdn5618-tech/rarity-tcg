@@ -299,11 +299,18 @@ export default function ExplorePage() {
                     {/* TCG 카드 프레임 */}
                     <div
                       className="w-10 h-[58px] rounded-lg flex flex-col overflow-hidden shrink-0"
-                      style={{ border: "1.5px solid #e5e7eb", background: "#f9fafb" }}
+                      style={{
+                        border: `1px solid ${chip.color}38`,
+                        background: `linear-gradient(175deg, ${chip.color}12 0%, #f6f6f6 55%)`,
+                      }}
                     >
-                      <div className="h-1.5 w-full shrink-0" style={{ background: "#E53E3E" }} />
-                      <div className="flex-1 flex items-center justify-center">
-                        <span className="text-[7px] text-gray-300 select-none" style={{ fontWeight: 700 }}>TCG</span>
+                      <div className="h-[3px] w-full shrink-0" style={{ background: chip.color }} />
+                      <div className="flex-1 flex items-center justify-center p-1">
+                        <div style={{
+                          width: "100%", height: "100%", borderRadius: 2,
+                          border: `1px solid ${chip.color}22`,
+                          background: `radial-gradient(ellipse at 50% 30%, ${chip.color}18, transparent 70%)`,
+                        }} />
                       </div>
                     </div>
 

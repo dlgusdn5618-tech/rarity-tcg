@@ -7,6 +7,13 @@ import { Home as HomeIcon, Search, Sparkles, MessageCircle, User, Bell, MapPin, 
 const PRIMARY = "#D62828";
 const PRIMARY_DARK = "#B01C1C";
 
+const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
+  SAR: { bg: "#FFFBEB", color: "#92400E" },
+  UR:  { bg: "#F3EEFF", color: "#6D28D9" },
+  SR:  { bg: "#FFF0F0", color: "#B91C1C" },
+  R:   { bg: "#F0F9FF", color: "#0369A1" },
+};
+
 const RANKINGS = [
   { rank: 1,  name: "리자몽 ex",    grade: "SR",  up: true  },
   { rank: 2,  name: "피카츄 ex",    grade: "SAR", up: true  },
@@ -225,16 +232,28 @@ export default function Home() {
           <button className="text-gray-400 text-sm" style={{ fontWeight: 400 }}>›</button>
         </div>
         <div className="flex gap-3 px-4 overflow-x-auto scrollbar-none pb-2">
-          {RECENT_CARDS[activeCategory].map((card) => (
+          {RECENT_CARDS[activeCategory].map((card) => {
+            const chip = RARITY_CHIP[card.grade] ?? { bg: "#f8fafc", color: "#475569" };
+            return (
             <div key={card.id} className="shrink-0 w-28 cursor-pointer" onClick={() => router.push(`/card/${card.id}`)}>
               <div className="bg-gray-100 rounded-xl h-28 flex items-center justify-center mb-2">
-                <div className="w-14 h-[78px] rounded-lg bg-white shadow-sm flex flex-col overflow-hidden border border-gray-200">
-                  <div className="h-1.5 w-full" style={{ background: PRIMARY }} />
-                  <div className="flex-1 flex items-center justify-center">
-                    <span className="text-[9px] text-gray-200 select-none" style={{ fontWeight: 700 }}>TCG</span>
+                <div
+                  className="w-14 h-[78px] rounded-lg flex flex-col overflow-hidden"
+                  style={{
+                    border: `1px solid ${chip.color}38`,
+                    background: `linear-gradient(175deg, ${chip.color}12 0%, #f6f6f6 55%)`,
+                  }}
+                >
+                  <div className="h-1 w-full" style={{ background: chip.color }} />
+                  <div className="flex-1 flex items-center justify-center p-1.5">
+                    <div style={{
+                      width: "100%", height: "100%", borderRadius: 2,
+                      border: `1px solid ${chip.color}22`,
+                      background: `radial-gradient(ellipse at 50% 30%, ${chip.color}18, transparent 70%)`,
+                    }} />
                   </div>
-                  <div className="h-5 bg-gray-50 flex items-center justify-center border-t border-gray-100">
-                    <span className="text-[9px] text-gray-500" style={{ fontWeight: 700 }}>{card.grade}</span>
+                  <div className="py-0.5 text-center" style={{ background: `${chip.color}15`, borderTop: `1px solid ${chip.color}20` }}>
+                    <span className="text-[8px]" style={{ color: chip.color, fontWeight: 700 }}>{card.grade}</span>
                   </div>
                 </div>
               </div>
@@ -242,7 +261,8 @@ export default function Home() {
               <p className="text-xs text-gray-400" style={{ fontWeight: 400 }}>{card.condition}</p>
               <p className="text-sm text-gray-900 mt-0.5" style={{ fontWeight: 700 }}>{card.price.toLocaleString()}원</p>
             </div>
-          ))}
+          );
+          })}
         </div>
       </div>
 

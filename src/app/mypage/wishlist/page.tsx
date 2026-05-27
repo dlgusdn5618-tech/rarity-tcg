@@ -160,15 +160,19 @@ export default function WishlistPage() {
                 onClick={() => router.push(`/card/${card.id}`)}
               >
                 {/* TCG 카드 프레임 이미지 영역 */}
-                <div className="relative h-36 flex flex-col overflow-hidden">
+                <div
+                  className="relative h-36 flex flex-col overflow-hidden"
+                  style={{ background: `linear-gradient(170deg, ${gradeColor}10 0%, #f6f6f6 60%)` }}
+                >
                   <div className="h-1.5 w-full" style={{ background: gradeColor }} />
-                  <div className="flex-1 bg-gray-100 flex items-center justify-center">
+                  <div className="flex-1 flex items-center justify-center p-3">
                     <div
-                      className="w-10 h-14 rounded border-2 flex items-center justify-center text-[9px]"
-                      style={{ borderColor: gradeColor, color: gradeColor, fontWeight: 700, letterSpacing: "0.05em" }}
-                    >
-                      TCG
-                    </div>
+                      className="w-full h-full rounded"
+                      style={{
+                        border: `1.5px solid ${gradeColor}30`,
+                        background: `radial-gradient(ellipse at 50% 30%, ${gradeColor}20, transparent 65%)`,
+                      }}
+                    />
                   </div>
 
                   {/* 등급 칩 */}

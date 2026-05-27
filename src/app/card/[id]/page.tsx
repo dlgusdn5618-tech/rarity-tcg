@@ -917,16 +917,28 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
           <button className="text-gray-400 text-sm">›</button>
         </div>
         <div className="flex gap-3 px-4 overflow-x-auto scrollbar-none pb-2">
-          {SIMILAR.map((c) => (
+          {SIMILAR.map((c) => {
+            const sc = RARITY_CHIP[c.grade] ?? { bg: "#f8fafc", color: "#475569" };
+            return (
             <button key={c.id} onClick={() => router.push(`/card/${c.id}`)} className="shrink-0 w-24 text-left">
               <div className="bg-white rounded-xl h-24 flex items-center justify-center mb-1.5 border border-gray-100">
-                <div className="w-12 h-[66px] rounded-lg bg-gray-50 flex flex-col overflow-hidden border border-gray-100">
-                  <div className="h-1 w-full" style={{ background: PRIMARY }} />
-                  <div className="flex-1 flex items-center justify-center">
-                    <span className="text-[8px] text-gray-200 select-none" style={{ fontWeight: 700 }}>TCG</span>
+                <div
+                  className="w-12 h-[66px] rounded-lg flex flex-col overflow-hidden"
+                  style={{
+                    border: `1px solid ${sc.color}38`,
+                    background: `linear-gradient(175deg, ${sc.color}12 0%, #f6f6f6 55%)`,
+                  }}
+                >
+                  <div className="h-[3px] w-full" style={{ background: sc.color }} />
+                  <div className="flex-1 flex items-center justify-center p-1">
+                    <div style={{
+                      width: "100%", height: "100%", borderRadius: 2,
+                      border: `1px solid ${sc.color}22`,
+                      background: `radial-gradient(ellipse at 50% 30%, ${sc.color}18, transparent 70%)`,
+                    }} />
                   </div>
-                  <div className="h-4 bg-gray-100 flex items-center justify-center">
-                    <span className="text-[7px] text-gray-400" style={{ fontWeight: 600 }}>{c.grade}</span>
+                  <div className="py-0.5 text-center" style={{ background: `${sc.color}15`, borderTop: `1px solid ${sc.color}20` }}>
+                    <span className="text-[7px]" style={{ color: sc.color, fontWeight: 700 }}>{c.grade}</span>
                   </div>
                 </div>
               </div>
@@ -934,7 +946,8 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
               <p className="text-xs text-gray-400" style={{ fontWeight: 400 }}>{c.grade}</p>
               <p className="text-xs mt-0.5" style={{ fontWeight: 700 }}>{c.price.toLocaleString()}원</p>
             </button>
-          ))}
+            );
+          })}
         </div>
       </div>
 

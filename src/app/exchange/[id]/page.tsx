@@ -6,6 +6,13 @@ import { Shield, CheckCircle2, Clock, Package, AlertTriangle, Users, Lock, Camer
 
 const PRIMARY = "#D62828";
 
+const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
+  SAR: { bg: "#FFFBEB", color: "#92400E" },
+  UR:  { bg: "#F3EEFF", color: "#6D28D9" },
+  SR:  { bg: "#FFF0F0", color: "#B91C1C" },
+  R:   { bg: "#F0F9FF", color: "#0369A1" },
+};
+
 type ExchangeStep = {
   id: string;
   label: string;
@@ -369,11 +376,28 @@ function ExchangeDetailInner({ id }: { id: string }) {
       {/* 교환 카드 요약 */}
       <div className="bg-white mx-0 mt-2 px-4 py-4 border-b border-gray-50">
         <div className="flex items-center gap-3">
+          {(() => {
+            const myChip = RARITY_CHIP[myCard.grade] ?? { bg: "#f8fafc", color: "#475569" };
+            const ptChip = RARITY_CHIP[partner.grade] ?? { bg: "#f8fafc", color: "#475569" };
+            return (<>
           <div className="flex-1 rounded-xl bg-gray-50 px-3 py-3 text-center">
-            <div className="w-10 h-14 rounded-lg flex flex-col overflow-hidden mx-auto mb-1" style={{ border: "1.5px solid #e5e7eb", background: "#fff" }}>
-              <div className="h-1.5 w-full shrink-0" style={{ background: "#E53E3E" }} />
-              <div className="flex-1 flex items-center justify-center">
-                <span className="text-[7px] text-gray-300 select-none" style={{ fontWeight: 700 }}>TCG</span>
+            <div
+              className="w-10 h-14 rounded-lg flex flex-col overflow-hidden mx-auto mb-1"
+              style={{
+                border: `1px solid ${myChip.color}38`,
+                background: `linear-gradient(175deg, ${myChip.color}12 0%, #f6f6f6 55%)`,
+              }}
+            >
+              <div className="h-[3px] w-full shrink-0" style={{ background: myChip.color }} />
+              <div className="flex-1 flex items-center justify-center p-1">
+                <div style={{
+                  width: "100%", height: "100%", borderRadius: 2,
+                  border: `1px solid ${myChip.color}22`,
+                  background: `radial-gradient(ellipse at 50% 30%, ${myChip.color}18, transparent 70%)`,
+                }} />
+              </div>
+              <div className="py-0.5 text-center" style={{ background: `${myChip.color}15`, borderTop: `1px solid ${myChip.color}20` }}>
+                <span className="text-[7px]" style={{ color: myChip.color, fontWeight: 700 }}>{myCard.grade}</span>
               </div>
             </div>
             <p className="text-[10px] text-gray-400" style={{ fontWeight: 400 }}>내 카드</p>
@@ -386,10 +410,23 @@ function ExchangeDetailInner({ id }: { id: string }) {
             <span className="text-gray-300 text-xl">⇄</span>
           </div>
           <div className="flex-1 rounded-xl bg-gray-50 px-3 py-3 text-center">
-            <div className="w-10 h-14 rounded-lg flex flex-col overflow-hidden mx-auto mb-1" style={{ border: "1.5px solid #e5e7eb", background: "#fff" }}>
-              <div className="h-1.5 w-full shrink-0" style={{ background: "#E53E3E" }} />
-              <div className="flex-1 flex items-center justify-center">
-                <span className="text-[7px] text-gray-300 select-none" style={{ fontWeight: 700 }}>TCG</span>
+            <div
+              className="w-10 h-14 rounded-lg flex flex-col overflow-hidden mx-auto mb-1"
+              style={{
+                border: `1px solid ${ptChip.color}38`,
+                background: `linear-gradient(175deg, ${ptChip.color}12 0%, #f6f6f6 55%)`,
+              }}
+            >
+              <div className="h-[3px] w-full shrink-0" style={{ background: ptChip.color }} />
+              <div className="flex-1 flex items-center justify-center p-1">
+                <div style={{
+                  width: "100%", height: "100%", borderRadius: 2,
+                  border: `1px solid ${ptChip.color}22`,
+                  background: `radial-gradient(ellipse at 50% 30%, ${ptChip.color}18, transparent 70%)`,
+                }} />
+              </div>
+              <div className="py-0.5 text-center" style={{ background: `${ptChip.color}15`, borderTop: `1px solid ${ptChip.color}20` }}>
+                <span className="text-[7px]" style={{ color: ptChip.color, fontWeight: 700 }}>{partner.grade}</span>
               </div>
             </div>
             <p className="text-[10px] text-gray-400" style={{ fontWeight: 400 }}>상대 카드</p>
@@ -398,6 +435,8 @@ function ExchangeDetailInner({ id }: { id: string }) {
               {partner.value.toLocaleString()}원
             </p>
           </div>
+          </>);
+          })()}
         </div>
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
           <p className="text-xs text-gray-400" style={{ fontWeight: 400 }}>상대방</p>

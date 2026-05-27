@@ -278,15 +278,23 @@ function SignalCard({ signal, onAction }: { signal: Signal; onAction: (href: str
       <div className="flex gap-3 p-3.5">
 
         {/* 미니 TCG 프레임 */}
-        <div className="flex-shrink-0 flex flex-col overflow-hidden rounded-lg border border-gray-200 w-12 h-16">
-          <div className="h-1 w-full" style={{ background: gradeColor }} />
-          <div className="flex-1 bg-gray-100 flex items-center justify-center">
-            <span className="text-[8px]" style={{ color: gradeColor, fontWeight: 700, letterSpacing: "0.04em" }}>
-              TCG
-            </span>
+        <div
+          className="flex-shrink-0 flex flex-col overflow-hidden rounded-lg w-12 h-16"
+          style={{
+            border: `1px solid ${gradeColor}38`,
+            background: `linear-gradient(175deg, ${gradeColor}12 0%, #f6f6f6 55%)`,
+          }}
+        >
+          <div className="h-[3px] w-full shrink-0" style={{ background: gradeColor }} />
+          <div className="flex-1 flex items-center justify-center p-1">
+            <div style={{
+              width: "100%", height: "100%", borderRadius: 2,
+              border: `1px solid ${gradeColor}22`,
+              background: `radial-gradient(ellipse at 50% 30%, ${gradeColor}18, transparent 70%)`,
+            }} />
           </div>
           <div
-            className="px-0.5 py-0.5 text-center text-[7px] text-white"
+            className="py-0.5 text-center text-[7px] text-white"
             style={{ background: gradeColor, fontWeight: 700 }}
           >
             {signal.rarity}

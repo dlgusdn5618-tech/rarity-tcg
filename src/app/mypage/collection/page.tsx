@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ChevronLeft, TrendingUp, TrendingDown, Tag, ArrowLeftRight,
-  Copy, Layers, BarChart2, ShoppingBag, Minus,
+  Copy, Layers, ChevronRight, Minus,
 } from "lucide-react";
 import {
   MOCK_COLLECTION,
@@ -13,7 +13,6 @@ import {
   getTradeMatches,
   getDuplicates,
   gainPct,
-  gainAbs,
   type CollectionCard,
   type SellRecommendation,
   type TradeMatch,
@@ -22,8 +21,8 @@ import { RARITY_CHIP, PRIMARY, SHADOW, SEMANTIC } from "@/lib/tokens";
 
 // ── 탭 정의 ───────────────────────────────────────────────────────────────────
 
-type Tab = "전체" | "판매 추천" | "교환 추천" | "중복 보유";
-const TABS: Tab[] = ["전체", "판매 추천", "교환 추천", "중복 보유"];
+type Tab = "전체" | "팔아볼 카드" | "교환 후보" | "중복 카드";
+const TABS: Tab[] = ["전체", "팔아볼 카드", "교환 후보", "중복 카드"];
 
 // ── 유틸 ──────────────────────────────────────────────────────────────────────
 
@@ -31,13 +30,13 @@ function fmt(n: number) {
   return n.toLocaleString("ko-KR");
 }
 
-function gainColor(pct: number) {
-  if (pct > 0)  return "#16a34a";
-  if (pct < 0)  return "#dc2626";
+function pctColor(pct: number) {
+  if (pct > 0) return "#16a34a";
+  if (pct < 0) return "#dc2626";
   return "#9ca3af";
 }
 
-// ── 서브 컴포넌트: 레어도 칩 ──────────────────────────────────────────────────
+// ── 레어도 칩 ─────────────────────────────────────────────────────────────────
 
 function RarityChip({ rarity }: { rarity: string }) {
   const chip = RARITY_CHIP[rarity] ?? { bg: "#f4f4f5", color: "#71717a" };
@@ -51,27 +50,108 @@ function RarityChip({ rarity }: { rarity: string }) {
   );
 }
 
-// ── 서브 컴포넌트: 손익 뱃지 ──────────────────────────────────────────────────
+// ── "지금 볼 것" 인사이트 카드 ─────────────────────────────────────────────────
 
-function GainBadge({ card }: { card: CollectionCard }) {
-  const pct = gainPct(card);
-  const abs = gainAbs(card);
-  const color = gainColor(pct);
-  const Icon = pct > 0 ? TrendingUp : pct < 0 ? TrendingDown : Minus;
+type Insight = {
+  text: string;
+  actionLabel: string;
+  actionHref: string;
+  color: string;
+  bg: string;
+  Icon: React.ElementType;
+};
+
+function buildInsights(
+  sellRecs: SellRecommendation[],
+  tradeMatches: TradeMatch[],
+  duplicates: CollectionCard[],
+): Insight[] {
+  const insights: Insight[] = [];
+
+  if (sellRecs.length > 0) {
+    const top = sellRecs[0];
+    const pct = gainPct(top.card);
+    insights.push({
+      text: `${top.card.nameKo}가 현재 +${pct}% 올랐어요. 팔아볼 카드로 등록할 수 있어요.`,
+      actionLabel: "판매 보기",
+      actionHref: "/sell",
+      color: SEMANTIC.success,
+      bg: SEMANTIC.successBg,
+      Icon: TrendingUp,
+    });
+  }
+
+  if (tradeMatches.length > 0) {
+    const top = tradeMatches[0];
+    insights.push({
+      text: `${top.myCard.nameKo}는 교환 조건이 잘 맞는 상대가 있어요.`,
+      actionLabel: "교환 보기",
+      actionHref: "/exchange/propose",
+      color: "#1D4ED8",
+      bg: "#EFF6FF",
+      Icon: ArrowLeftRight,
+    });
+  }
+
+  if (duplicates.length > 0) {
+    insights.push({
+      text: `중복 카드 ${duplicates.length}장이 있어요. 판매 후보로 볼 수 있어요.`,
+      actionLabel: "중복 보기",
+      actionHref: "",
+      color: "#B45309",
+      bg: "#FFFBEB",
+      Icon: Copy,
+    });
+  }
+
+  // 가격이 내려간 카드가 있으면 마지막에 추가 (최대 3개)
+  const losingCards = MOCK_COLLECTION.filter((c) => gainPct(c) < 0);
+  if (losingCards.length > 0 && insights.length < 3) {
+    const worst = losingCards.reduce((a, b) => (gainPct(a) < gainPct(b) ? a : b));
+    insights.push({
+      text: `${worst.nameKo}는 현재 가격이 내려간 상태예요. 잠시 기다려보는 게 좋을 수 있어요.`,
+      actionLabel: "",
+      actionHref: "",
+      color: "#9ca3af",
+      bg: "#f9fafb",
+      Icon: Minus,
+    });
+  }
+
+  return insights.slice(0, 3);
+}
+
+function InsightCard({ insight, onActionClick }: { insight: Insight; onActionClick: (href: string) => void }) {
+  const { Icon } = insight;
   return (
-    <div className="flex items-center gap-0.5">
-      <Icon size={11} strokeWidth={2.5} color={color} />
-      <span className="text-[11px]" style={{ color, fontWeight: 700 }}>
-        {pct > 0 ? "+" : ""}{pct}%
-      </span>
-      <span className="text-[10px] text-gray-400 ml-0.5" style={{ fontWeight: 400 }}>
-        ({abs >= 0 ? "+" : ""}{fmt(abs)}원)
-      </span>
+    <div
+      className="flex items-start gap-2.5 rounded-2xl px-3.5 py-3"
+      style={{ background: insight.bg }}
+    >
+      <div
+        className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
+        style={{ background: "rgba(255,255,255,0.7)" }}
+      >
+        <Icon size={13} strokeWidth={2.5} color={insight.color} />
+      </div>
+      <p className="flex-1 text-[12px] leading-snug text-gray-700" style={{ fontWeight: 500 }}>
+        {insight.text}
+      </p>
+      {insight.actionLabel && (
+        <button
+          onClick={() => onActionClick(insight.actionHref)}
+          className="shrink-0 flex items-center gap-0.5"
+          style={{ color: insight.color, fontWeight: 700 }}
+        >
+          <span className="text-[11px]">{insight.actionLabel}</span>
+          <ChevronRight size={11} strokeWidth={2.5} />
+        </button>
+      )}
     </div>
   );
 }
 
-// ── 서브 컴포넌트: 카드 행 (전체·중복 탭) ─────────────────────────────────────
+// ── 카드 행 (전체 · 중복 탭) ───────────────────────────────────────────────────
 
 function CardRow({
   card,
@@ -84,64 +164,42 @@ function CardRow({
 }) {
   const router = useRouter();
   const pct = gainPct(card);
-  const gainBg =
-    pct > 0 ? SEMANTIC.successBg :
-    pct < 0 ? SEMANTIC.errorBg   : "#f9fafb";
+  const color = pctColor(pct);
+  const Icon = pct > 0 ? TrendingUp : pct < 0 ? TrendingDown : Minus;
 
   return (
-    <div
-      className="bg-white rounded-2xl px-4 py-3"
-      style={{ boxShadow: SHADOW.card }}
-    >
-      {/* 상단: 이름 + 뱃지 행 */}
-      <div className="flex items-start justify-between gap-2 mb-2">
+    <div className="bg-white rounded-2xl px-4 py-3.5" style={{ boxShadow: SHADOW.card }}>
+      {/* 상단: 이름 · 칩 / 현재가 */}
+      <div className="flex items-start justify-between gap-2 mb-1">
         <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-          <span className="text-sm text-gray-900 truncate" style={{ fontWeight: 700 }}>
-            {card.nameKo}
-          </span>
+          <span className="text-sm text-gray-900" style={{ fontWeight: 700 }}>{card.nameKo}</span>
           <RarityChip rarity={card.rarity} />
           {card.isGraded && card.gradingInfo && (
-            <span
-              className="text-[10px] px-1.5 py-0.5 rounded"
-              style={{ background: "#EFF6FF", color: "#1D4ED8", fontWeight: 700 }}
-            >
+            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "#EFF6FF", color: "#1D4ED8", fontWeight: 700 }}>
               {card.gradingInfo}
             </span>
           )}
           {card.quantity > 1 && (
-            <span
-              className="text-[10px] px-1.5 py-0.5 rounded"
-              style={{ background: "#FFF8E1", color: "#B45309", fontWeight: 700 }}
-            >
+            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "#FFFBEB", color: "#B45309", fontWeight: 700 }}>
               x{card.quantity}
             </span>
           )}
         </div>
-        <span className="text-[10px] text-gray-400 shrink-0" style={{ fontWeight: 400 }}>
-          {card.condition} · {card.series}
+        <span className="text-[15px] text-gray-900 shrink-0" style={{ fontWeight: 800 }}>
+          {fmt(card.currentPrice)}원
         </span>
       </div>
 
-      {/* 가격 행 */}
-      <div
-        className="flex items-center justify-between rounded-xl px-3 py-2 mb-2.5"
-        style={{ background: gainBg }}
-      >
-        <div>
-          <p className="text-[10px] text-gray-400 mb-0.5" style={{ fontWeight: 400 }}>취득가</p>
-          <p className="text-[13px] text-gray-600" style={{ fontWeight: 600 }}>
-            {fmt(card.acquiredPrice)}원
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-[10px] text-gray-400 mb-0.5" style={{ fontWeight: 400 }}>현재 추정가</p>
-          <p className="text-[14px] text-gray-900" style={{ fontWeight: 800 }}>
-            {fmt(card.currentPrice)}원
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-[10px] text-gray-400 mb-0.5" style={{ fontWeight: 400 }}>변동</p>
-          <GainBadge card={card} />
+      {/* 하단: 내 기준가 / 변동% */}
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[11px] text-gray-400" style={{ fontWeight: 400 }}>
+          내 기준가 {fmt(card.acquiredPrice)}원
+        </span>
+        <div className="flex items-center gap-0.5">
+          <Icon size={11} strokeWidth={2.5} color={color} />
+          <span className="text-[12px]" style={{ color, fontWeight: 700 }}>
+            {pct > 0 ? "+" : ""}{pct}%
+          </span>
         </div>
       </div>
 
@@ -174,62 +232,55 @@ function CardRow({
   );
 }
 
-// ── 서브 컴포넌트: 판매 추천 행 ───────────────────────────────────────────────
+// ── 팔아볼 카드 탭 행 ─────────────────────────────────────────────────────────
 
 function SellRecRow({ rec }: { rec: SellRecommendation }) {
   const router = useRouter();
   const { card, reason, suggestedPrice } = rec;
   const pct = gainPct(card);
+  const color = pctColor(pct);
+  const Icon = pct > 0 ? TrendingUp : TrendingDown;
 
   return (
-    <div
-      className="bg-white rounded-2xl px-4 py-3"
-      style={{ boxShadow: SHADOW.card }}
-    >
-      <div className="flex items-start justify-between gap-2 mb-2">
+    <div className="bg-white rounded-2xl px-4 py-3.5" style={{ boxShadow: SHADOW.card }}>
+      {/* 상단 */}
+      <div className="flex items-start justify-between gap-2 mb-1">
         <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-          <span className="text-sm text-gray-900 truncate" style={{ fontWeight: 700 }}>
-            {card.nameKo}
-          </span>
+          <span className="text-sm text-gray-900" style={{ fontWeight: 700 }}>{card.nameKo}</span>
           <RarityChip rarity={card.rarity} />
         </div>
-        <GainBadge card={card} />
+        <span className="text-[15px] text-gray-900 shrink-0" style={{ fontWeight: 800 }}>
+          {fmt(card.currentPrice)}원
+        </span>
+      </div>
+
+      {/* 내 기준가 / 변동% */}
+      <div className="flex items-center justify-between mb-2.5">
+        <span className="text-[11px] text-gray-400" style={{ fontWeight: 400 }}>
+          내 기준가 {fmt(card.acquiredPrice)}원
+        </span>
+        <div className="flex items-center gap-0.5">
+          <Icon size={11} strokeWidth={2.5} color={color} />
+          <span className="text-[12px]" style={{ color, fontWeight: 700 }}>
+            {pct > 0 ? "+" : ""}{pct}%
+          </span>
+        </div>
       </div>
 
       {/* 추천 이유 */}
-      <div
-        className="rounded-xl px-3 py-2 mb-2.5 flex items-start gap-2"
-        style={{ background: SEMANTIC.successBg }}
-      >
-        <TrendingUp size={13} strokeWidth={2} color={SEMANTIC.success} className="shrink-0 mt-px" />
+      <div className="rounded-xl px-3 py-2 mb-2.5 flex items-start gap-2" style={{ background: SEMANTIC.successBg }}>
+        <TrendingUp size={12} strokeWidth={2} color={SEMANTIC.success} className="shrink-0 mt-px" />
         <p className="text-[11px] leading-snug" style={{ color: "#166534", fontWeight: 500 }}>
           {reason}
         </p>
       </div>
 
-      {/* 가격 요약 */}
-      <div className="flex items-center justify-between mb-2.5">
-        <div>
-          <p className="text-[10px] text-gray-400" style={{ fontWeight: 400 }}>취득가</p>
-          <p className="text-[13px] text-gray-500" style={{ fontWeight: 600 }}>
-            {fmt(card.acquiredPrice)}원
-          </p>
-        </div>
-        <div className="text-center">
-          <p className="text-[10px] text-gray-400" style={{ fontWeight: 400 }}>현재 추정가</p>
-          <p className="text-[14px] text-gray-900" style={{ fontWeight: 800 }}>
-            {fmt(card.currentPrice)}원
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-[10px] text-gray-400" style={{ fontWeight: 400 }}>추천 판매가</p>
-          <p
-            className="text-[14px]"
-            style={{ color: PRIMARY, fontWeight: 800 }}
-          >
-            {fmt(suggestedPrice)}원
-          </p>
-        </div>
+      {/* 추천 판매가 */}
+      <div className="flex items-center justify-between mb-3 px-1">
+        <span className="text-[11px] text-gray-400" style={{ fontWeight: 400 }}>추천 판매가</span>
+        <span className="text-[14px]" style={{ color: PRIMARY, fontWeight: 800 }}>
+          {fmt(suggestedPrice)}원
+        </span>
       </div>
 
       <button
@@ -244,7 +295,7 @@ function SellRecRow({ rec }: { rec: SellRecommendation }) {
   );
 }
 
-// ── 서브 컴포넌트: 교환 추천 행 ───────────────────────────────────────────────
+// ── 교환 후보 탭 행 ───────────────────────────────────────────────────────────
 
 function TradeMatchRow({ match }: { match: TradeMatch }) {
   const router = useRouter();
@@ -258,72 +309,42 @@ function TradeMatchRow({ match }: { match: TradeMatch }) {
   const diffColor = priceDiff > 0 ? "#16a34a" : priceDiff < 0 ? "#dc2626" : "#9ca3af";
 
   return (
-    <div
-      className="bg-white rounded-2xl px-4 py-3"
-      style={{ boxShadow: SHADOW.card }}
-    >
+    <div className="bg-white rounded-2xl px-4 py-3.5" style={{ boxShadow: SHADOW.card }}>
       {/* 내 카드 → 상대 카드 */}
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-center gap-2 mb-3">
         <div className="flex-1 min-w-0">
           <p className="text-[10px] text-gray-400 mb-0.5" style={{ fontWeight: 500 }}>내 카드</p>
           <div className="flex items-center gap-1.5">
-            <span className="text-sm text-gray-900 truncate" style={{ fontWeight: 700 }}>
-              {myCard.nameKo}
-            </span>
+            <span className="text-sm text-gray-900 truncate" style={{ fontWeight: 700 }}>{myCard.nameKo}</span>
             <RarityChip rarity={myCard.rarity} />
           </div>
         </div>
-
-        <ArrowLeftRight size={16} strokeWidth={2} color="#9ca3af" className="shrink-0" />
-
+        <ArrowLeftRight size={15} strokeWidth={2} color="#d1d5db" className="shrink-0" />
         <div className="flex-1 min-w-0 text-right">
           <p className="text-[10px] text-gray-400 mb-0.5" style={{ fontWeight: 500 }}>상대 카드</p>
           <div className="flex items-center gap-1.5 justify-end">
             <RarityChip rarity={targetRarity} />
-            <span className="text-sm text-gray-900 truncate" style={{ fontWeight: 700 }}>
-              {targetCardName}
-            </span>
+            <span className="text-sm text-gray-900 truncate" style={{ fontWeight: 700 }}>{targetCardName}</span>
           </div>
         </div>
       </div>
 
-      {/* 교환 메트릭 */}
-      <div
-        className="flex items-center justify-between rounded-xl px-3 py-2 mb-2.5"
-        style={{ background: "#f9fafb" }}
-      >
-        <div className="text-center">
-          <p className="text-[10px] text-gray-400 mb-0.5" style={{ fontWeight: 400 }}>교환 적정도</p>
-          <p className="text-[15px]" style={{ color: scoreColor, fontWeight: 800 }}>
-            {matchScore}%
+      {/* 핵심 수치 3개 */}
+      <div className="grid grid-cols-3 gap-2 mb-3">
+        <div className="rounded-xl py-2 text-center" style={{ background: "#f9fafb" }}>
+          <p className="text-[14px]" style={{ color: scoreColor, fontWeight: 800 }}>{matchScore}%</p>
+          <p className="text-[9px] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>교환 적정도</p>
+        </div>
+        <div className="rounded-xl py-2 text-center" style={{ background: "#f9fafb" }}>
+          <p className="text-[12px]" style={{ color: diffColor, fontWeight: 700 }}>{diffSign}{fmt(priceDiff)}원</p>
+          <p className="text-[9px] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>
+            {priceDiff > 0 ? "상대 추가금 가능" : priceDiff < 0 ? "내 추가금 가능" : "균형"}
           </p>
         </div>
-        <div className="text-center">
-          <p className="text-[10px] text-gray-400 mb-0.5" style={{ fontWeight: 400 }}>예상 가격차</p>
-          <p className="text-[13px]" style={{ color: diffColor, fontWeight: 700 }}>
-            {diffSign}{fmt(priceDiff)}원
-          </p>
-          <p className="text-[9px] text-gray-400" style={{ fontWeight: 400 }}>
-            {priceDiff > 0 ? "상대방이 추가금 낼 수도" : priceDiff < 0 ? "내가 추가금 낼 수도" : "균형"}
-          </p>
+        <div className="rounded-xl py-2 text-center" style={{ background: "#f9fafb" }}>
+          <p className="text-[11px] text-gray-700" style={{ fontWeight: 700 }}>{matchedUserHandle}</p>
+          <p className="text-[9px] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>매칭 상대</p>
         </div>
-        <div className="text-center">
-          <p className="text-[10px] text-gray-400 mb-0.5" style={{ fontWeight: 400 }}>매칭 상대</p>
-          <p className="text-[11px] text-gray-700" style={{ fontWeight: 700 }}>
-            {matchedUserHandle}
-          </p>
-        </div>
-      </div>
-
-      {/* 추천 메시지 */}
-      <div
-        className="rounded-xl px-3 py-2 mb-2.5 flex items-start gap-2"
-        style={{ background: "#EFF6FF" }}
-      >
-        <ArrowLeftRight size={12} strokeWidth={2} color="#1D4ED8" className="shrink-0 mt-px" />
-        <p className="text-[11px] leading-snug" style={{ color: "#1e40af", fontWeight: 500 }}>
-          교환 조건이 잘 맞아요. 세부 조건은 상대방과 직접 협의해보세요.
-        </p>
       </div>
 
       <button
@@ -332,7 +353,7 @@ function TradeMatchRow({ match }: { match: TradeMatch }) {
         style={{ background: "#f4f4f5", color: "#111827", fontWeight: 700 }}
       >
         <ArrowLeftRight size={13} strokeWidth={2.5} />
-        교환 찾기
+        교환하기 좋은 카드 보기
       </button>
     </div>
   );
@@ -343,15 +364,10 @@ function TradeMatchRow({ match }: { match: TradeMatch }) {
 function EmptyState({ message }: { message: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-14 gap-3">
-      <div
-        className="w-14 h-14 rounded-full flex items-center justify-center"
-        style={{ background: "#f4f4f5" }}
-      >
+      <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "#f4f4f5" }}>
         <Layers size={24} strokeWidth={1.5} color="#a1a1aa" />
       </div>
-      <p className="text-sm text-gray-400 text-center" style={{ fontWeight: 400 }}>
-        {message}
-      </p>
+      <p className="text-sm text-gray-400 text-center" style={{ fontWeight: 400 }}>{message}</p>
     </div>
   );
 }
@@ -362,234 +378,152 @@ export default function CollectionPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("전체");
 
-  const stats       = getCollectionStats(MOCK_COLLECTION);
-  const sellRecs    = getSellRecommendations(MOCK_COLLECTION);
+  const stats        = getCollectionStats(MOCK_COLLECTION);
+  const sellRecs     = getSellRecommendations(MOCK_COLLECTION);
   const tradeMatches = getTradeMatches(MOCK_COLLECTION);
-  const duplicates  = getDuplicates(MOCK_COLLECTION);
+  const duplicates   = getDuplicates(MOCK_COLLECTION);
+  const insights     = buildInsights(sellRecs, tradeMatches, duplicates);
 
-  const sellRecIds  = new Set(sellRecs.map((r) => r.card.id));
-  const tradeIds    = new Set(tradeMatches.map((m) => m.myCard.id));
+  const sellRecIds = new Set(sellRecs.map((r) => r.card.id));
+  const tradeIds   = new Set(tradeMatches.map((m) => m.myCard.id));
 
   const gainPositive = stats.unrealizedGain >= 0;
   const gainColor    = gainPositive ? SEMANTIC.success : SEMANTIC.error;
-  const gainBg       = gainPositive ? SEMANTIC.successBg : SEMANTIC.errorBg;
 
   return (
     <div className="min-h-screen pb-24" style={{ background: "#FAFAFA" }}>
+      <div className="w-full max-w-[430px] mx-auto">
 
-      {/* ── 헤더 ── */}
-      <div
-        className="sticky top-0 z-10 bg-white px-4 pt-12 pb-3"
-        style={{ borderBottom: "1px solid #f4f4f5" }}
-      >
-        <div className="flex items-center gap-2 mb-1">
-          <button
-            onClick={() => router.back()}
-            className="p-1.5 -ml-1.5 rounded-lg active:bg-gray-100"
-          >
-            <ChevronLeft size={22} strokeWidth={2} color="#111827" />
-          </button>
-          <h1 className="text-lg text-gray-900" style={{ fontWeight: 800 }}>
-            컬렉션 금고
-          </h1>
-        </div>
-        <p className="text-xs text-gray-400 pl-9" style={{ fontWeight: 400 }}>
-          내 카드의 가치와 거래 기회를 한눈에 확인
-        </p>
-      </div>
-
-      <div className="px-4 pt-4 flex flex-col gap-3">
-
-        {/* ── Vault Summary 카드 ── */}
+        {/* ── 헤더 ── */}
         <div
-          className="bg-white rounded-2xl p-4"
-          style={{ boxShadow: SHADOW.card }}
+          className="sticky top-0 z-10 bg-white px-4 pt-12 pb-3"
+          style={{ borderBottom: "1px solid #f4f4f5" }}
         >
-          {/* 총 추정 자산가치 */}
-          <div className="mb-3">
-            <p className="text-[11px] text-gray-400 mb-1" style={{ fontWeight: 600 }}>
-              총 추정 자산가치
-            </p>
-            <p className="text-3xl text-gray-900" style={{ fontWeight: 800 }}>
-              {fmt(stats.totalValue)}<span className="text-base ml-1" style={{ fontWeight: 400 }}>원</span>
-            </p>
+          <div className="flex items-center gap-2">
+            <button onClick={() => router.back()} className="p-1.5 -ml-1.5 rounded-lg active:bg-gray-100">
+              <ChevronLeft size={22} strokeWidth={2} color="#111827" />
+            </button>
+            <h1 className="text-lg text-gray-900" style={{ fontWeight: 800 }}>컬렉션 금고</h1>
           </div>
+        </div>
 
-          {/* 손익 행 */}
-          <div
-            className="flex items-center justify-between rounded-xl px-3 py-2.5 mb-3"
-            style={{ background: gainBg }}
-          >
-            <div>
-              <p className="text-[10px] text-gray-400 mb-0.5" style={{ fontWeight: 400 }}>총 구매가</p>
-              <p className="text-[13px] text-gray-600" style={{ fontWeight: 600 }}>
-                {fmt(stats.totalCost)}원
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-[10px] text-gray-400 mb-0.5" style={{ fontWeight: 400 }}>미실현 손익</p>
-              <p className="text-[15px]" style={{ color: gainColor, fontWeight: 800 }}>
+        <div className="px-4 pt-5 flex flex-col gap-4">
+
+          {/* ── 자산 요약 ── */}
+          <div className="bg-white rounded-2xl px-5 py-4" style={{ boxShadow: SHADOW.card }}>
+            <p className="text-[11px] text-gray-400 mb-1" style={{ fontWeight: 600 }}>내 컬렉션 가치</p>
+            <p className="text-[32px] text-gray-900 leading-none mb-1" style={{ fontWeight: 800 }}>
+              {fmt(stats.totalValue)}<span className="text-base ml-1 text-gray-500" style={{ fontWeight: 400 }}>원</span>
+            </p>
+            <div className="flex items-center gap-1 mb-3">
+              {gainPositive
+                ? <TrendingUp size={12} strokeWidth={2.5} color={gainColor} />
+                : <TrendingDown size={12} strokeWidth={2.5} color={gainColor} />
+              }
+              <span className="text-[13px]" style={{ color: gainColor, fontWeight: 700 }}>
                 {gainPositive ? "+" : ""}{fmt(stats.unrealizedGain)}원
-              </p>
+              </span>
+              <span className="text-[11px] text-gray-400 ml-0.5" style={{ fontWeight: 400 }}>현재 가치 변동</span>
             </div>
-            <div className="text-right">
-              <p className="text-[10px] text-gray-400 mb-0.5" style={{ fontWeight: 400 }}>손익률</p>
-              <div className="flex items-center justify-end gap-0.5">
-                {gainPositive
-                  ? <TrendingUp size={12} strokeWidth={2.5} color={SEMANTIC.success} />
-                  : <TrendingDown size={12} strokeWidth={2.5} color={SEMANTIC.error} />
-                }
-                <p className="text-[15px]" style={{ color: gainColor, fontWeight: 800 }}>
-                  {gainPositive ? "+" : ""}{stats.unrealizedGainPct}%
-                </p>
+            <p className="text-[11px] text-gray-400" style={{ fontWeight: 400 }}>
+              보유 {stats.cardCount}장 · 팔아볼 카드 {sellRecs.length}장 · 교환 후보 {tradeMatches.length}장
+            </p>
+          </div>
+
+          {/* ── 지금 볼 것 ── */}
+          {insights.length > 0 && (
+            <div>
+              <p className="text-[12px] text-gray-500 mb-2 px-1" style={{ fontWeight: 700 }}>지금 볼 것</p>
+              <div className="flex flex-col gap-2">
+                {insights.map((insight, i) => (
+                  <InsightCard
+                    key={i}
+                    insight={insight}
+                    onActionClick={(href) => {
+                      if (href) router.push(href);
+                      else setActiveTab("중복 카드");
+                    }}
+                  />
+                ))}
               </div>
             </div>
-          </div>
-
-          {/* 통계 4칸 그리드 */}
-          <div className="grid grid-cols-4 gap-2">
-            {[
-              { Icon: ShoppingBag, label: "보유",     value: `${stats.cardCount}장`,       color: "#374151" },
-              { Icon: BarChart2,   label: "고유",      value: `${stats.uniqueCardCount}종`, color: "#374151" },
-              { Icon: Tag,         label: "판매 추천", value: `${sellRecs.length}개`,       color: PRIMARY   },
-              { Icon: ArrowLeftRight, label: "교환 추천", value: `${tradeMatches.length}개`, color: "#1D4ED8" },
-            ].map(({ Icon, label, value, color }) => (
-              <div
-                key={label}
-                className="flex flex-col items-center py-2 rounded-xl gap-1"
-                style={{ background: "#f9fafb" }}
-              >
-                <Icon size={14} strokeWidth={2} color={color} />
-                <p className="text-[13px]" style={{ color, fontWeight: 800 }}>{value}</p>
-                <p className="text-[9px] text-gray-400" style={{ fontWeight: 400 }}>{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── 탑 게이너 / 루저 ── */}
-        {(stats.topGainer || stats.topLoser) && (
-          <div className="grid grid-cols-2 gap-2">
-            {stats.topGainer && (
-              <div
-                className="rounded-2xl px-3 py-2.5"
-                style={{ background: SEMANTIC.successBg, boxShadow: SHADOW.subtle }}
-              >
-                <div className="flex items-center gap-1 mb-1">
-                  <TrendingUp size={11} strokeWidth={2.5} color={SEMANTIC.success} />
-                  <p className="text-[10px]" style={{ color: SEMANTIC.success, fontWeight: 700 }}>수익 1위</p>
-                </div>
-                <p className="text-[12px] text-gray-900 truncate" style={{ fontWeight: 700 }}>
-                  {stats.topGainer.nameKo}
-                </p>
-                <p className="text-[13px]" style={{ color: SEMANTIC.success, fontWeight: 800 }}>
-                  +{gainPct(stats.topGainer)}%
-                </p>
-              </div>
-            )}
-            {stats.topLoser && (
-              <div
-                className="rounded-2xl px-3 py-2.5"
-                style={{ background: SEMANTIC.errorBg, boxShadow: SHADOW.subtle }}
-              >
-                <div className="flex items-center gap-1 mb-1">
-                  <TrendingDown size={11} strokeWidth={2.5} color={SEMANTIC.error} />
-                  <p className="text-[10px]" style={{ color: SEMANTIC.error, fontWeight: 700 }}>손실 1위</p>
-                </div>
-                <p className="text-[12px] text-gray-900 truncate" style={{ fontWeight: 700 }}>
-                  {stats.topLoser.nameKo}
-                </p>
-                <p className="text-[13px]" style={{ color: SEMANTIC.error, fontWeight: 800 }}>
-                  {gainPct(stats.topLoser)}%
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── 탭 바 ── */}
-        <div
-          className="flex gap-1 p-1 rounded-2xl"
-          style={{ background: "#f4f4f5" }}
-        >
-          {TABS.map((tab) => {
-            const active = activeTab === tab;
-            return (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className="flex-1 py-2 rounded-xl text-xs transition-all"
-                style={{
-                  background:  active ? "#ffffff" : "transparent",
-                  color:       active ? "#111827" : "#9ca3af",
-                  fontWeight:  active ? 700 : 500,
-                  boxShadow:   active ? SHADOW.subtle : "none",
-                }}
-              >
-                {tab}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* ── 탭 콘텐츠 ── */}
-        <div className="flex flex-col gap-3 pb-4">
-
-          {/* 전체 탭 */}
-          {activeTab === "전체" && (
-            MOCK_COLLECTION.length === 0
-              ? <EmptyState message="보유 카드가 없어요" />
-              : MOCK_COLLECTION.map((card) => (
-                <CardRow
-                  key={card.id}
-                  card={card}
-                  hasSellRec={sellRecIds.has(card.id)}
-                  hasTrade={tradeIds.has(card.id)}
-                />
-              ))
           )}
 
-          {/* 판매 추천 탭 */}
-          {activeTab === "판매 추천" && (
-            sellRecs.length === 0
-              ? <EmptyState message="아직 판매를 추천할 카드가 없어요" />
-              : sellRecs.map((rec) => (
-                <SellRecRow key={rec.card.id} rec={rec} />
-              ))
-          )}
+          {/* ── 탭 바 ── */}
+          <div className="flex gap-1 p-1 rounded-2xl" style={{ background: "#f4f4f5" }}>
+            {TABS.map((tab) => {
+              const active = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className="flex-1 py-2 rounded-xl text-[11px] transition-all"
+                  style={{
+                    background: active ? "#ffffff" : "transparent",
+                    color:      active ? "#111827" : "#9ca3af",
+                    fontWeight: active ? 700 : 500,
+                    boxShadow:  active ? SHADOW.subtle : "none",
+                  }}
+                >
+                  {tab}
+                </button>
+              );
+            })}
+          </div>
 
-          {/* 교환 추천 탭 */}
-          {activeTab === "교환 추천" && (
-            tradeMatches.length === 0
-              ? <EmptyState message="아직 교환 추천 매칭이 없어요" />
-              : tradeMatches.map((match) => (
-                <TradeMatchRow key={match.myCard.id} match={match} />
-              ))
-          )}
+          {/* ── 탭 콘텐츠 ── */}
+          <div className="flex flex-col gap-3 pb-4">
 
-          {/* 중복 보유 탭 */}
-          {activeTab === "중복 보유" && (
-            duplicates.length === 0
-              ? <EmptyState message="중복 보유 카드가 없어요" />
-              : duplicates.map((card) => (
-                <div key={card.id}>
-                  <div
-                    className="flex items-center gap-1.5 mb-2 px-1"
-                  >
-                    <Copy size={11} strokeWidth={2} color="#B45309" />
-                    <p className="text-[11px]" style={{ color: "#B45309", fontWeight: 700 }}>
-                      {card.quantity}장 보유 중
-                    </p>
-                  </div>
+            {activeTab === "전체" && (
+              MOCK_COLLECTION.length === 0
+                ? <EmptyState message="보유 카드가 없어요" />
+                : MOCK_COLLECTION.map((card) => (
                   <CardRow
+                    key={card.id}
                     card={card}
                     hasSellRec={sellRecIds.has(card.id)}
                     hasTrade={tradeIds.has(card.id)}
                   />
-                </div>
-              ))
-          )}
+                ))
+            )}
 
+            {activeTab === "팔아볼 카드" && (
+              sellRecs.length === 0
+                ? <EmptyState message="아직 가치가 오른 카드가 없어요" />
+                : sellRecs.map((rec) => (
+                  <SellRecRow key={rec.card.id} rec={rec} />
+                ))
+            )}
+
+            {activeTab === "교환 후보" && (
+              tradeMatches.length === 0
+                ? <EmptyState message="아직 교환하기 좋은 매칭이 없어요" />
+                : tradeMatches.map((match) => (
+                  <TradeMatchRow key={match.myCard.id} match={match} />
+                ))
+            )}
+
+            {activeTab === "중복 카드" && (
+              duplicates.length === 0
+                ? <EmptyState message="중복 카드가 없어요" />
+                : duplicates.map((card) => (
+                  <div key={card.id}>
+                    <div className="flex items-center gap-1.5 mb-2 px-1">
+                      <Copy size={11} strokeWidth={2} color="#B45309" />
+                      <p className="text-[11px]" style={{ color: "#B45309", fontWeight: 700 }}>
+                        {card.quantity}장 보유 중
+                      </p>
+                    </div>
+                    <CardRow
+                      card={card}
+                      hasSellRec={sellRecIds.has(card.id)}
+                      hasTrade={tradeIds.has(card.id)}
+                    />
+                  </div>
+                ))
+            )}
+
+          </div>
         </div>
       </div>
     </div>

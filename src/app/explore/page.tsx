@@ -21,6 +21,8 @@ const POPULAR_SEARCHES = [
 
 const SERIES = ["전체", "151", "스칼렛·바이올렛", "페어리킹덤", "OP-01", "OP-02", "OP-07"];
 const GRADES = ["전체", "SAR", "UR", "SR", "R"];
+const GRADE_FILTERS = ["전체", "PSA 10", "PSA 9+", "BGS 9.5+", "감정 없음"] as const;
+type GradeFilter = (typeof GRADE_FILTERS)[number];
 
 const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
   SAR: { bg: "#FFFBEB", color: "#92400E" },
@@ -35,24 +37,27 @@ type CardEntry = {
   minPrice: number; avgPrice: number; gradedCount: number;
   langDist: { lang: string; count: number }[];
   safeTrade: boolean; trend: number[];
+  wishCount: number;
+  createdAt: number; // 등록 후 경과일 (작을수록 최신)
+  grades: string[];  // 보유 감정 등급 (높은 순, 예: ["PSA 10", "PSA 9"])
 };
 
 const CARD_ENTRIES: CardEntry[] = [
-  { id: 1,  name: "리자몽 ex",    series: "151",            rarity: "SAR", category: "포켓몬", listings: 12, minPrice: 85000,  avgPrice: 90500,  gradedCount: 2, langDist: [{ lang: "일본", count: 8  }, { lang: "한글", count: 4 }], safeTrade: true,  trend: [78, 82, 80, 88, 85] },
-  { id: 2,  name: "피카츄 ex",    series: "151",            rarity: "SAR", category: "포켓몬", listings: 7,  minPrice: 42000,  avgPrice: 45000,  gradedCount: 0, langDist: [{ lang: "영어", count: 5  }, { lang: "일본", count: 2 }], safeTrade: false, trend: [46, 44, 43, 41, 42] },
-  { id: 3,  name: "뮤츠 ex",      series: "151",            rarity: "UR",  category: "포켓몬", listings: 5,  minPrice: 120000, avgPrice: 115000, gradedCount: 1, langDist: [{ lang: "일본", count: 5  }],                            safeTrade: true,  trend: [110,112,118,116,120] },
-  { id: 4,  name: "이상해꽃 ex",  series: "151",            rarity: "SR",  category: "포켓몬", listings: 9,  minPrice: 38000,  avgPrice: 41000,  gradedCount: 0, langDist: [{ lang: "한글", count: 6  }, { lang: "일본", count: 3 }], safeTrade: false, trend: [42, 40, 39, 38, 38] },
-  { id: 5,  name: "꼬부기 ex",    series: "151",            rarity: "SR",  category: "포켓몬", listings: 6,  minPrice: 55000,  avgPrice: 58000,  gradedCount: 0, langDist: [{ lang: "일본", count: 4  }, { lang: "한글", count: 2 }], safeTrade: true,  trend: [51, 53, 54, 54, 55] },
-  { id: 6,  name: "잠만보 ex",    series: "스칼렛·바이올렛", rarity: "SAR", category: "포켓몬", listings: 4,  minPrice: 67000,  avgPrice: 70000,  gradedCount: 1, langDist: [{ lang: "일본", count: 4  }],                            safeTrade: true,  trend: [62, 64, 66, 65, 67] },
-  { id: 12, name: "뮤 ex",        series: "페어리킹덤",      rarity: "SAR", category: "포켓몬", listings: 8,  minPrice: 88000,  avgPrice: 92000,  gradedCount: 2, langDist: [{ lang: "일본", count: 6  }, { lang: "한글", count: 2 }], safeTrade: true,  trend: [84, 86, 90, 88, 88] },
-  { id: 7,  name: "몽키 D. 루피", series: "OP-01",          rarity: "SAR", category: "원피스", listings: 15, minPrice: 95000,  avgPrice: 102000, gradedCount: 3, langDist: [{ lang: "일본", count: 10 }, { lang: "한글", count: 5 }], safeTrade: true,  trend: [88, 92, 96, 94, 95] },
-  { id: 8,  name: "롤로노아 조로", series: "OP-01",          rarity: "SR",  category: "원피스", listings: 8,  minPrice: 67000,  avgPrice: 71000,  gradedCount: 1, langDist: [{ lang: "일본", count: 6  }, { lang: "한글", count: 2 }], safeTrade: false, trend: [64, 66, 64, 68, 67] },
-  { id: 9,  name: "나미",          series: "OP-02",          rarity: "SR",  category: "원피스", listings: 5,  minPrice: 45000,  avgPrice: 47000,  gradedCount: 0, langDist: [{ lang: "일본", count: 3  }, { lang: "한글", count: 2 }], safeTrade: false, trend: [44, 45, 46, 45, 45] },
-  { id: 10, name: "에이스",        series: "OP-02",          rarity: "UR",  category: "원피스", listings: 6,  minPrice: 130000, avgPrice: 128000, gradedCount: 2, langDist: [{ lang: "일본", count: 5  }, { lang: "한글", count: 1 }], safeTrade: true,  trend: [118,122,126,128,130] },
-  { id: 11, name: "상디",          series: "OP-07",          rarity: "R",   category: "원피스", listings: 3,  minPrice: 22000,  avgPrice: 24000,  gradedCount: 0, langDist: [{ lang: "한글", count: 3  }],                            safeTrade: false, trend: [24, 23, 23, 22, 22] },
+  { id: 1,  name: "리자몽 ex",    series: "151",            rarity: "SAR", category: "포켓몬", listings: 12, minPrice: 85000,  avgPrice: 90500,  gradedCount: 2, langDist: [{ lang: "일본", count: 8  }, { lang: "한글", count: 4 }], safeTrade: true,  trend: [78, 82, 80, 88, 85], wishCount: 87, createdAt: 58, grades: ["PSA 10", "PSA 9"]            },
+  { id: 2,  name: "피카츄 ex",    series: "151",            rarity: "SAR", category: "포켓몬", listings: 7,  minPrice: 42000,  avgPrice: 45000,  gradedCount: 0, langDist: [{ lang: "영어", count: 5  }, { lang: "일본", count: 2 }], safeTrade: false, trend: [46, 44, 43, 41, 42], wishCount: 63, createdAt: 33, grades: []                             },
+  { id: 3,  name: "뮤츠 ex",      series: "151",            rarity: "UR",  category: "포켓몬", listings: 5,  minPrice: 120000, avgPrice: 115000, gradedCount: 1, langDist: [{ lang: "일본", count: 5  }],                            safeTrade: true,  trend: [110,112,118,116,120], wishCount: 45, createdAt: 27, grades: ["PSA 9"]                      },
+  { id: 4,  name: "이상해꽃 ex",  series: "151",            rarity: "SR",  category: "포켓몬", listings: 9,  minPrice: 38000,  avgPrice: 41000,  gradedCount: 0, langDist: [{ lang: "한글", count: 6  }, { lang: "일본", count: 3 }], safeTrade: false, trend: [42, 40, 39, 38, 38], wishCount: 28, createdAt: 17, grades: []                             },
+  { id: 5,  name: "꼬부기 ex",    series: "151",            rarity: "SR",  category: "포켓몬", listings: 6,  minPrice: 55000,  avgPrice: 58000,  gradedCount: 0, langDist: [{ lang: "일본", count: 4  }, { lang: "한글", count: 2 }], safeTrade: true,  trend: [51, 53, 54, 54, 55], wishCount: 31, createdAt: 21, grades: []                             },
+  { id: 6,  name: "잠만보 ex",    series: "스칼렛·바이올렛", rarity: "SAR", category: "포켓몬", listings: 4,  minPrice: 67000,  avgPrice: 70000,  gradedCount: 1, langDist: [{ lang: "일본", count: 4  }],                            safeTrade: true,  trend: [62, 64, 66, 65, 67], wishCount: 19, createdAt: 11, grades: ["BGS 9.5"]                    },
+  { id: 12, name: "뮤 ex",        series: "페어리킹덤",      rarity: "SAR", category: "포켓몬", listings: 8,  minPrice: 88000,  avgPrice: 92000,  gradedCount: 2, langDist: [{ lang: "일본", count: 6  }, { lang: "한글", count: 2 }], safeTrade: true,  trend: [84, 86, 90, 88, 88], wishCount: 52, createdAt: 14, grades: ["PSA 10", "BGS 9.5"]          },
+  { id: 7,  name: "몽키 D. 루피", series: "OP-01",          rarity: "SAR", category: "원피스", listings: 15, minPrice: 95000,  avgPrice: 102000, gradedCount: 3, langDist: [{ lang: "일본", count: 10 }, { lang: "한글", count: 5 }], safeTrade: true,  trend: [88, 92, 96, 94, 95], wishCount: 94, createdAt: 47, grades: ["PSA 10", "PSA 9", "BGS 9.5"] },
+  { id: 8,  name: "롤로노아 조로", series: "OP-01",          rarity: "SR",  category: "원피스", listings: 8,  minPrice: 67000,  avgPrice: 71000,  gradedCount: 1, langDist: [{ lang: "일본", count: 6  }, { lang: "한글", count: 2 }], safeTrade: false, trend: [64, 66, 64, 68, 67], wishCount: 37, createdAt: 40, grades: ["PSA 9"]                      },
+  { id: 9,  name: "나미",          series: "OP-02",          rarity: "SR",  category: "원피스", listings: 5,  minPrice: 45000,  avgPrice: 47000,  gradedCount: 0, langDist: [{ lang: "일본", count: 3  }, { lang: "한글", count: 2 }], safeTrade: false, trend: [44, 45, 46, 45, 45], wishCount: 22, createdAt:  7, grades: []                             },
+  { id: 10, name: "에이스",        series: "OP-02",          rarity: "UR",  category: "원피스", listings: 6,  minPrice: 130000, avgPrice: 128000, gradedCount: 2, langDist: [{ lang: "일본", count: 5  }, { lang: "한글", count: 1 }], safeTrade: true,  trend: [118,122,126,128,130], wishCount: 71, createdAt:  4, grades: ["PSA 10", "PSA 9"]            },
+  { id: 11, name: "상디",          series: "OP-07",          rarity: "R",   category: "원피스", listings: 3,  minPrice: 22000,  avgPrice: 24000,  gradedCount: 0, langDist: [{ lang: "한글", count: 3  }],                            safeTrade: false, trend: [24, 23, 23, 22, 22], wishCount: 12, createdAt:  1, grades: []                             },
 ];
 
-type SortType = "매물 많은 순" | "최저가 순" | "최신등록";
+type SortType = "인기순" | "낮은 가격순" | "높은 가격순" | "최신순";
 
 /* ── Mini Spark SVG ────────────────────────────────────── */
 function MiniSpark({ data, color }: { data: number[]; color: string }) {
@@ -101,10 +106,11 @@ export default function ExplorePage() {
   const [isFocused, setIsFocused]             = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [selectedSeries, setSelectedSeries]   = useState("전체");
-  const [selectedGrade, setSelectedGrade]     = useState("전체");
+  const [selectedGrade, setSelectedGrade]         = useState("전체");
+  const [selectedGradeFilter, setSelectedGradeFilter] = useState<GradeFilter>("전체");
   const [showFilter, setShowFilter]           = useState(false);
   const [showSortMenu, setShowSortMenu]       = useState(false);
-  const [sortType, setSortType]               = useState<SortType>("매물 많은 순");
+  const [sortType, setSortType]               = useState<SortType>("인기순");
   const [recentSearches, setRecentSearches]   = useState(RECENT_SEARCHES);
 
   const isSearching = query.length > 0 || isFocused;
@@ -125,17 +131,25 @@ export default function ExplorePage() {
       const matchQuery    = query === "" || entry.name.includes(query) || entry.rarity.includes(query);
       const matchCategory = selectedCategory === "전체" || entry.category === selectedCategory;
       const matchSeries   = selectedSeries === "전체" || entry.series === selectedSeries;
-      const matchGrade    = selectedGrade === "전체"  || entry.rarity === selectedGrade;
-      return matchQuery && matchCategory && matchSeries && matchGrade;
+      const matchGrade    = selectedGrade === "전체" || entry.rarity === selectedGrade;
+      const matchGradeFilter =
+        selectedGradeFilter === "전체"     ? true :
+        selectedGradeFilter === "PSA 10"   ? entry.grades.includes("PSA 10") :
+        selectedGradeFilter === "PSA 9+"   ? entry.grades.some((g) => g.startsWith("PSA") && parseFloat(g.split(" ")[1]) >= 9) :
+        selectedGradeFilter === "BGS 9.5+" ? entry.grades.some((g) => g.startsWith("BGS") && parseFloat(g.split(" ")[1]) >= 9.5) :
+        selectedGradeFilter === "감정 없음" ? entry.grades.length === 0 :
+        true;
+      return matchQuery && matchCategory && matchSeries && matchGrade && matchGradeFilter;
     })
     .sort((a, b) => {
-      if (sortType === "매물 많은 순") return b.listings - a.listings;
-      if (sortType === "최저가 순")   return a.minPrice - b.minPrice;
-      if (sortType === "최신등록")    return b.id - a.id;
+      if (sortType === "인기순")     return b.wishCount - a.wishCount;
+      if (sortType === "낮은 가격순") return a.minPrice - b.minPrice;
+      if (sortType === "높은 가격순") return b.minPrice - a.minPrice;
+      if (sortType === "최신순")     return a.createdAt - b.createdAt;
       return 0;
     });
 
-  const hasActiveFilter = selectedSeries !== "전체" || selectedGrade !== "전체";
+  const hasActiveFilter = selectedSeries !== "전체" || selectedGrade !== "전체" || selectedGradeFilter !== "전체";
 
   return (
     <div className="min-h-screen bg-gray-50 max-w-sm mx-auto">
@@ -289,7 +303,7 @@ export default function ExplorePage() {
               ))}
             </div>
           </div>
-          <div>
+          <div className="mb-3">
             <span className="text-[11px] text-gray-400 mb-2 block" style={{ fontWeight: 700, letterSpacing: "0.05em" }}>
               레어도
             </span>
@@ -310,6 +324,37 @@ export default function ExplorePage() {
                     }}
                   >
                     {g}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 감정 등급 */}
+          <div>
+            <span className="text-[11px] text-gray-400 mb-2 block" style={{ fontWeight: 700, letterSpacing: "0.05em" }}>
+              감정 등급
+            </span>
+            <div className="flex gap-1.5 flex-wrap">
+              {GRADE_FILTERS.map((gf) => {
+                const active = selectedGradeFilter === gf;
+                const isPsa10  = gf === "PSA 10";
+                const isBgs    = gf === "BGS 9.5+";
+                const isNone   = gf === "감정 없음";
+                const activeBg    = isPsa10 ? "#1D4ED8" : isBgs ? "#7C3AED" : isNone ? "#f3f4f6" : "#111";
+                const activeColor = isNone && active ? "#374151" : active ? "#fff" : "#6b7280";
+                return (
+                  <button
+                    key={gf}
+                    onClick={() => setSelectedGradeFilter(gf)}
+                    className="text-xs px-3 py-1 rounded-full transition-all"
+                    style={{
+                      background: active ? activeBg : "#f3f4f6",
+                      color:      activeColor,
+                      fontWeight: active ? 700 : 400,
+                    }}
+                  >
+                    {gf}
                   </button>
                 );
               })}
@@ -350,7 +395,7 @@ export default function ExplorePage() {
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setShowSortMenu(false)} />
                   <div className="absolute right-0 top-9 z-20 bg-white border border-gray-100 rounded-2xl shadow-lg overflow-hidden w-32">
-                    {(["매물 많은 순", "최저가 순", "최신등록"] as SortType[]).map((type) => (
+                    {(["인기순", "최신순", "낮은 가격순", "높은 가격순"] as SortType[]).map((type) => (
                       <button
                         key={type}
                         onClick={() => { setSortType(type); setShowSortMenu(false); }}
@@ -447,12 +492,16 @@ export default function ExplorePage() {
                         <span className="text-[10px] text-gray-400" style={{ fontWeight: 500 }}>
                           매물 <span className="text-gray-700" style={{ fontWeight: 700 }}>{entry.listings}</span>개
                         </span>
-                        {entry.gradedCount > 0 && (
+                        {entry.grades.length > 0 && (
                           <span
                             className="text-[9px] px-1.5 py-0.5 rounded"
-                            style={{ background: "#eff6ff", color: "#1d4ed8", fontWeight: 700 }}
+                            style={{
+                              background: entry.grades[0].startsWith("BGS") ? "#F3EEFF" : "#eff6ff",
+                              color:      entry.grades[0].startsWith("BGS") ? "#6D28D9" : "#1d4ed8",
+                              fontWeight: 700,
+                            }}
                           >
-                            PSA {entry.gradedCount}
+                            {entry.grades[0]}{entry.grades.length > 1 ? ` +${entry.grades.length - 1}` : ""}
                           </span>
                         )}
                         {entry.langDist.map((l) => (

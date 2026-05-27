@@ -160,8 +160,9 @@ export default function MyPage() {
 
         <div className="flex gap-2 mt-4">
           <button
-            className="flex-1 py-2.5 rounded-xl text-sm"
+            className="flex-1 py-2.5 rounded-xl text-sm active:opacity-75 transition-opacity"
             style={{ border: "1.5px solid #e5e7eb", color: "#6b7280", fontWeight: 500 }}
+            onClick={() => router.push("/mypage/shop")}
           >
             내 샵 보기
           </button>

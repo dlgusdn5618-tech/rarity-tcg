@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Home, Search, Sparkles, MessageCircle, User, SlidersHorizontal, type LucideIcon } from "lucide-react";
+import { Home, Search, Sparkles, MessageCircle, User, SlidersHorizontal, ShieldCheck, type LucideIcon } from "lucide-react";
 
-const RECENT_SEARCHES = ["리자몽 ex SR", "피카츄 SAR", "루피 SAR", "뮤츠 UR"];
+const RECENT_SEARCHES = ["리자몽 ex SAR", "피카츄 SAR", "루피 SAR", "뮤츠 UR"];
 
 const POPULAR_SEARCHES = [
   { rank: 1, keyword: "리자몽 ex" },
@@ -17,30 +17,38 @@ const POPULAR_SEARCHES = [
 
 const SERIES = ["전체", "151", "스칼렛·바이올렛", "페어리킹덤", "OP-01", "OP-02", "OP-07"];
 
-const GRADES = ["전체", "S급", "A급", "B급"];
+const GRADES = ["전체", "SAR", "UR", "SR", "R"];
 
-const ALL_CARDS = [
-  { id: 1,  name: "리자몽 ex",      series: "151",            grade: "SR",  price: 85000,  emoji: "🔥", condition: "S급", category: "포켓몬", views: 1240, likes: 320 },
-  { id: 2,  name: "피카츄 ex",      series: "151",            grade: "SAR", price: 42000,  emoji: "⚡", condition: "A급", category: "포켓몬", views: 980,  likes: 210 },
-  { id: 3,  name: "뮤츠 ex",        series: "151",            grade: "UR",  price: 120000, emoji: "🌀", condition: "S급", category: "포켓몬", views: 870,  likes: 180 },
-  { id: 4,  name: "이상해꽃 ex",    series: "151",            grade: "SR",  price: 38000,  emoji: "🌿", condition: "B급", category: "포켓몬", views: 430,  likes: 90  },
-  { id: 5,  name: "꼬부기 ex",      series: "151",            grade: "SR",  price: 55000,  emoji: "💧", condition: "A급", category: "포켓몬", views: 560,  likes: 130 },
-  { id: 6,  name: "잠만보 ex",      series: "스칼렛·바이올렛", grade: "SAR", price: 67000,  emoji: "💤", condition: "S급", category: "포켓몬", views: 720,  likes: 160 },
-  { id: 7,  name: "몽키 D. 루피",   series: "OP-01",          grade: "SAR", price: 95000,  emoji: "👒", condition: "S급", category: "원피스", views: 1100, likes: 290 },
-  { id: 8,  name: "롤로노아 조로",  series: "OP-01",          grade: "SR",  price: 67000,  emoji: "⚔️", condition: "A급", category: "원피스", views: 640,  likes: 150 },
-  { id: 9,  name: "나미",           series: "OP-02",          grade: "SR",  price: 45000,  emoji: "🍊", condition: "A급", category: "원피스", views: 380,  likes: 80  },
-  { id: 10, name: "에이스",         series: "OP-02",          grade: "UR",  price: 130000, emoji: "🔥", condition: "S급", category: "원피스", views: 930,  likes: 240 },
-  { id: 11, name: "상디",           series: "OP-07",          grade: "R",   price: 22000,  emoji: "🍳", condition: "B급", category: "원피스", views: 210,  likes: 45  },
-  { id: 12, name: "뮤 ex",          series: "페어리킹덤",      grade: "SAR", price: 88000,  emoji: "✨", condition: "S급", category: "포켓몬", views: 810,  likes: 200 },
+const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
+  SAR: { bg: "#fff8e6", color: "#b45309" },
+  UR:  { bg: "#f3e8ff", color: "#7c3aed" },
+  SR:  { bg: "#fff5f5", color: "#dc2626" },
+  R:   { bg: "#f8fafc", color: "#475569" },
+};
+
+type CardEntry = {
+  id: number; name: string; series: string; rarity: string;
+  category: "포켓몬" | "원피스"; listings: number;
+  minPrice: number; avgPrice: number; gradedCount: number;
+  langDist: { lang: string; count: number }[]; safeTrade: boolean;
+};
+
+const CARD_ENTRIES: CardEntry[] = [
+  { id: 1,  name: "리자몽 ex",    series: "151",            rarity: "SAR", category: "포켓몬", listings: 12, minPrice: 85000,  avgPrice: 90500,  gradedCount: 2, langDist: [{ lang: "일본판", count: 8 },  { lang: "한글판", count: 4 }], safeTrade: true  },
+  { id: 2,  name: "피카츄 ex",    series: "151",            rarity: "SAR", category: "포켓몬", listings: 7,  minPrice: 42000,  avgPrice: 45000,  gradedCount: 0, langDist: [{ lang: "영어판", count: 5 },  { lang: "일본판", count: 2 }], safeTrade: false },
+  { id: 3,  name: "뮤츠 ex",      series: "151",            rarity: "UR",  category: "포켓몬", listings: 5,  minPrice: 120000, avgPrice: 115000, gradedCount: 1, langDist: [{ lang: "일본판", count: 5 }],                            safeTrade: true  },
+  { id: 4,  name: "이상해꽃 ex",  series: "151",            rarity: "SR",  category: "포켓몬", listings: 9,  minPrice: 38000,  avgPrice: 41000,  gradedCount: 0, langDist: [{ lang: "한글판", count: 6 },  { lang: "일본판", count: 3 }], safeTrade: false },
+  { id: 5,  name: "꼬부기 ex",    series: "151",            rarity: "SR",  category: "포켓몬", listings: 6,  minPrice: 55000,  avgPrice: 58000,  gradedCount: 0, langDist: [{ lang: "일본판", count: 4 },  { lang: "한글판", count: 2 }], safeTrade: true  },
+  { id: 6,  name: "잠만보 ex",    series: "스칼렛·바이올렛", rarity: "SAR", category: "포켓몬", listings: 4,  minPrice: 67000,  avgPrice: 70000,  gradedCount: 1, langDist: [{ lang: "일본판", count: 4 }],                            safeTrade: true  },
+  { id: 12, name: "뮤 ex",        series: "페어리킹덤",      rarity: "SAR", category: "포켓몬", listings: 8,  minPrice: 88000,  avgPrice: 92000,  gradedCount: 2, langDist: [{ lang: "일본판", count: 6 },  { lang: "한글판", count: 2 }], safeTrade: true  },
+  { id: 7,  name: "몽키 D. 루피", series: "OP-01",          rarity: "SAR", category: "원피스", listings: 15, minPrice: 95000,  avgPrice: 102000, gradedCount: 3, langDist: [{ lang: "일본판", count: 10 }, { lang: "한글판", count: 5 }], safeTrade: true  },
+  { id: 8,  name: "롤로노아 조로", series: "OP-01",         rarity: "SR",  category: "원피스", listings: 8,  minPrice: 67000,  avgPrice: 71000,  gradedCount: 1, langDist: [{ lang: "일본판", count: 6 },  { lang: "한글판", count: 2 }], safeTrade: false },
+  { id: 9,  name: "나미",          series: "OP-02",         rarity: "SR",  category: "원피스", listings: 5,  minPrice: 45000,  avgPrice: 47000,  gradedCount: 0, langDist: [{ lang: "일본판", count: 3 },  { lang: "한글판", count: 2 }], safeTrade: false },
+  { id: 10, name: "에이스",        series: "OP-02",         rarity: "UR",  category: "원피스", listings: 6,  minPrice: 130000, avgPrice: 128000, gradedCount: 2, langDist: [{ lang: "일본판", count: 5 },  { lang: "한글판", count: 1 }], safeTrade: true  },
+  { id: 11, name: "상디",          series: "OP-07",         rarity: "R",   category: "원피스", listings: 3,  minPrice: 22000,  avgPrice: 24000,  gradedCount: 0, langDist: [{ lang: "한글판", count: 3 }],                            safeTrade: false },
 ];
 
-type SortType = "최신순" | "인기순" | "조회순";
-
-const CONDITION_COLORS: Record<string, string> = {
-  "S급": "text-yellow-600",
-  "A급": "text-blue-600",
-  "B급": "text-gray-500",
-};
+type SortType = "매물 많은 순" | "최저가 순" | "최신등록";
 
 export default function ExplorePage() {
   const router = useRouter();
@@ -51,7 +59,7 @@ export default function ExplorePage() {
   const [selectedGrade, setSelectedGrade] = useState("전체");
   const [showFilter, setShowFilter] = useState(false);
   const [showSortMenu, setShowSortMenu] = useState(false);
-  const [sortType, setSortType] = useState<SortType>("최신순");
+  const [sortType, setSortType] = useState<SortType>("매물 많은 순");
   const [recentSearches, setRecentSearches] = useState(RECENT_SEARCHES);
 
   const isSearching = query.length > 0 || isFocused;
@@ -68,18 +76,18 @@ export default function ExplorePage() {
     setRecentSearches(recentSearches.filter((k) => k !== keyword));
   };
 
-  const filteredCards = ALL_CARDS
-    .filter((card) => {
-      const matchQuery = query === "" || card.name.includes(query) || card.grade.includes(query);
-      const matchCategory = selectedCategory === "전체" || card.category === selectedCategory;
-      const matchSeries = selectedSeries === "전체" || card.series === selectedSeries;
-      const matchGrade = selectedGrade === "전체" || card.condition === selectedGrade;
+  const filteredCards = CARD_ENTRIES
+    .filter((entry) => {
+      const matchQuery    = query === "" || entry.name.includes(query) || entry.rarity.includes(query);
+      const matchCategory = selectedCategory === "전체" || entry.category === selectedCategory;
+      const matchSeries   = selectedSeries === "전체" || entry.series === selectedSeries;
+      const matchGrade    = selectedGrade === "전체"  || entry.rarity === selectedGrade;
       return matchQuery && matchCategory && matchSeries && matchGrade;
     })
     .sort((a, b) => {
-      if (sortType === "최신순") return b.id - a.id;
-      if (sortType === "인기순") return b.likes - a.likes;
-      if (sortType === "조회순") return b.views - a.views;
+      if (sortType === "매물 많은 순") return b.listings - a.listings;
+      if (sortType === "최저가 순")   return a.minPrice - b.minPrice;
+      if (sortType === "최신등록")    return b.id - a.id;
       return 0;
     });
 
@@ -209,22 +217,27 @@ export default function ExplorePage() {
             </div>
           </div>
           <div className="mb-3">
-            <span className="text-xs text-gray-500 mb-1.5 block" style={{ fontWeight: 600 }}>상태</span>
-            <div className="flex gap-2">
-              {GRADES.map((g) => (
-                <button
-                  key={g}
-                  onClick={() => setSelectedGrade(g)}
-                  className={`shrink-0 text-xs px-3 py-1 rounded-full border transition-all ${
-                    selectedGrade === g
-                      ? "bg-gray-900 text-white border-gray-900"
-                      : "bg-white text-gray-500 border-gray-200"
-                  }`}
-                  style={{ fontWeight: selectedGrade === g ? 600 : 400 }}
-                >
-                  {g}
-                </button>
-              ))}
+            <span className="text-xs text-gray-500 mb-1.5 block" style={{ fontWeight: 600 }}>레어도</span>
+            <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+              {GRADES.map((g) => {
+                const chip = RARITY_CHIP[g];
+                const active = selectedGrade === g;
+                return (
+                  <button
+                    key={g}
+                    onClick={() => setSelectedGrade(g)}
+                    className="shrink-0 text-xs px-3 py-1 rounded-full border transition-all"
+                    style={{
+                      background: active ? (chip?.bg ?? "#111") : "white",
+                      color:      active ? (chip?.color ?? "white") : "#6b7280",
+                      borderColor: active ? (chip?.color ?? "#111") : "#e5e7eb",
+                      fontWeight: active ? 700 : 400,
+                    }}
+                  >
+                    {g}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -235,7 +248,7 @@ export default function ExplorePage() {
         <div className="px-4 pt-4 pb-24">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-gray-500" style={{ fontWeight: 400 }}>
-              총 <span className="text-gray-900" style={{ fontWeight: 700 }}>{filteredCards.length}개</span>
+              카드 <span className="text-gray-900" style={{ fontWeight: 700 }}>{filteredCards.length}종</span>
             </span>
 
             {/* 정렬 버튼 */}
@@ -249,19 +262,16 @@ export default function ExplorePage() {
                 <span className="text-[10px] text-gray-400" style={{ transform: showSortMenu ? "rotate(180deg)" : "rotate(0deg)", display: "inline-block", transition: "transform 0.2s" }}>▼</span>
               </button>
 
-              {/* 드롭다운 메뉴 */}
               {showSortMenu && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setShowSortMenu(false)} />
-                  <div className="absolute right-0 top-8 z-20 bg-white border border-gray-100 rounded-2xl shadow-lg overflow-hidden w-28">
-                    {(["최신순", "인기순", "조회순"] as SortType[]).map((type) => (
+                  <div className="absolute right-0 top-8 z-20 bg-white border border-gray-100 rounded-2xl shadow-lg overflow-hidden w-32">
+                    {(["매물 많은 순", "최저가 순", "최신등록"] as SortType[]).map((type) => (
                       <button
                         key={type}
                         onClick={() => { setSortType(type); setShowSortMenu(false); }}
                         className={`w-full text-left px-4 py-3 text-sm transition-colors ${
-                          sortType === type
-                            ? "bg-gray-900 text-white"
-                            : "text-gray-700 hover:bg-gray-50"
+                          sortType === type ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-50"
                         }`}
                         style={{ fontWeight: sortType === type ? 700 : 400 }}
                       >
@@ -274,44 +284,90 @@ export default function ExplorePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            {filteredCards.map((card) => (
-              <div
-                key={card.id}
-                onClick={() => router.push(`/card/${card.id}`)}
-              className="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-              >
-                <div className="bg-gray-50 h-36 flex items-center justify-center relative overflow-hidden">
-                  <div className="w-[72px] h-24 rounded-lg flex flex-col overflow-hidden" style={{ border: "1.5px solid #e5e7eb", background: "#fff" }}>
-                    <div className="h-2 w-full shrink-0" style={{ background: "#E53E3E" }} />
-                    <div className="flex-1 flex items-center justify-center">
-                      <span className="text-[9px] text-gray-300 select-none" style={{ fontWeight: 700, letterSpacing: "0.08em" }}>TCG</span>
+          {/* 카드 도감 엔트리 리스트 */}
+          <div className="flex flex-col gap-2.5">
+            {filteredCards.map((entry) => {
+              const chip = RARITY_CHIP[entry.rarity] ?? { bg: "#f8fafc", color: "#475569" };
+              const langLabel = entry.langDist.map((l) => `${l.lang} ${l.count}개`).join(" · ");
+              return (
+                <div
+                  key={entry.id}
+                  onClick={() => router.push(`/card/${entry.id}`)}
+                  className="bg-white rounded-2xl border border-gray-100 p-3 cursor-pointer active:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-start gap-3">
+                    {/* TCG 카드 프레임 */}
+                    <div
+                      className="w-10 h-[58px] rounded-lg flex flex-col overflow-hidden shrink-0"
+                      style={{ border: "1.5px solid #e5e7eb", background: "#f9fafb" }}
+                    >
+                      <div className="h-1.5 w-full shrink-0" style={{ background: "#E53E3E" }} />
+                      <div className="flex-1 flex items-center justify-center">
+                        <span className="text-[7px] text-gray-300 select-none" style={{ fontWeight: 700 }}>TCG</span>
+                      </div>
+                    </div>
+
+                    {/* 카드 정보 */}
+                    <div className="flex-1 min-w-0">
+                      {/* 카드명 + 레어도 */}
+                      <div className="flex items-start justify-between gap-2 mb-0.5">
+                        <p className="text-sm text-gray-900 truncate" style={{ fontWeight: 700 }}>{entry.name}</p>
+                        <span
+                          className="text-[10px] px-1.5 py-0.5 rounded shrink-0"
+                          style={{ background: chip.bg, color: chip.color, fontWeight: 700, border: `1px solid ${chip.color}33` }}
+                        >
+                          {entry.rarity}
+                        </span>
+                      </div>
+
+                      {/* 시리즈 · 카테고리 */}
+                      <p className="text-[11px] text-gray-400 mb-2" style={{ fontWeight: 400 }}>
+                        {entry.series} · {entry.category}
+                      </p>
+
+                      {/* 구분선 */}
+                      <div className="h-px bg-gray-50 mb-2" />
+
+                      {/* 매물 수 + 최저가/평균가 */}
+                      <div className="flex items-baseline justify-between mb-1.5">
+                        <span className="text-[11px] text-gray-500" style={{ fontWeight: 400 }}>
+                          매물 <span className="text-gray-900" style={{ fontWeight: 700 }}>{entry.listings}</span>개
+                        </span>
+                        <div className="text-right">
+                          <span className="text-sm text-gray-900" style={{ fontWeight: 800 }}>
+                            최저 {entry.minPrice.toLocaleString()}원
+                          </span>
+                          <span className="text-[10px] text-gray-400 ml-1" style={{ fontWeight: 400 }}>
+                            평균 {entry.avgPrice.toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 태그 행: 감정 · 언어 분포 · 안전거래 */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {entry.gradedCount > 0 && (
+                          <span
+                            className="text-[10px] px-1.5 py-0.5 rounded"
+                            style={{ background: "#f9fafb", color: "#374151", fontWeight: 600, border: "1px solid #e5e7eb" }}
+                          >
+                            PSA {entry.gradedCount}개
+                          </span>
+                        )}
+                        <span className="text-[10px] text-gray-400" style={{ fontWeight: 400 }}>{langLabel}</span>
+                        {entry.safeTrade && (
+                          <span
+                            className="flex items-center gap-0.5 text-[10px]"
+                            style={{ color: "#10b981", fontWeight: 600 }}
+                          >
+                            <ShieldCheck size={10} strokeWidth={2} />안전거래
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <span
-                    className="absolute top-2 left-2 text-[10px] bg-white px-1.5 py-0.5 rounded-md text-gray-600 border border-gray-100"
-                    style={{ fontWeight: 500 }}
-                  >
-                    {card.grade}
-                  </span>
-                  <span className="absolute top-2 right-2 text-[10px] bg-black/10 text-gray-600 px-1.5 py-0.5 rounded-md" style={{ fontWeight: 400 }}>
-                    {card.category}
-                  </span>
                 </div>
-                <div className="p-3">
-                  <p className="text-xs text-gray-400 mb-0.5" style={{ fontWeight: 400 }}>{card.series}</p>
-                  <p className="text-sm text-gray-900 leading-snug mb-1 truncate" style={{ fontWeight: 600 }}>{card.name}</p>
-                  <div className="flex items-center justify-between">
-                    <span className={`text-xs ${CONDITION_COLORS[card.condition]}`} style={{ fontWeight: 500 }}>
-                      {card.condition}
-                    </span>
-                    <span className="text-sm text-gray-900" style={{ fontWeight: 700 }}>
-                      {card.price.toLocaleString()}원
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {filteredCards.length === 0 && (

@@ -52,6 +52,14 @@
 
 36. **디자인 시스템 토큰 정리** — 전역 색상/반경/그림자 토큰 단일화: ① src/lib/tokens.ts 생성 (PRIMARY·RARITY_CHIP·RARITY_STROKE·SCARCITY_COLOR·SEMANTIC·NEUTRAL·RADIUS·SHADOW 전체 정의) ② globals.css 전면 개편 (다크모드 오버라이드 제거, CSS 변수 확장, body 기본 폰트/배경/letter-spacing 정리, @theme inline 등록) ③ PRIMARY 색상 전체 페이지 일괄 수정 #E53E3E→#D62828 (carmine red, 더 세련된 톤) ④ RARITY_CHIP 정제 — card/[id]·explore: SAR(#fff8e6/#b45309→#FFFBEB/#92400E 앰버골드), UR(#f3e8ff/#7c3aed→#F3EEFF/#6D28D9 딥바이올렛), SR(#fff5f5/#dc2626→#FFF0F0/#B91C1C 크림슨), R(#f8fafc/#475569→#F0F9FF/#0369A1 스카이블루) ⑤ GRADE_COLORS 정제 — wishlist·feed: SAR→#B7791F, UR→#6D28D9, SR→#B91C1C, R→#1D4ED8 ⑥ feed CHIP_META PSA 10 색상 보라→파랑(#1D4ED8, PSA 브랜드 블루) ⑦ layout.tsx body에 --bg 변수 적용 ⑧ formatScarcity 색상 토큰과 동기화
 
+39. **QA — 3개 신규 기능 문구·코드 정리** — 전체 빌드·타입 점검(tsc --noEmit, next build 오류 없음); RarityIndex.tsx에서 선언만 되고 본문에서 미사용인 defaultCollapsed prop 제거; collection.ts 판매 추천 이유 문구 완화("지금이 매도 적기" → "판매를 고려해볼 수 있는 시점", "이익 실현을 고려해보세요" → "거래 참고 정보로만 활용해 주세요") — AI 확정 판정·투자 조언 표현 제거
+
+38. **AI 카드 패스포트 스캐너 → 판매 등록 연결 (Phase 4)** — /sell/scanner 결과를 /sell에 자동 반영: sell/page.tsx에 useEffect로 sessionStorage scanResult 읽기 추가(마운트 시 1회, removeItem으로 중복 방지); ScanResult → 기존 state 어댑터(tcg→category, cardId→searchQuery+자동검색, isGraded/gradingCompany/grade→감정 state, condition→S/A/B, descDraft→desc); Step 1 상단에 "사진으로 카드 찾기" 다크 배너 CTA 추가(router.push("/sell/scanner")); 스캔 결과 반영 시 파란 안내 배너 표시(dismiss 가능)
+
+37. **AI 카드 패스포트 스캐너 독립 화면 (Phase 3)** — /sell/scanner 신규 생성: 필수 슬롯 4개(앞면/뒷면/모서리/빛반사) + 감정 카드 토글 시 슬롯 2개 추가; 슬롯 클릭 → mock 채움(실제 file input 교체 포인트 주석 명시); 신뢰도 프리뷰 바(필수 슬롯 충족률 기반); 필수 4개 미충족 시 스캔 버튼 비활성; scanCard() 호출 → 1.2초 로딩 → ScanResult 화면; 결과: 신뢰도%, 슬롯 커버리지 도트, 경고 목록, 카드 정보, Card Passport 초안, 판매 설명 초안; "이 정보로 등록 계속하기" → sessionStorage.setItem("scanResult", ...) + router.push("/sell"); AI 확정 판정 표현 금지 — "추정", "감지됨", "확인 필요" 톤 유지
+
+36. **컬렉션 금고 / My Vault** — /mypage/collection 신규 생성 + /mypage 진입 버튼 연결: Vault Summary 카드(총 추정 자산가치·손익·손익률·4칸 통계); 수익/손실 1위 카드 2칸 미니 카드; 탭 4개(전체/판매 추천/교환 추천/중복 보유) — client state 전환; 전체 탭: MOCK_COLLECTION 전체, 판매 추천 카드에 액션 버튼 자동 표시; 판매 추천 탭: getSellRecommendations() 결과, 추천 이유·추천 판매가 표시; 교환 추천 탭: getTradeMatches() 결과, 적정도%·예상 가격차·상대 핸들 표시; 중복 보유 탭: getDuplicates() 결과; 빈 상태 EmptyState 컴포넌트; /mypage 컬렉션 섹션에 다크 배너 스타일 "컬렉션 금고" 전 너비 진입 버튼 추가(router.push)
+
 35. **Card Passport 한국어화** — /card/[id] Card Passport 섹션을 한국 유저 중심으로 개선: 표시 변환 헬퍼 6개 추가(formatLanguage·formatDistribution·formatGrade·formatCondition·formatScarcity·formatPricePosition) — 원본 mock 데이터 유지, UI 표시 단계에서만 변환; 헤더 "CARD PASSPORT" → "카드 패스포트" (Korean 대제목 + "Card Passport" 보조 영문) + 우측 "카드 ID"; 라벨 전면 한국어화(Card Name→카드명, Language→언어, Distrib.→배포 방식, Grade→감정 등급, Condition→상태, Market→시세 위치, Scarcity→희소성); 값 한국어화(Japanese→일본판, Booster Set→확장팩 수록, Near Mint→NM+거의 새 상품, 30D Top X%→상위 X%+최근 30일, Grail→Grail+최상급 희귀 등); 태그 "Photo Verified"→"사진 인증 완료", "Safe Trade"→"안전거래 가능"; 일본/영문판 카드는 영문명(기본)+한국명(보조) 병기; 구매 전 확인 섹션도 "Card Passport 확인됨"→"카드 패스포트 확인됨", 배포/언어 값 포맷 적용
 
 34. **피드 탭 — 내 시그널 (/feed)** — 하단 네비 "피드" 탭을 /feed 독립 화면으로 구현 (홈/탐색과 역할 분리): 개인화된 거래 인박스 컨셉, 6가지 시그널 타입(가격 알림·새 매물·교환 기회·셀러·찜 업데이트·희귀 조건), 상단 요약 카드(오늘의 시그널 개수·가격하락·새매물·교환 3칸 통계), segmented 탭 필터(전체/가격/새매물/교환/셀러), 시그널 카드(미니 TCG 프레임·타입칩·시간·제목·설명·가격행·칩+액션 버튼), 빈 상태 UI(탐색·가격알림 설정 버튼); 홈·탐색·채팅·마이페이지 하단 네비 피드 href "/" → "/feed" 일괄 수정
@@ -62,6 +70,12 @@
 - **Supabase 연결** — Auth + DB
 - **카카오 로그인**
 - **토스페이먼츠 결제**
+
+## AI 스캐너 실제 연결 시 교체 포인트
+- `src/lib/scanner.ts` `callScannerAPI()` 내부 → `fetch("/api/scan", { method:"POST", body: JSON.stringify(input) })` 교체
+- `src/app/sell/scanner/page.tsx` `fillSlot()` 내부 mock 로직 → `slotTargetRef.current = key; fileInputRef.current?.click();` 교체 (hidden input 이미 준비됨)
+- `src/lib/collection.ts` `MOCK_COLLECTION` → Supabase `user_collection` 테이블 조회로 교체
+- `src/lib/rarity-score.ts` `listings`, `recentVolume` → 실시간 매물/체결 API로 교체
 
 ## 백엔드 연결 (UI 완성 후)
 - Supabase (DB + Auth)

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Package, Truck, Users, ShieldCheck, Search, Info, Camera, CheckCircle2, X, type LucideIcon } from "lucide-react";
+import { Package, Truck, Users, ShieldCheck, Search, Info, Camera, CheckCircle2, X, Sparkles, type LucideIcon } from "lucide-react";
+import { type ScanResult } from "@/lib/scanner";
 
 const PRIMARY = "#D62828";
 
@@ -75,6 +76,7 @@ export default function SellPage() {
   const [isSealedProduct, setIsSealedProduct] = useState(false);
   const [gradingCo, setGradingCo] = useState("");
   const [grade, setGrade] = useState("10");
+  const [scanBanner, setScanBanner] = useState(false);
 
   const GRADES: Record<string, string[]> = {
     PSA: ["10", "9", "8", "7", "6", "5", "4", "3", "2", "1"],
@@ -172,6 +174,55 @@ export default function SellPage() {
       setSearching(false);
     }
   };
+
+  // ── scanResult sessionStorage 읽기 ──────────────────────────────────────────
+  // /sell/scanner → "이 정보로 등록 계속하기" 버튼이 저장한 값을 읽어 상태에 반영
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const raw = sessionStorage.getItem("scanResult");
+    if (!raw) return;
+    sessionStorage.removeItem("scanResult");
+    try {
+      const result = JSON.parse(raw) as ScanResult;
+
+      // 카테고리 자동 설정 (tcg → 포켓몬 | 원피스)
+      const cat = result.tcg === "Pokemon" ? "포켓몬" : "원피스";
+      setCategory(cat);
+
+      // 카드 검색: cardId로 정확히 찾기, 없으면 카드명
+      const q = result.cardId || result.name;
+      setSearchQuery(q);
+      void searchPokemonCard(q);
+
+      // 감정 정보 반영
+      if (result.isGraded && result.gradingCompany) {
+        const supported = ["PSA", "BGS", "CGC", "BRG"];
+        const co = supported.includes(result.gradingCompany) ? result.gradingCompany : "PSA";
+        setIsGraded(true);
+        setGradingCo(co);
+        // "PSA 10" → "10", "9.5" → "9.5" 형태로 정규화
+        const g = (result.grade ?? "10").replace(/^[A-Za-z]{2,4}\s+/, "").trim();
+        setGrade(g || "10");
+      }
+
+      // 상태 추정 반영 (ConditionEstimate → "S" | "A" | "B")
+      const condMap: Record<string, string> = {
+        "Near Mint": "S", "Excellent": "A",
+        "Light Played": "B", "Played": "B", "Poor": "B",
+      };
+      const mappedCond = condMap[result.condition];
+      if (mappedCond) setCondition(mappedCond);
+
+      // 설명 초안 반영
+      if (result.descDraft) setDesc(result.descDraft);
+
+      // 카테고리가 확정됐으므로 카드 선택 단계로 이동
+      setStep(1);
+      setScanBanner(true);
+    } catch {
+      console.warn("[ScanResult] sessionStorage 파싱 실패, 무시");
+    }
+  }, []);
 
   const handleSlotClick = (key: string) => {
     slotTargetRef.current = key;
@@ -343,10 +394,55 @@ export default function SellPage() {
         {/* ── STEP 1: 카드 검색 ── */}
         {step === 1 && (
           <div>
+
+            {/* AI 스캔 결과 반영 배너 */}
+            {scanBanner && (
+              <div
+                className="flex items-start gap-2.5 px-3 py-3 rounded-2xl mb-4"
+                style={{ background: "#EFF6FF", border: "1px solid #bfdbfe" }}
+              >
+                <Sparkles size={14} strokeWidth={2} color="#1D4ED8" className="shrink-0 mt-px" />
+                <p className="flex-1 text-[11px] leading-relaxed" style={{ color: "#1e40af", fontWeight: 500 }}>
+                  AI 스캔 결과가 등록 초안에 반영됐어요. 카드 정보와 상태를 한 번 더 확인해주세요.
+                </p>
+                <button
+                  onClick={() => setScanBanner(false)}
+                  className="shrink-0 p-0.5 rounded"
+                >
+                  <X size={13} strokeWidth={2} color="#93c5fd" />
+                </button>
+              </div>
+            )}
+
             <p className="text-base text-gray-900 mb-1" style={{ fontWeight: 700 }}>카드를 검색해주세요</p>
             <p className="text-xs text-gray-400 mb-3" style={{ fontWeight: 400 }}>
               이름, 한글명, 카드 품번 모두 검색 가능해요
             </p>
+
+            {/* 사진으로 카드 찾기 CTA */}
+            <button
+              onClick={() => router.push("/sell/scanner")}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-2xl mb-3"
+              style={{ background: "#111827" }}
+            >
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ background: "rgba(255,255,255,0.10)" }}
+                >
+                  <Sparkles size={15} strokeWidth={2} color="#F6C90E" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm text-white" style={{ fontWeight: 700 }}>사진으로 카드 찾기</p>
+                  <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.50)", fontWeight: 400 }}>
+                    AI가 자동 인식 · 추정값이므로 확인 필요
+                  </p>
+                </div>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded-full shrink-0" style={{ background: "rgba(246,201,14,0.15)", color: "#F6C90E", fontWeight: 600 }}>
+                NEW
+              </span>
+            </button>
 
             {/* 검색 방법 안내 */}
             <div className="bg-gray-50 rounded-2xl p-3 mb-3 flex flex-col gap-1.5">

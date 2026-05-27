@@ -201,8 +201,8 @@ export function getSellRecommendations(
         card,
         reason:
           pct >= 25
-            ? `취득가 대비 +${pct}% 상승. 지금이 매도 적기입니다.`
-            : `취득가 대비 +${pct}% 상승. 이익 실현을 고려해보세요.`,
+            ? `취득가 대비 +${pct}% 상승했어요. 판매를 고려해볼 수 있는 시점이에요.`
+            : `취득가 대비 +${pct}% 상승했어요. 거래 참고 정보로만 활용해 주세요.`,
         suggestedPrice: suggested,
       };
     });

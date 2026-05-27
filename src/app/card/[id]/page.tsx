@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect, use } from "react";
 import { Shield, Share2, Heart, Eye, Package, Store, Users, ShieldCheck, Camera, CheckCircle2, AlertCircle, MessageSquarePlus, TrendingDown, TrendingUp, type LucideIcon } from "lucide-react";
+import { calcRarityIndex } from "@/lib/rarity-score";
+import { RarityIndex } from "@/components/RarityIndex";
 
 const PRIMARY = "#D62828";
 
@@ -696,6 +698,24 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
       {/* Card Passport */}
       <div className="mx-4 mt-3">
         <CardPassport name={card.name} nameKo={card.nameKo} data={card.passport} />
+      </div>
+
+      {/* 레어리티 인덱스 */}
+      <div className="mx-4 mt-3">
+        <RarityIndex
+          data={calcRarityIndex({
+            price: card.price,
+            avgPrice30d: card.avgPrice30d,
+            priceHistory: card.priceHistory,
+            passport: {
+              rarity: card.passport.rarity,
+              scarcity: card.passport.scarcity,
+              grade: card.passport.grade,
+              photoVerified: card.passport.photoVerified,
+            },
+          })}
+          cardName={card.nameKo}
+        />
       </div>
 
       {/* 사진 인증 */}

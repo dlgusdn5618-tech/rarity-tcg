@@ -7,7 +7,7 @@ import {
   Ticket, Gem, MapPin, CreditCard, Bell, Shield,
   Megaphone, HelpCircle, FileText, ChevronRight,
   Home, Search, Sparkles, MessageCircle, User,
-  Settings, Pencil,
+  Settings, Pencil, Layers,
   type LucideIcon,
 } from "lucide-react";
 
@@ -185,6 +185,30 @@ export default function MyPage() {
         </div>
 
         <p className="text-xs text-gray-400 mb-3 mt-5" style={{ fontWeight: 600 }}>컬렉션</p>
+
+        {/* 컬렉션 금고 — 전 너비 진입 버튼 */}
+        <button
+          onClick={() => router.push("/mypage/collection")}
+          className="w-full flex items-center justify-between px-4 py-3 rounded-2xl mb-2 active:opacity-80 transition-opacity"
+          style={{ background: "#111827", boxShadow: "0 1px 4px rgba(0,0,0,0.10)" }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: "rgba(255,255,255,0.10)" }}
+            >
+              <Layers size={18} strokeWidth={1.8} color="#F6C90E" />
+            </div>
+            <div className="text-left">
+              <p className="text-sm text-white" style={{ fontWeight: 700 }}>컬렉션 금고</p>
+              <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.55)", fontWeight: 400 }}>
+                내 카드 자산과 거래 기회
+              </p>
+            </div>
+          </div>
+          <ChevronRight size={16} strokeWidth={1.8} color="rgba(255,255,255,0.40)" />
+        </button>
+
         <div className="grid grid-cols-2 gap-2">
           {COLLECTION_ITEMS.map((item) => (
             <GridTile key={item.label} {...item} router={router} />

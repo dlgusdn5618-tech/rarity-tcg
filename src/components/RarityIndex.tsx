@@ -117,13 +117,11 @@ export interface RarityIndexProps {
   data: RarityIndexData;
   /** 헤더에 표시할 카드명 (선택) */
   cardName?: string;
-  /** 펼침/접힘 제어 (선택. 없으면 항상 펼침) */
-  defaultCollapsed?: boolean;
 }
 
 // ── 메인 컴포넌트 ─────────────────────────────────────────────────────────────
 
-export function RarityIndex({ data, cardName, defaultCollapsed = false }: RarityIndexProps) {
+export function RarityIndex({ data, cardName }: RarityIndexProps) {
   const {
     rarityScore,
     priceConfidence,

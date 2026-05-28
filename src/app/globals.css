@@ -268,3 +268,8 @@ body {
   line-height: 1.6;
   text-align: center;
 }
+
+@keyframes rr-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}

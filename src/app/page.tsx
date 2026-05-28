@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getHomeBanners } from "@/lib/home-banners";
 import { getRarityRankings } from "@/lib/cards";
 import {
   Home as HomeIcon, Search, Sparkles, MessageCircle, User,
-  Bell, MapPin, Package, Star, RefreshCw, Flame, ArrowRight,
+  Bell, MapPin, Package, Star, RefreshCw, ArrowRight,
   type LucideIcon,
 } from "lucide-react";
 
@@ -142,8 +142,35 @@ export default function Home() {
   const [bannerIdx, setBannerIdx]         = useState(0);
   const [activeTab, setActiveTab]         = useState("홈");
   const [activeCategory, setActiveCategory] = useState("홈");
+  const tickerTrackRef                    = useRef<HTMLDivElement>(null);
 
   const banner = BANNERS[bannerIdx];
+
+  useEffect(() => {
+    const ROW_H = 40;
+    const total = HEAT_TICKER.length;
+    let cur = 0;
+    const id = setInterval(() => {
+      cur = (cur + 1) % total;
+      const el = tickerTrackRef.current;
+      if (!el) return;
+      if (cur === 0) {
+        el.style.transition = "none";
+        el.style.transform  = "translateY(0)";
+        // 다음 프레임에서 슬라이드 시작
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            el.style.transition = "transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94)";
+            el.style.transform  = `translateY(-${cur * ROW_H}px)`;
+          });
+        });
+      } else {
+        el.style.transition = "transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94)";
+        el.style.transform  = `translateY(-${cur * ROW_H}px)`;
+      }
+    }, 2000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 w-full max-w-sm mx-auto relative overflow-x-hidden">
@@ -189,46 +216,56 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ── Heat Ticker ── */}
-      <div className="flex items-center overflow-hidden bg-white border-b border-gray-100">
-        {/* 레이블 */}
-        <div className="flex items-center gap-1 px-3 py-2.5 shrink-0 border-r border-gray-100">
-          <Flame size={10} color="#f97316" strokeWidth={2.5} />
-          <span className="text-[10px] text-gray-700" style={{ fontWeight: 700, letterSpacing: "0.05em" }}>
+      {/* ── Heat Ticker — 수직 슬롯머신 ── */}
+      <div className="flex items-center gap-2.5 px-4 bg-white border-b border-gray-100 overflow-hidden" style={{ height: 40 }}>
+        {/* SIGNAL pill 뱃지 */}
+        <div
+          className="flex items-center gap-1.5 shrink-0 rounded-full px-2.5 py-1"
+          style={{ background: "#111111" }}
+        >
+          <span
+            className="w-[5px] h-[5px] rounded-full shrink-0"
+            style={{
+              background: PRIMARY,
+              animation: "rr-blink 1.4s ease-in-out infinite",
+            }}
+          />
+          <span className="text-[10px] text-white" style={{ fontWeight: 700, letterSpacing: "0.04em" }}>
             SIGNAL
           </span>
         </div>
-        {/* 스크롤 아이템 */}
-        <div className="overflow-hidden flex-1">
-          <div className="animate-marquee">
-            {[...HEAT_TICKER, ...HEAT_TICKER].map((item, i) => {
+
+        {/* 롤링 윈도우 */}
+        <div className="flex-1 min-w-0 overflow-hidden" style={{ height: 40 }}>
+          <div ref={tickerTrackRef} style={{ display: "flex", flexDirection: "column", willChange: "transform" }}>
+            {HEAT_TICKER.map((item, i) => {
               const chip = RARITY_CHIP[item.grade] ?? { bg: "#f8fafc", color: "#475569" };
               const changeColor = item.change === "NEW" ? "#2563eb"
                 : item.up ? "#16a34a" : "#dc2626";
               return (
-                <span key={i} className="inline-flex items-center gap-1.5 px-3 py-2.5 shrink-0">
+                <div
+                  key={i}
+                  className="flex items-center gap-1.5 shrink-0"
+                  style={{ height: 40 }}
+                >
                   <span
-                    className="text-[9px] px-1 py-px rounded"
-                    style={{ background: chip.bg, color: chip.color, fontWeight: 700 }}
+                    className="rr-badge-rarity shrink-0"
+                    style={{ background: chip.bg, color: chip.color }}
                   >
                     {item.grade}
                   </span>
-                  <span className="text-[11px] text-gray-800" style={{ fontWeight: 600 }}>
+                  <span className="text-[13px] text-gray-900 truncate" style={{ fontWeight: 700 }}>
                     {item.name}
                   </span>
-                  <span className="text-[10px]" style={{ color: changeColor, fontWeight: 700 }}>
+                  <span className="text-[11px] shrink-0" style={{ color: changeColor, fontWeight: 700 }}>
                     {item.change}
                   </span>
                   {item.hot && (
-                    <span
-                      className="text-[8px] px-1 rounded"
-                      style={{ background: "#fff7ed", color: "#ea580c", fontWeight: 700 }}
-                    >
+                    <span className="rr-badge shrink-0" style={{ background: "#fff7ed", color: "#ea580c" }}>
                       HOT
                     </span>
                   )}
-                  <span className="text-gray-200 text-xs mx-0.5">·</span>
-                </span>
+                </div>
               );
             })}
           </div>

@@ -107,7 +107,7 @@ export default function ChatList() {
   const totalUnread = chats.reduce((sum, c) => sum + c.unread, 0);
 
   return (
-    <div className="min-h-screen bg-white max-w-sm mx-auto relative">
+    <div className="min-h-screen bg-white w-full max-w-sm mx-auto relative overflow-x-hidden">
 
       {/* 헤더 */}
       <header className="flex items-center justify-between px-4 pt-5 pb-3 bg-white">

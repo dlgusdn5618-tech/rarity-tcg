@@ -53,7 +53,7 @@ function ScannerLoading({ label }: { label?: string }) {
         className="w-16 h-16 rounded-2xl flex items-center justify-center"
         style={{ background: "#111827" }}
       >
-        <Sparkles size={28} strokeWidth={1.5} color="#F6C90E" className="animate-pulse" />
+        <Sparkles size={28} strokeWidth={1.5} color="#ffffff" className="animate-pulse" />
       </div>
       <div className="flex flex-col gap-1.5">
         <p className="rr-state-title">{label ?? "AI가 카드 패스포트를 읽는 중"}</p>

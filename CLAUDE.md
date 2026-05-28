@@ -90,6 +90,8 @@
 
 50. **디자인 시스템 1단계** — 공통 토큰·유틸리티 클래스 기반 정리: ① tokens.ts에 ACCENT_BLACK·ACCENT_CHARCOAL·ACCENT_MUTED 추가 ② globals.css --accent #F6C90E→#111111 변경 + rr-* 유틸리티 14개 클래스 추가(rr-card·rr-card-compact·rr-section-header·rr-section-title·rr-section-subtitle·rr-button-primary·rr-button-secondary·rr-button-ghost·rr-badge·rr-badge-rarity·rr-metric·rr-price·rr-score·rr-bottom-cta) ③ 홈·RarityIndex·PurchaseBottomSheet에 rr-* 클래스 적용 ④ 골드(#F6C90E) 포인트 컬러 → 블랙(#111111)으로 전면 교체 ⑤ DESIGN_SYSTEM.md 문서 신규 생성
 
+51. **디자인 시스템 2단계** — rr-* 클래스를 explore/sell/collection 3개 페이지에 적용: ① explore: 카드 엔트리 래퍼→rr-card, 최저가→rr-price, 매물수 숫자→rr-metric, 등급배지→rr-badge-rarity, 안전·HOT 배지→rr-badge ② sell: 완료화면 기본/보조 버튼 + 하단 다음/등록 CTA→rr-button-primary/rr-button-secondary(opacity 비활성 스타일 유지) ③ collection: CardRow·SellRecRow·TradeMatchRow·자산요약 래퍼→rr-card, 자산가치→rr-price, 변동금·현재가·지표 숫자→rr-metric, SellRecRow CTA→rr-button-primary, TradeMatchRow CTA→rr-button-secondary, InsightCard 링크→rr-button-ghost; step 로직·라우팅·mock 데이터 무변경
+
 ## 다음 작업 🔜
 - **Supabase 연결** — Auth + DB
 - **카카오 로그인**

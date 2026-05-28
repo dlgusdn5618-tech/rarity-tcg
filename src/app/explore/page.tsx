@@ -244,7 +244,7 @@ export default function ExplorePage() {
                   </span>
                   <span className="text-sm text-gray-800 flex-1" style={{ fontWeight: 400 }}>{item.keyword}</span>
                   {item.hot && (
-                    <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: "#fff7ed", color: "#ea580c", fontWeight: 700 }}>
+                    <span className="rr-badge" style={{ background: "#fff7ed", color: "#ea580c" }}>
                       HOT
                     </span>
                   )}
@@ -403,8 +403,7 @@ export default function ExplorePage() {
                 <div
                   key={entry.id}
                   onClick={() => router.push(`/card/${entry.id}`)}
-                  className="bg-white rounded-2xl border border-gray-100 p-3 cursor-pointer active:bg-gray-50 transition-colors"
-                  style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}
+                  className="rr-card p-3 cursor-pointer active:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-start gap-3">
                     {/* 카드 프레임 */}
@@ -446,7 +445,7 @@ export default function ExplorePage() {
                       {/* 가격 + 스파크 */}
                       <div className="flex items-center justify-between mb-1.5">
                         <div className="flex items-baseline gap-2">
-                          <span className="text-sm text-gray-900" style={{ fontWeight: 800 }}>
+                          <span className="rr-price text-sm text-gray-900">
                             {entry.minPrice.toLocaleString()}원
                           </span>
                           <span
@@ -466,15 +465,14 @@ export default function ExplorePage() {
                       {/* 태그 행 */}
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="text-[10px] text-gray-400" style={{ fontWeight: 500 }}>
-                          매물 <span className="text-gray-700" style={{ fontWeight: 700 }}>{entry.listings}</span>개
+                          매물 <span className="rr-metric text-gray-700">{entry.listings}</span>개
                         </span>
                         {entry.grades.length > 0 && (
                           <span
-                            className="text-[9px] px-1.5 py-0.5 rounded"
+                            className="rr-badge-rarity"
                             style={{
                               background: entry.grades[0].startsWith("BGS") ? "#F3EEFF" : "#eff6ff",
                               color:      entry.grades[0].startsWith("BGS") ? "#6D28D9" : "#1d4ed8",
-                              fontWeight: 700,
                             }}
                           >
                             {entry.grades[0]}{entry.grades.length > 1 ? ` +${entry.grades.length - 1}` : ""}
@@ -485,8 +483,8 @@ export default function ExplorePage() {
                         ))}
                         {entry.safeTrade && (
                           <span
-                            className="flex items-center gap-0.5 text-[9px] px-1.5 py-0.5 rounded"
-                            style={{ background: "#f0fdf4", color: "#16a34a", fontWeight: 700 }}
+                            className="rr-badge flex items-center gap-0.5"
+                            style={{ background: "#f0fdf4", color: "#16a34a" }}
                           >
                             <ShieldCheck size={9} strokeWidth={2.5} />안전
                           </span>

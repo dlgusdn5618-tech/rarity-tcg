@@ -140,7 +140,7 @@ function InsightCard({ insight, onActionClick }: { insight: Insight; onActionCli
       {insight.actionLabel && (
         <button
           onClick={() => onActionClick(insight.actionHref)}
-          className="shrink-0 flex items-center gap-0.5"
+          className="rr-button-ghost shrink-0 gap-0.5"
           style={{ color: insight.color, fontWeight: 700 }}
         >
           <span className="text-[11px]">{insight.actionLabel}</span>
@@ -168,7 +168,7 @@ function CardRow({
   const Icon = pct > 0 ? TrendingUp : pct < 0 ? TrendingDown : Minus;
 
   return (
-    <div className="bg-white rounded-2xl px-4 py-3.5" style={{ boxShadow: SHADOW.card }}>
+    <div className="rr-card px-4 py-3.5">
       {/* 상단: 이름 · 칩 / 현재가 */}
       <div className="flex items-start justify-between gap-2 mb-1">
         <div className="flex items-center gap-1.5 flex-wrap min-w-0">
@@ -185,7 +185,7 @@ function CardRow({
             </span>
           )}
         </div>
-        <span className="text-[15px] text-gray-900 shrink-0" style={{ fontWeight: 800 }}>
+        <span className="rr-metric text-[15px] text-gray-900 shrink-0">
           {fmt(card.currentPrice)}원
         </span>
       </div>
@@ -242,14 +242,14 @@ function SellRecRow({ rec }: { rec: SellRecommendation }) {
   const Icon = pct > 0 ? TrendingUp : TrendingDown;
 
   return (
-    <div className="bg-white rounded-2xl px-4 py-3.5" style={{ boxShadow: SHADOW.card }}>
+    <div className="rr-card px-4 py-3.5">
       {/* 상단 */}
       <div className="flex items-start justify-between gap-2 mb-1">
         <div className="flex items-center gap-1.5 flex-wrap min-w-0">
           <span className="text-sm text-gray-900" style={{ fontWeight: 700 }}>{card.nameKo}</span>
           <RarityChip rarity={card.rarity} />
         </div>
-        <span className="text-[15px] text-gray-900 shrink-0" style={{ fontWeight: 800 }}>
+        <span className="rr-metric text-[15px] text-gray-900 shrink-0">
           {fmt(card.currentPrice)}원
         </span>
       </div>
@@ -285,8 +285,7 @@ function SellRecRow({ rec }: { rec: SellRecommendation }) {
 
       <button
         onClick={() => router.push("/sell")}
-        className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-white text-sm"
-        style={{ background: PRIMARY, fontWeight: 700 }}
+        className="rr-button-primary gap-1.5"
       >
         <Tag size={13} strokeWidth={2.5} />
         판매 등록하기
@@ -309,7 +308,7 @@ function TradeMatchRow({ match }: { match: TradeMatch }) {
   const diffColor = priceDiff > 0 ? "#16a34a" : priceDiff < 0 ? "#dc2626" : "#9ca3af";
 
   return (
-    <div className="bg-white rounded-2xl px-4 py-3.5" style={{ boxShadow: SHADOW.card }}>
+    <div className="rr-card px-4 py-3.5">
       {/* 내 카드 → 상대 카드 */}
       <div className="flex items-center gap-2 mb-3">
         <div className="flex-1 min-w-0">
@@ -332,11 +331,11 @@ function TradeMatchRow({ match }: { match: TradeMatch }) {
       {/* 핵심 수치 3개 */}
       <div className="grid grid-cols-3 gap-2 mb-3">
         <div className="rounded-xl py-2 text-center" style={{ background: "#f9fafb" }}>
-          <p className="text-[14px]" style={{ color: scoreColor, fontWeight: 800 }}>{matchScore}%</p>
+          <p className="rr-metric text-[14px]" style={{ color: scoreColor }}>{matchScore}%</p>
           <p className="text-[9px] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>교환 적정도</p>
         </div>
         <div className="rounded-xl py-2 text-center" style={{ background: "#f9fafb" }}>
-          <p className="text-[12px]" style={{ color: diffColor, fontWeight: 700 }}>{diffSign}{fmt(priceDiff)}원</p>
+          <p className="rr-metric text-[12px]" style={{ color: diffColor }}>{diffSign}{fmt(priceDiff)}원</p>
           <p className="text-[9px] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>
             {priceDiff > 0 ? "상대 추가금 가능" : priceDiff < 0 ? "내 추가금 가능" : "균형"}
           </p>
@@ -349,8 +348,8 @@ function TradeMatchRow({ match }: { match: TradeMatch }) {
 
       <button
         onClick={() => router.push("/exchange/propose")}
-        className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm"
-        style={{ background: "#f4f4f5", color: "#111827", fontWeight: 700 }}
+        className="rr-button-secondary gap-1.5"
+        style={{ background: "#f4f4f5", color: "#111827" }}
       >
         <ArrowLeftRight size={13} strokeWidth={2.5} />
         교환하기 좋은 카드 보기
@@ -410,9 +409,9 @@ export default function CollectionPage() {
         <div className="px-4 pt-5 flex flex-col gap-4">
 
           {/* ── 자산 요약 ── */}
-          <div className="bg-white rounded-2xl px-5 py-4" style={{ boxShadow: SHADOW.card }}>
+          <div className="rr-card px-5 py-4">
             <p className="text-[11px] text-gray-400 mb-1" style={{ fontWeight: 600 }}>내 컬렉션 가치</p>
-            <p className="text-[32px] text-gray-900 leading-none mb-1" style={{ fontWeight: 800 }}>
+            <p className="rr-price text-[32px] text-gray-900 leading-none mb-1">
               {fmt(stats.totalValue)}<span className="text-base ml-1 text-gray-500" style={{ fontWeight: 400 }}>원</span>
             </p>
             <div className="flex items-center gap-1 mb-3">
@@ -420,7 +419,7 @@ export default function CollectionPage() {
                 ? <TrendingUp size={12} strokeWidth={2.5} color={gainColor} />
                 : <TrendingDown size={12} strokeWidth={2.5} color={gainColor} />
               }
-              <span className="text-[13px]" style={{ color: gainColor, fontWeight: 700 }}>
+              <span className="rr-metric text-[13px]" style={{ color: gainColor }}>
                 {gainPositive ? "+" : ""}{fmt(stats.unrealizedGain)}원
               </span>
               <span className="text-[11px] text-gray-400 ml-0.5" style={{ fontWeight: 400 }}>현재 가치 변동</span>

@@ -307,13 +307,12 @@ export default function SellPage() {
           PSA · PROMO · SAR 매물은 상단 노출 우선순위가 높아요
         </p>
         <button onClick={() => router.push("/")}
-          className="w-full py-4 rounded-2xl text-white text-sm"
-          style={{ background: PRIMARY, fontWeight: 700 }}>
+          className="rr-button-primary">
           홈으로 돌아가기
         </button>
         <button onClick={() => { setDone(false); setStep(0); setCategory(""); setSelectedCard(null); setSlotPhotos({}); setIsSealedProduct(false); setCondition(""); setPrice(""); setDesc(""); setIsGraded(false); setGradingCo(""); setGrade("10"); }}
-          className="w-full py-4 rounded-2xl border text-sm mt-2"
-          style={{ borderColor: PRIMARY, color: PRIMARY, fontWeight: 600 }}>
+          className="rr-button-secondary mt-2"
+          style={{ borderColor: "var(--primary)", color: "var(--primary)" }}>
           매물 추가 등록
         </button>
       </div>
@@ -956,24 +955,16 @@ export default function SellPage() {
           <button
             onClick={() => setStep(step + 1)}
             disabled={!canNext[step]}
-            className="w-full py-4 rounded-2xl text-white text-sm transition-opacity"
-            style={{
-              background: PRIMARY,
-              fontWeight: 700,
-              opacity: canNext[step] ? 1 : 0.4,
-            }}>
+            className="rr-button-primary"
+            style={{ opacity: canNext[step] ? 1 : 0.4 }}>
             다음
           </button>
         ) : (
           <button
             onClick={handleSubmit}
             disabled={submitting || !canNext[3]}
-            className="w-full py-4 rounded-2xl text-white text-sm transition-opacity"
-            style={{
-              background: PRIMARY,
-              fontWeight: 700,
-              opacity: canNext[3] ? 1 : 0.4,
-            }}>
+            className="rr-button-primary"
+            style={{ opacity: canNext[3] ? 1 : 0.4 }}>
             {submitting ? "등록 중..." : "카드 등록하기"}
           </button>
         )}

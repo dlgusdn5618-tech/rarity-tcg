@@ -6,6 +6,7 @@ import {
   CheckCircle2, FileText, Layers, type LucideIcon,
 } from "lucide-react";
 import { PRIMARY, RARITY_CHIP, SHADOW } from "@/lib/tokens";
+// rr-button-primary / rr-button-secondary / rr-price → globals.css
 
 export interface PurchaseSheetProps {
   isOpen: boolean;
@@ -47,11 +48,7 @@ function DoneState({ onClose }: { onClose: () => void }) {
       <p className="text-sm text-gray-500 mb-6 leading-relaxed" style={{ fontWeight: 400 }}>
         판매자가 확인하면 채팅에서<br />이어서 진행할 수 있어요
       </p>
-      <button
-        onClick={onClose}
-        className="w-full py-3.5 rounded-2xl text-white text-sm"
-        style={{ background: PRIMARY, fontWeight: 700 }}
-      >
+      <button onClick={onClose} className="rr-button-primary">
         확인
       </button>
     </div>
@@ -199,7 +196,7 @@ export function PurchaseBottomSheet({
                       {isDirect ? "현장 결제" : "판매자 확인 후 확정"}
                     </p>
                   </div>
-                  <span className="text-[20px] text-gray-900" style={{ fontWeight: 800 }}>{fmt(total)}원</span>
+                  <span className="rr-price text-[20px] text-gray-900">{fmt(total)}원</span>
                 </div>
               </div>
 
@@ -222,18 +219,10 @@ export function PurchaseBottomSheet({
               </div>
 
               {/* CTA */}
-              <button
-                onClick={() => setDone(true)}
-                className="w-full py-3.5 rounded-2xl text-white text-sm mb-2.5"
-                style={{ background: PRIMARY, fontWeight: 700 }}
-              >
+              <button onClick={() => setDone(true)} className="rr-button-primary mb-2.5">
                 구매 요청하기
               </button>
-              <button
-                onClick={onChat}
-                className="w-full py-3 rounded-2xl text-sm"
-                style={{ border: "1.5px solid #e5e7eb", color: "#374151", fontWeight: 600 }}
-              >
+              <button onClick={onChat} className="rr-button-secondary">
                 판매자에게 문의
               </button>
             </>

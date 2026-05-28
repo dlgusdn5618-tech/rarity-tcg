@@ -13,6 +13,14 @@ export const PRIMARY_DARK   = "#B01C1C";
 /** 레드 계열 배경 틴트 */
 export const PRIMARY_SURFACE = "#FFF1F1";
 
+// ── Accent (포인트 강조 — 골드 #F6C90E 대체) ──────────────────────────────────
+/** 숫자 강조, 랭킹 #1 배지, 최상위 점수 등 포인트 강조 */
+export const ACCENT_BLACK    = "#111111";
+/** 다크 컨테이너, 배너 배경 등 강한 대비 강조 */
+export const ACCENT_CHARCOAL = "#1F2937";
+/** 보조 버튼 텍스트, 보조 강조 */
+export const ACCENT_MUTED    = "#374151";
+
 // ── Rarity chips (bg + foreground text) ───────────────────────────────────────
 // bg: 칩 배경, color: 텍스트/아이콘 색
 

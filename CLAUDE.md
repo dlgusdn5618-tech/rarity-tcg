@@ -9,11 +9,13 @@
 - 수익 모델: 거래 수수료 7% + 안전거래 수수료 3%
 
 ## 컬러 / 디자인
-- Primary: #E53E3E (포켓몬 레드)
-- Accent: #F6C90E (피카츄 옐로우)
-- 폰트: Noto Sans KR (300~900)
+- Primary: #D62828 (carmine red)
+- Accent: #111111 (블랙 — 골드 #F6C90E 대체, 2026-05 디자인 시스템 1단계)
+- 폰트: **Pretendard Variable** (next/font/local, woff2 로컬, fallback: Noto Sans KR)
 - 하단 네비 활성: #111111 (검정), 비활성: #9ca3af (회색)
 - 하단 네비 아이콘: lucide-react (Home, Search, Sparkles, MessageCircle, User)
+- 디자인 토큰: src/lib/tokens.ts (PRIMARY, ACCENT_BLACK, RARITY_CHIP, SHADOW, NEUTRAL 등)
+- CSS 유틸리티: globals.css rr-* 클래스 (rr-card, rr-button-primary, rr-price 등)
 
 ## 완료된 화면 ✅
 1. **홈 (/)** — 탭(홈/포켓몬/원피스), 랭킹 마퀴, 히어로 배너, 최근 카드, 카드 소식
@@ -77,6 +79,16 @@
 44. **판매자 보기 + 채팅하기 카드 상세 연결** — CARD_DB 타입에 `sellerId?: string` 추가(카드1→pocketmaster, 카드2→cardking, 카드3→rarehunter); "판매자 보기" 버튼 → `router.push("/mypage/shop?seller=${card.sellerId ?? "rarity_user"}")`; "채팅하기" 버튼 → `router.push("/chat?fromCard=${id}")`; /mypage/shop 동적화(SELLER_MAP 4개 셀러·useSearchParams·Suspense 래퍼·isOwner 플래그로 "프로필 편집" 조건부 표시·헤더 부제 분기); 피드 셀러 시그널 actionHref "/mypage" → "/mypage/shop?seller=pocketmaster"
 
 45. **구매 바텀시트 (PurchaseBottomSheet)** — src/components/PurchaseBottomSheet.tsx 신규 생성; 카드 상세 "바로 구매" 버튼 → `setShowPurchase(true)`로 시트 열기; 시트 구성: ① 카드 정보(카드명/레어도칩/상태배지/가격·판매자/사진인증/안전거래 뱃지) ② 배송 방식 3칸 선택(택배[기본]/반값택배/직거래, 선택 시 PRIMARY 레드 강조) ③ 예상 결제금액(카드가격+안전거래수수료3%, 직거래 선택 시 "수수료 없음·현장 결제") ④ 구매 전 확인 체크리스트(카드패스포트/사진인증/상태설명 초록 체크 3개) ⑤ "구매 요청하기" CTA → 완료 상태 전환("구매 요청이 판매자에게 전송됐어요"), "판매자에게 문의" → 시트 닫고 /chat으로 이동; 배경 클릭·X 버튼으로 닫기, 완료 후 "확인"으로 닫기; max-h-[88vh] + overflow-y-auto 스크롤; 실제 결제 API 미연결
+
+46. **홈 레어리티 TOP 랭킹 섹션** — 히어로 배너 바로 아래, 판매 유도 스트립 위에 삽입; 가로 스크롤 5장 카드(112~116px); 각 카드: 랭크 뱃지(#1=블랙/#2=실버/#3=브론즈), TCG 카드 프레임 목업, 카드명, 레어도 칩, Rarity Score(90+=블랙/80+=레드/else=슬레이트), 가격, 한 줄 이유; 클릭 → /card/${id}; "전체" → /explore; mock 데이터는 src/lib/cards.ts `getRarityRankings()` 함수로 분리
+
+47. **mock 데이터 서비스 분리** — 화면 컴포넌트 내 하드코딩된 데이터를 lib/*.ts 서비스 파일로 분리: `src/lib/cards.ts`(CardDetail·CardEntry·SimilarCard·RankingCard + 서비스 함수 4개), `src/lib/sellers.ts`(SellerInfo·Listing·SoldItem + 서비스 함수 3개), `src/lib/feed-signals.ts`(Signal·SignalType + getFeedSignals), `src/lib/home-banners.ts`(HomeBanner·BannerType + getHomeBanners·getPersonalizedHomeBanners); 각 함수에 TODO 주석으로 Supabase 교체 포인트 명시
+
+48. **카드 상세 시그널 알림** — SignalAlertSheet 신규 생성(src/components/SignalAlertSheet.tsx); Bell/BellRing 토글 버튼으로 바텀시트 열기; 설정 항목: 목표가 입력(현재가의 92% 기본값, 현재가 대비 % 표시), 5가지 알림 조건 토글(목표가 도달·가격 하락·새 매물·안전거래 매물·교환 후보); localStorage 저장(STORAGE_KEY="rarity_watch_signals"); 완료 후 피드 바로가기 제공
+
+49. **Pretendard Variable 폰트 교체** — Noto Sans KR → Pretendard Variable 최종 교체; next/font/local + PretendardVariable.woff2(2MB, src/app/fonts/); Noto Sans KR fallback 유지; THIRD_PARTY_NOTICES.md 라이선스 고지 추가(SIL OFL 1.1)
+
+50. **디자인 시스템 1단계** — 공통 토큰·유틸리티 클래스 기반 정리: ① tokens.ts에 ACCENT_BLACK·ACCENT_CHARCOAL·ACCENT_MUTED 추가 ② globals.css --accent #F6C90E→#111111 변경 + rr-* 유틸리티 14개 클래스 추가(rr-card·rr-card-compact·rr-section-header·rr-section-title·rr-section-subtitle·rr-button-primary·rr-button-secondary·rr-button-ghost·rr-badge·rr-badge-rarity·rr-metric·rr-price·rr-score·rr-bottom-cta) ③ 홈·RarityIndex·PurchaseBottomSheet에 rr-* 클래스 적용 ④ 골드(#F6C90E) 포인트 컬러 → 블랙(#111111)으로 전면 교체 ⑤ DESIGN_SYSTEM.md 문서 신규 생성
 
 ## 다음 작업 🔜
 - **Supabase 연결** — Auth + DB

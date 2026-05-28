@@ -10,12 +10,12 @@
 
 import { TrendingDown, TrendingUp, CheckCircle2, AlertCircle, BarChart2 } from "lucide-react";
 import type { RarityIndexData } from "@/lib/rarity-score";
-import { PRIMARY, SHADOW } from "@/lib/tokens";
+import { PRIMARY } from "@/lib/tokens";
 
 // ── 점수 구간별 색상 ──────────────────────────────────────────────────────────
 
 function scoreColor(score: number): string {
-  if (score >= 80) return "#92400E";   // 앰버 골드 — 최상위 희귀
+  if (score >= 80) return "#111111";   // 블랙 — 최상위 희귀 (골드 대체)
   if (score >= 65) return "#1D4ED8";   // 블루 — 높음
   if (score >= 50) return "#D97706";   // 앰버 — 보통
   return "#9CA3AF";                    // 그레이 — 낮음
@@ -135,10 +135,7 @@ export function RarityIndex({ data, cardName }: RarityIndexProps) {
   const diffColor = isBelow ? "#16a34a" : avgDiffPct > 5 ? "#dc2626" : "#9CA3AF";
 
   return (
-    <div
-      className="bg-white rounded-2xl overflow-hidden"
-      style={{ boxShadow: SHADOW.card }}
-    >
+    <div className="rr-card overflow-hidden">
       {/* ── 헤더 ── */}
       <div
         className="flex items-center justify-between px-4 pt-4 pb-3"
@@ -181,7 +178,7 @@ export function RarityIndex({ data, cardName }: RarityIndexProps) {
                 className="rounded-xl px-2.5 py-2 text-center"
                 style={{ background: "#f9fafb" }}
               >
-                <p className="text-[15px] text-gray-900" style={{ fontWeight: 800 }}>
+                <p className="rr-metric text-[15px] text-gray-900">
                   {recentVolume}건
                 </p>
                 <p className="text-[9px] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>
@@ -194,8 +191,8 @@ export function RarityIndex({ data, cardName }: RarityIndexProps) {
                 style={{ background: isBelow ? "#f0fdf4" : avgDiffPct > 5 ? "#fef2f2" : "#f9fafb" }}
               >
                 <p
-                  className="text-[15px] flex items-center justify-center gap-0.5"
-                  style={{ fontWeight: 800, color: diffColor }}
+                  className="rr-metric text-[15px] flex items-center justify-center gap-0.5"
+                  style={{ color: diffColor }}
                 >
                   {isBelow
                     ? <TrendingDown size={13} strokeWidth={2.5} />

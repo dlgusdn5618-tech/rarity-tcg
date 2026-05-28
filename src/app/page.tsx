@@ -295,14 +295,13 @@ export default function Home() {
 
       {/* ── 레어리티 TOP 랭킹 ── */}
       <div className="pt-5">
-        <div className="flex items-center justify-between px-4 mb-3">
+        <div className="rr-section-header">
           <div>
-            <h3 className="text-gray-900 text-[15px]" style={{ fontWeight: 700 }}>레어리티 TOP</h3>
-            <p className="text-[10px] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>희소성·거래 신뢰도 기준</p>
+            <h3 className="rr-section-title">레어리티 TOP</h3>
+            <p className="rr-section-subtitle">희소성·거래 신뢰도 기준</p>
           </div>
           <button
-            className="flex items-center gap-0.5 text-xs text-gray-400"
-            style={{ fontWeight: 400 }}
+            className="rr-button-ghost flex items-center gap-0.5"
             onClick={() => router.push("/explore")}
             // TODO: router.push("/explore?sort=rarity")
           >
@@ -313,13 +312,13 @@ export default function Home() {
           {RANKINGS.map((card) => {
             const chip = RARITY_CHIP[card.rarity] ?? { bg: "#f8fafc", color: "#475569" };
             const scoreColor =
-              card.score >= 90 ? "#F6C90E" :
-              card.score >= 80 ? PRIMARY :
-              "#64748b";
+              card.score >= 90 ? "#111111" :   // 최상위 — 블랙 강조
+              card.score >= 80 ? PRIMARY :      // 상위 — 브랜드 레드
+              "#64748b";                        // 보통
             const rankColor =
-              card.rank === 1 ? "#F6C90E" :
-              card.rank === 2 ? "#94a3b8" :
-              card.rank === 3 ? "#c47d2e" :
+              card.rank === 1 ? "#111111" :   // #1 — 블랙
+              card.rank === 2 ? "#94a3b8" :   // #2 — 실버
+              card.rank === 3 ? "#c47d2e" :   // #3 — 브론즈
               "#9ca3af";
             return (
               <div
@@ -376,8 +375,8 @@ export default function Home() {
                 {/* 스코어 */}
                 <div className="flex items-center justify-between mt-1.5">
                   <span
-                    className="text-[13px]"
-                    style={{ color: scoreColor, fontWeight: 800 }}
+                    className="rr-score text-[13px]"
+                    style={{ color: scoreColor }}
                   >
                     {card.score}
                   </span>
@@ -397,10 +396,7 @@ export default function Home() {
 
       {/* ── 판매 유도 스트립 ── */}
       <div className="px-4 pt-3">
-        <div
-          className="rounded-2xl px-4 py-3 flex items-center justify-between"
-          style={{ background: "#fff", border: "1px solid #f0f0f0", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}
-        >
+        <div className="rr-card px-4 py-3 flex items-center justify-between">
           <div>
             <p className="text-gray-900 text-sm" style={{ fontWeight: 700 }}>
               중복 카드를 지금 바로 현금으로
@@ -421,11 +417,10 @@ export default function Home() {
 
       {/* ── 최근 등록 카드 ── */}
       <div className="pt-5">
-        <div className="flex items-center justify-between px-4 mb-3">
-          <h3 className="text-gray-900 text-[15px]" style={{ fontWeight: 700 }}>최근 등록 카드</h3>
+        <div className="rr-section-header">
+          <h3 className="rr-section-title">최근 등록 카드</h3>
           <button
-            className="flex items-center gap-0.5 text-xs text-gray-400"
-            style={{ fontWeight: 400 }}
+            className="rr-button-ghost flex items-center gap-0.5"
             onClick={() => router.push("/explore")}
           >
             더보기 <ArrowRight size={11} strokeWidth={1.5} />
@@ -480,9 +475,9 @@ export default function Home() {
 
       {/* ── 카드 소식 ── */}
       <div className="pt-5 pb-2">
-        <div className="flex items-center justify-between px-4 mb-3">
-          <h3 className="text-gray-900 text-[15px]" style={{ fontWeight: 700 }}>카드 소식</h3>
-          <button className="text-xs text-gray-400" style={{ fontWeight: 400 }}>더보기 ›</button>
+        <div className="rr-section-header">
+          <h3 className="rr-section-title">카드 소식</h3>
+          <button className="rr-button-ghost">더보기 ›</button>
         </div>
         <div className="flex flex-col gap-2 px-4">
           {NEWS.map((item) => {
@@ -490,8 +485,7 @@ export default function Home() {
             return (
               <div
                 key={item.id}
-                className="bg-white rounded-2xl px-4 py-3 flex items-center gap-3 cursor-pointer active:bg-gray-50"
-                style={{ border: "1px solid #f0f0f0", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}
+                className="rr-card px-4 py-3 flex items-center gap-3 cursor-pointer active:bg-gray-50"
               >
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"

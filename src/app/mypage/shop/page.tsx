@@ -1,6 +1,8 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   ChevronLeft, ShieldCheck, Clock, Share2, Pencil,
   Camera, CheckCircle2, Star,
@@ -9,13 +11,13 @@ import { RARITY_CHIP, PRIMARY, SHADOW } from "@/lib/tokens";
 
 // ── Mock 데이터 ────────────────────────────────────────────────────────────────
 
-const SELLER = {
-  name: "레어리티유저",
-  handle: "@rarity_user",
-  rating: 4.8,
-  reviewCount: 23,
-  tradeCount: 18,
-  responseTime: "~30분",
+type SellerInfo = { name: string; handle: string; rating: number; reviewCount: number; tradeCount: number; responseTime: string };
+
+const SELLER_MAP: Record<string, SellerInfo> = {
+  "rarity_user": { name: "레어리티유저", handle: "@rarity_user",    rating: 4.8, reviewCount: 23,  tradeCount: 18,  responseTime: "~30분" },
+  "pocketmaster": { name: "포켓마스터",   handle: "@pokemonmaster",  rating: 4.9, reviewCount: 87,  tradeCount: 247, responseTime: "~30분" },
+  "cardking":     { name: "카드킹",       handle: "@cardking",       rating: 4.7, reviewCount: 45,  tradeCount: 182, responseTime: "~2시간" },
+  "rarehunter":   { name: "레어헌터",     handle: "@rarehunter",     rating: 4.9, reviewCount: 120, tradeCount: 503, responseTime: "~1시간" },
 };
 
 type Listing = {
@@ -81,8 +83,12 @@ function CardThumb({ rarity }: { rarity: string }) {
 
 // ── 메인 페이지 ───────────────────────────────────────────────────────────────
 
-export default function ShopPage() {
+function ShopPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const sellerId = searchParams.get("seller") ?? "rarity_user";
+  const SELLER = SELLER_MAP[sellerId] ?? SELLER_MAP["rarity_user"];
+  const isOwner = sellerId === "rarity_user";
 
   return (
     <div className="min-h-screen" style={{ background: "#FAFAFA" }}>
@@ -102,7 +108,7 @@ export default function ShopPage() {
             </button>
             <div>
               <h1 className="text-base text-gray-900 leading-tight" style={{ fontWeight: 800 }}>내 샵</h1>
-              <p className="text-[10px] text-gray-400" style={{ fontWeight: 400 }}>공개 프로필 미리보기</p>
+              <p className="text-[10px] text-gray-400" style={{ fontWeight: 400 }}>{isOwner ? "공개 프로필 미리보기" : "판매자 샵"}</p>
             </div>
           </div>
           <button
@@ -316,18 +322,28 @@ export default function ShopPage() {
               <Share2 size={15} strokeWidth={2} />
               샵 공유하기
             </button>
-            <button
-              onClick={() => console.log("edit profile")}
-              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm text-white active:opacity-75 transition-opacity"
-              style={{ background: "#111827", fontWeight: 700 }}
-            >
-              <Pencil size={15} strokeWidth={2} />
-              프로필 편집
-            </button>
+            {isOwner && (
+              <button
+                onClick={() => console.log("edit profile")}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm text-white active:opacity-75 transition-opacity"
+                style={{ background: "#111827", fontWeight: 700 }}
+              >
+                <Pencil size={15} strokeWidth={2} />
+                프로필 편집
+              </button>
+            )}
           </div>
 
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense fallback={null}>
+      <ShopPageInner />
+    </Suspense>
   );
 }

@@ -74,6 +74,10 @@
 
 43. **탐색 정렬 개선 + 감정 등급 필터** — 정렬 4종 변경(매물 많은 순/최저가 순/최신등록 → 인기순[기본]/최신순/낮은 가격순/높은 가격순); CardEntry에 wishCount(인기순 기준)·createdAt(최신순 기준)·grades(감정 등급 배열) 필드 추가; 필터 패널에 "감정 등급" 섹션 신설 — 프리셋 칩 5개(전체/PSA 10[파랑]/PSA 9+/BGS 9.5+[보라]/감정 없음); 필터 활성 시 SlidersHorizontal 버튼 검정 강조 포함; 카드 태그 표시 "PSA N" 개수 → "PSA 10 +1" 최고 등급+추가 수량 형식; BGS는 보라(#6D28D9)로 PSA와 색 구분
 
+44. **판매자 보기 + 채팅하기 카드 상세 연결** — CARD_DB 타입에 `sellerId?: string` 추가(카드1→pocketmaster, 카드2→cardking, 카드3→rarehunter); "판매자 보기" 버튼 → `router.push("/mypage/shop?seller=${card.sellerId ?? "rarity_user"}")`; "채팅하기" 버튼 → `router.push("/chat?fromCard=${id}")`; /mypage/shop 동적화(SELLER_MAP 4개 셀러·useSearchParams·Suspense 래퍼·isOwner 플래그로 "프로필 편집" 조건부 표시·헤더 부제 분기); 피드 셀러 시그널 actionHref "/mypage" → "/mypage/shop?seller=pocketmaster"
+
+45. **구매 바텀시트 (PurchaseBottomSheet)** — src/components/PurchaseBottomSheet.tsx 신규 생성; 카드 상세 "바로 구매" 버튼 → `setShowPurchase(true)`로 시트 열기; 시트 구성: ① 카드 정보(카드명/레어도칩/상태배지/가격·판매자/사진인증/안전거래 뱃지) ② 배송 방식 3칸 선택(택배[기본]/반값택배/직거래, 선택 시 PRIMARY 레드 강조) ③ 예상 결제금액(카드가격+안전거래수수료3%, 직거래 선택 시 "수수료 없음·현장 결제") ④ 구매 전 확인 체크리스트(카드패스포트/사진인증/상태설명 초록 체크 3개) ⑤ "구매 요청하기" CTA → 완료 상태 전환("구매 요청이 판매자에게 전송됐어요"), "판매자에게 문의" → 시트 닫고 /chat으로 이동; 배경 클릭·X 버튼으로 닫기, 완료 후 "확인"으로 닫기; max-h-[88vh] + overflow-y-auto 스크롤; 실제 결제 API 미연결
+
 ## 다음 작업 🔜
 - **Supabase 연결** — Auth + DB
 - **카카오 로그인**

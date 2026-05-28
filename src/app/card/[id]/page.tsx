@@ -5,6 +5,7 @@ import { useState, useEffect, use } from "react";
 import { Shield, Share2, Heart, Eye, Package, Store, Users, ShieldCheck, Camera, CheckCircle2, AlertCircle, MessageSquarePlus, TrendingDown, TrendingUp, type LucideIcon } from "lucide-react";
 import { calcRarityIndex } from "@/lib/rarity-score";
 import { RarityIndex } from "@/components/RarityIndex";
+import { PurchaseBottomSheet } from "@/components/PurchaseBottomSheet";
 
 const PRIMARY = "#D62828";
 
@@ -56,6 +57,7 @@ const CARD_DB: Record<string, {
   apiId: string; name: string; nameKo: string; price: number;
   condition: string; category: string; views: number; likes: number;
   seller: string; sellerGrade: string; sellerTrades: number;
+  sellerId?: string;
   desc: string; priceHistory: number[];
   tradeType: "parcel" | "half" | "direct" | "safe";
   avgPrice30d: number; sellerResponseTime: string;
@@ -65,7 +67,7 @@ const CARD_DB: Record<string, {
     apiId: "sv3pt5-183", nameKo: "리자몽 ex", name: "Charizard ex",
     price: 85000, condition: "S급", category: "포켓몬",
     views: 1240, likes: 320,
-    seller: "포켓마스터", sellerGrade: "⭐ 우수판매자", sellerTrades: 247,
+    seller: "포켓마스터", sellerGrade: "⭐ 우수판매자", sellerTrades: 247, sellerId: "pocketmaster",
     desc: "구입 후 슬리브 보관. 모서리·표면 흠집 전혀 없음. 직거래 가능(강남).",
     priceHistory: [72000, 75000, 78000, 76000, 82000, 85000],
     tradeType: "safe",
@@ -81,7 +83,7 @@ const CARD_DB: Record<string, {
     apiId: "sv3pt5-173", nameKo: "피카츄 ex", name: "Pikachu",
     price: 42000, condition: "A급", category: "포켓몬",
     views: 980, likes: 210,
-    seller: "카드킹", sellerGrade: "⭐ 우수판매자", sellerTrades: 182,
+    seller: "카드킹", sellerGrade: "⭐ 우수판매자", sellerTrades: 182, sellerId: "cardking",
     desc: "개봉 직후 슬리브 보관. 아주 미세한 표면 광택 차이 있으나 육안으로 식별 어려움.",
     priceHistory: [38000, 39000, 40000, 41000, 40000, 42000],
     tradeType: "parcel",
@@ -97,7 +99,7 @@ const CARD_DB: Record<string, {
     apiId: "sv3pt5-205", nameKo: "뮤츠 ex", name: "Mew ex",
     price: 120000, condition: "S급", category: "포켓몬",
     views: 870, likes: 180,
-    seller: "레어헌터", sellerGrade: "🔥 파워판매자", sellerTrades: 503,
+    seller: "레어헌터", sellerGrade: "🔥 파워판매자", sellerTrades: 503, sellerId: "rarehunter",
     desc: "PSA 9 등급 상당 컨디션. 완전 민트. 하드케이스 보관 중.",
     priceHistory: [105000, 108000, 112000, 110000, 118000, 120000],
     tradeType: "safe",
@@ -569,6 +571,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
   const [tradeType, setTradeType] = useState(card.tradeType);
   const [spec, setSpec] = useState<ApiSpec>(null);
   const [specLoading, setSpecLoading] = useState(true);
+  const [showPurchase, setShowPurchase] = useState(false);
 
   useEffect(() => {
     fetch(`https://api.pokemontcg.io/v2/cards/${card.apiId}`)
@@ -907,8 +910,11 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
             </p>
           </div>
         </div>
-        <button className="text-xs px-3 py-1.5 rounded-xl border"
-          style={{ borderColor: PRIMARY, color: PRIMARY, fontWeight: 600 }}>
+        <button
+          className="text-xs px-3 py-1.5 rounded-xl border"
+          style={{ borderColor: PRIMARY, color: PRIMARY, fontWeight: 600 }}
+          onClick={() => router.push(`/mypage/shop?seller=${card.sellerId ?? "rarity_user"}`)}
+        >
           판매자 보기
         </button>
       </div>
@@ -990,16 +996,35 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
           >
             ⇄ 교환 제안
           </button>
-          <button className="flex-1 py-3 rounded-2xl border text-sm"
-            style={{ borderColor: PRIMARY, color: PRIMARY, fontWeight: 700 }}>
+          <button
+            className="flex-1 py-3 rounded-2xl border text-sm"
+            style={{ borderColor: PRIMARY, color: PRIMARY, fontWeight: 700 }}
+            onClick={() => router.push(`/chat?fromCard=${id}`)}
+          >
             채팅하기
           </button>
         </div>
-        <button className="w-full py-3.5 rounded-2xl text-white text-sm"
-          style={{ background: PRIMARY, fontWeight: 700 }}>
+        <button
+          className="w-full py-3.5 rounded-2xl text-white text-sm"
+          style={{ background: PRIMARY, fontWeight: 700 }}
+          onClick={() => setShowPurchase(true)}
+        >
           바로 구매
         </button>
       </div>
+
+      <PurchaseBottomSheet
+        isOpen={showPurchase}
+        onClose={() => setShowPurchase(false)}
+        cardName={card.nameKo}
+        rarity={card.passport.rarity}
+        condition={card.condition}
+        price={card.price}
+        seller={card.seller}
+        photoVerified={card.passport.photoVerified}
+        safeTrade={card.passport.safeTrade}
+        onChat={() => { setShowPurchase(false); router.push(`/chat?fromCard=${id}`); }}
+      />
     </div>
   );
 }

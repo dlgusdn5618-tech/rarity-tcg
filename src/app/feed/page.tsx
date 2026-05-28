@@ -84,7 +84,7 @@ const SIGNALS: Signal[] = [
     currentPrice: 210000,
     chips: ["PSA 10", "팔로우 셀러"],
     actionLabel: "셀러 보기",
-    actionHref: "/mypage",
+    actionHref: "/mypage/shop?seller=pocketmaster",
     timeAgo: "28분 전",
   },
   {

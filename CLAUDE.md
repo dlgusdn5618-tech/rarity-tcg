@@ -96,6 +96,8 @@
 
 51. **디자인 시스템 2단계** — rr-* 클래스를 explore/sell/collection 3개 페이지에 적용: ① explore: 카드 엔트리 래퍼→rr-card, 최저가→rr-price, 매물수 숫자→rr-metric, 등급배지→rr-badge-rarity, 안전·HOT 배지→rr-badge ② sell: 완료화면 기본/보조 버튼 + 하단 다음/등록 CTA→rr-button-primary/rr-button-secondary(opacity 비활성 스타일 유지) ③ collection: CardRow·SellRecRow·TradeMatchRow·자산요약 래퍼→rr-card, 자산가치→rr-price, 변동금·현재가·지표 숫자→rr-metric, SellRecRow CTA→rr-button-primary, TradeMatchRow CTA→rr-button-secondary, InsightCard 링크→rr-button-ghost; step 로직·라우팅·mock 데이터 무변경
 
+54. **디자인 시스템 4단계 — CardVisual 카드 비주얼 시스템** — src/components/CardVisual.tsx 신규 생성: Props(name/rarity/imageUrl/graded/grade/size/variant); size sm(40×58)/md(58×80)/lg(128×176) 3종; 레어도별 accentColor(SAR=#92400E·UR=#6D28D9·SR=#B91C1C·R=#0369A1·PROMO=#1D4ED8 등); 상단 accent 바 + radial gradient artwork 영역 + 하단 레어도 라벨 footer(lg는 카드명); imageUrl 있으면 img(alt="${name} 카드 이미지", onError로 깨진 아이콘 방지); graded=true+grade 비"Ungraded"이면 PSA/BGS slab 프레임(다크 #1f2937 헤더에 company+score, 차콜 1.5px 테두리, 내부 카드); 적용: 홈 랭킹/최근등록카드 썸네일 md, 탐색 리스트 sm, 카드 상세 fallback lg(graded slab 포함)+비슷한카드 md, 컬렉션 CardRow 왼쪽 sm(graded 카드 slab 표시), 구매 바텀시트 카드정보 sm; 기능로직·라우팅·mock 데이터 무변경; tsc·build 전 과정 오류 없음
+
 ## 다음 작업 🔜
 - **Supabase 연결** — Auth + DB
 - **카카오 로그인**

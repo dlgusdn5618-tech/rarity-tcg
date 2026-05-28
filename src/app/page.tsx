@@ -523,13 +523,16 @@ export default function Home() {
       </div>
 
       {/* + 판매 플로팅 버튼 */}
-      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-sm px-4 pointer-events-none z-10">
+      <div
+        className="fixed left-1/2 -translate-x-1/2 w-full max-w-sm px-4 pointer-events-none z-10"
+        style={{ bottom: "calc(56px + max(8px, env(safe-area-inset-bottom)) + 10px)" }}
+      >
         <button
           onClick={() => router.push("/sell")}
-          className="ml-auto flex pointer-events-auto text-white text-sm px-5 py-3 rounded-full shadow-lg items-center gap-1.5 transition-opacity hover:opacity-90"
-          style={{ background: PRIMARY, fontWeight: 600, boxShadow: `0 4px 14px ${PRIMARY}55` }}
+          className="ml-auto flex pointer-events-auto text-white text-xs px-4 py-2 rounded-full items-center gap-1 transition-opacity hover:opacity-90"
+          style={{ background: PRIMARY, fontWeight: 600, boxShadow: `0 2px 8px ${PRIMARY}33` }}
         >
-          <span className="text-base leading-none">+</span> 판매
+          <span className="text-sm leading-none">+</span> 판매
         </button>
       </div>
 

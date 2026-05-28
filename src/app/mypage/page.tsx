@@ -77,7 +77,7 @@ export default function MyPage() {
   const [activeTab, setActiveTab] = useState("마이");
 
   return (
-    <div className="min-h-screen bg-gray-50 max-w-sm mx-auto relative">
+    <div className="min-h-screen bg-gray-50 w-full max-w-sm mx-auto relative overflow-x-hidden">
 
       {/* 헤더 */}
       <header className="flex items-center justify-between px-4 pt-5 pb-3 bg-white">
@@ -261,7 +261,7 @@ export default function MyPage() {
       </div>
 
       {/* 하단 탭 */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100">
+      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 rr-pb-safe">
         <div className="grid grid-cols-5 h-14">
           {(
             [

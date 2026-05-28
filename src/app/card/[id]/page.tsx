@@ -554,7 +554,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 w-full max-w-sm mx-auto pb-28 overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 w-full max-w-sm mx-auto pb-44 overflow-x-hidden">
 
       {/* 헤더 */}
       <header className="sticky top-0 z-10 bg-white flex items-center justify-between px-4 h-14 border-b border-gray-100 w-full">
@@ -610,12 +610,12 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
         </div>
 
         {/* 이름 + 가격 */}
-        <div className="flex items-start justify-between">
-          <div>
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
             <p className="text-xs text-gray-400 mb-0.5" style={{ fontWeight: 400 }}>
               {spec ? `${spec.setName} · ${spec.number}/${spec.setTotal}` : "불러오는 중..."}
             </p>
-            <h1 className="text-xl text-gray-900 mb-1" style={{ fontWeight: 800, letterSpacing: "-0.5px" }}>
+            <h1 className="text-xl text-gray-900 mb-1 break-words" style={{ fontWeight: 800, letterSpacing: "-0.5px" }}>
               {card.nameKo}
             </h1>
             <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-lg"
@@ -623,7 +623,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
               {card.condition} · {condition.desc}
             </span>
           </div>
-          <div className="text-right">
+          <div className="text-right shrink-0">
             <p className="text-2xl text-gray-900" style={{ fontWeight: 800 }}>
               {card.price.toLocaleString()}<span className="text-sm" style={{ fontWeight: 400 }}>원</span>
             </p>
@@ -911,7 +911,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
       </div>
 
       {/* 하단 버튼 */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm min-w-0 bg-white border-t border-gray-100 px-4 pt-2.5 pb-3">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm min-w-0 bg-white border-t border-gray-100 px-4 pt-2.5" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}>
         {/* 한 줄 신뢰 요약 */}
         <div className="flex items-center justify-center gap-1.5 mb-2.5 flex-wrap">
           {trustTags.map((tag, i) => (

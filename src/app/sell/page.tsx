@@ -294,7 +294,7 @@ export default function SellPage() {
   // 완료 화면
   if (done) {
     return (
-      <div className="min-h-screen bg-white max-w-sm mx-auto flex flex-col items-center justify-center px-8 text-center">
+      <div className="min-h-screen bg-white w-full max-w-sm mx-auto flex flex-col items-center justify-center px-8 text-center">
         <div className="w-20 h-28 rounded-xl flex flex-col overflow-hidden mx-auto mb-5" style={{ border: "1.5px solid #e5e7eb", background: "#f9fafb" }}>
         <div className="h-3 w-full shrink-0" style={{ background: PRIMARY }} />
         <div className="flex-1 flex items-center justify-center">
@@ -322,7 +322,7 @@ export default function SellPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 max-w-sm mx-auto">
+    <div className="min-h-screen bg-gray-50 w-full max-w-sm mx-auto overflow-x-hidden">
 
       {/* 헤더 */}
       <header className="sticky top-0 z-10 bg-white flex items-center justify-between px-4 h-14 border-b border-gray-100">
@@ -451,7 +451,7 @@ export default function SellPage() {
                   className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
                   style={{ background: "rgba(255,255,255,0.10)" }}
                 >
-                  <Sparkles size={15} strokeWidth={2} color="#F6C90E" />
+                  <Sparkles size={15} strokeWidth={2} color="#ffffff" />
                 </div>
                 <div className="text-left">
                   <p className="text-sm text-white" style={{ fontWeight: 700 }}>사진으로 카드 찾기</p>
@@ -460,7 +460,7 @@ export default function SellPage() {
                   </p>
                 </div>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full shrink-0" style={{ background: "rgba(246,201,14,0.15)", color: "#F6C90E", fontWeight: 600 }}>
+              <span className="text-[10px] px-2 py-0.5 rounded-full shrink-0" style={{ background: "rgba(255,255,255,0.15)", color: "#ffffff", fontWeight: 600 }}>
                 NEW
               </span>
             </button>
@@ -966,7 +966,7 @@ export default function SellPage() {
       </div>
 
       {/* 하단 버튼 */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 px-4 py-3">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 px-4 pt-3" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}>
         {step < 3 ? (
           <button
             onClick={() => setStep(step + 1)}

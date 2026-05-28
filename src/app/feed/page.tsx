@@ -67,7 +67,7 @@ export default function FeedPage() {
   const tradeCnt = signals.filter((s) => s.type === "trade").length;
 
   return (
-    <div className="min-h-screen bg-gray-50 max-w-sm mx-auto pb-20">
+    <div className="min-h-screen bg-gray-50 w-full max-w-sm mx-auto pb-24 overflow-x-hidden">
 
       {/* 헤더 */}
       <header className="px-5 pt-6 pb-4 bg-white border-b border-gray-100">
@@ -130,7 +130,7 @@ export default function FeedPage() {
       </div>
 
       {/* 하단 탭 */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 z-30">
+      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 rr-pb-safe z-30">
         <div className="grid grid-cols-5 h-14">
           {(
             [

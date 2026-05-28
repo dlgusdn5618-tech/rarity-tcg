@@ -152,7 +152,7 @@ function ScanResultScreen({
     : "Ungraded";
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#FAFAFA" }}>
+    <div className="min-h-screen w-full overflow-x-hidden pb-28" style={{ background: "#FAFAFA" }}>
 
       {/* 헤더 */}
       <div
@@ -471,7 +471,7 @@ export default function ScannerPage() {
   // ── 슬롯 입력 화면 ─────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#FAFAFA" }}>
+    <div className="min-h-screen w-full overflow-x-hidden pb-28" style={{ background: "#FAFAFA" }}>
 
       {/* 실제 파일 업로드 전환 시 사용할 hidden input */}
       <input

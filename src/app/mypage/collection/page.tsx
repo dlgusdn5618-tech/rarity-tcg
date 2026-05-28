@@ -386,7 +386,7 @@ export default function CollectionPage() {
   const gainColor    = gainPositive ? SEMANTIC.success : SEMANTIC.error;
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: "#FAFAFA" }}>
+    <div className="min-h-screen pb-24 overflow-x-hidden" style={{ background: "#FAFAFA" }}>
       <div className="w-full max-w-[430px] mx-auto">
 
         {/* ── 헤더 ── */}

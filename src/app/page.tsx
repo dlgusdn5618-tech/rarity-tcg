@@ -525,7 +525,7 @@ export default function Home() {
       </div>
 
       {/* ── 하단 탭 ── */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100">
+      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 rr-pb-safe">
         <div className="grid grid-cols-5 h-14">
           {(
             [

@@ -315,7 +315,7 @@ export default function ChatList() {
 
       {/* 선택 모드 하단 액션 바 */}
       {selectMode && (
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 px-4 py-3 z-30">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 px-4 pt-3 z-30" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}>
           <button
             className="w-full py-3.5 rounded-2xl text-sm transition-all"
             style={{
@@ -365,7 +365,7 @@ export default function ChatList() {
 
       {/* 하단 탭 */}
       {!selectMode && (
-        <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100">
+        <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 rr-pb-safe">
           <div className="grid grid-cols-5 h-14">
             {(
               [
@@ -403,7 +403,7 @@ export default function ChatList() {
         </nav>
       )}
 
-      <div className="h-20" />
+      <div className="h-24" />
     </div>
   );
 }

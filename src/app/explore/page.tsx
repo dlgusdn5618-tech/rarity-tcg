@@ -130,7 +130,7 @@ export default function ExplorePage() {
   const hasActiveFilter = selectedSeries !== "전체" || selectedGrade !== "전체" || selectedGradeFilter !== "전체";
 
   return (
-    <div className="min-h-screen bg-gray-50 max-w-sm mx-auto">
+    <div className="min-h-screen bg-gray-50 w-full max-w-sm mx-auto overflow-x-hidden">
 
       {/* ── 검색바 헤더 ── */}
       <div className="sticky top-0 bg-white z-10 border-b border-gray-100">
@@ -503,7 +503,7 @@ export default function ExplorePage() {
       )}
 
       {/* ── 하단 탭 ── */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100">
+      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 rr-pb-safe">
         <div className="grid grid-cols-5 h-14">
           {(
             [

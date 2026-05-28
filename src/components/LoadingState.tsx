@@ -50,10 +50,10 @@ function ScannerLoading({ label }: { label?: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 px-8 text-center gap-5">
       <div
-        className="w-16 h-16 rounded-2xl flex items-center justify-center"
+        className="w-16 h-16 rounded-2xl flex items-center justify-center rr-pulse-soft"
         style={{ background: "#111827" }}
       >
-        <Sparkles size={28} strokeWidth={1.5} color="#ffffff" className="animate-pulse" />
+        <Sparkles size={28} strokeWidth={1.5} color="#ffffff" />
       </div>
       <div className="flex flex-col gap-1.5">
         <p className="rr-state-title">{label ?? "AI가 카드 패스포트를 읽는 중"}</p>

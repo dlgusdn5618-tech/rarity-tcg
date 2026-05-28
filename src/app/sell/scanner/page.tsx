@@ -590,7 +590,7 @@ export default function ScannerPage() {
               <Shield
                 size={15}
                 strokeWidth={2}
-                color={isGraded ? "#F6C90E" : "#9ca3af"}
+                color={isGraded ? "#ffffff" : "#9ca3af"}
               />
               <span
                 className="text-sm"
@@ -644,51 +644,26 @@ export default function ScannerPage() {
 
         {/* 스캔 버튼 */}
         <div className="pb-4">
-          {scanning ? (
-            <div
-              className="w-full py-4 rounded-2xl flex flex-col items-center gap-2"
-              style={{ background: "#111827" }}
-            >
-              <div className="flex items-center gap-2 rr-pulse-soft">
-                <RefreshCw
-                  size={16}
-                  strokeWidth={2}
-                  color="#F6C90E"
-                  className="animate-spin"
-                />
-                <span className="text-sm text-white" style={{ fontWeight: 700 }}>
-                  AI 분석 중…
-                </span>
-              </div>
-              <p
-                className="text-[10px]"
-                style={{ color: "rgba(255,255,255,0.5)", fontWeight: 400 }}
-              >
-                카드 정보를 감지하고 있어요. 잠시만 기다려 주세요.
-              </p>
-            </div>
-          ) : (
-            <button
-              onClick={handleScan}
-              disabled={!canScan}
-              className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 text-sm rr-pressable"
-              style={{
-                background:  canScan ? "#111827" : "#f4f4f5",
-                color:       canScan ? "white"   : "#9ca3af",
-                fontWeight: 700,
-                cursor:     canScan ? "pointer"  : "not-allowed",
-              }}
-            >
-              <Sparkles
-                size={16}
-                strokeWidth={2}
-                color={canScan ? "#F6C90E" : "#d1d5db"}
-              />
-              {canScan
-                ? "AI 스캔 시작"
-                : `필수 사진 ${reqFilled}/4 — 모두 추가해야 스캔 가능`}
-            </button>
-          )}
+          <button
+            onClick={handleScan}
+            disabled={!canScan}
+            className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 text-sm rr-pressable"
+            style={{
+              background:  canScan ? "#111827" : "#f4f4f5",
+              color:       canScan ? "white"   : "#9ca3af",
+              fontWeight: 700,
+              cursor:     canScan ? "pointer"  : "not-allowed",
+            }}
+          >
+            <Sparkles
+              size={16}
+              strokeWidth={2}
+              color={canScan ? "#ffffff" : "#d1d5db"}
+            />
+            {canScan
+              ? "AI 스캔 시작"
+              : `필수 사진 ${reqFilled}/4 — 모두 추가해야 스캔 가능`}
+          </button>
         </div>
 
       </div>

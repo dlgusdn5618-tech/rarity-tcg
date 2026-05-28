@@ -354,7 +354,7 @@ function ExchangeDetailInner({ id }: { id: string }) {
   const partner = { name: "포켓마스터", card: "리자몽 ex", emoji: "🔥", grade: "SR", value: 85000 };
 
   return (
-    <div className="min-h-screen bg-gray-50 max-w-sm mx-auto">
+    <div className="min-h-screen bg-gray-50 max-w-sm mx-auto overflow-x-hidden">
 
       {/* 헤더 */}
       <header className="flex items-center gap-3 px-4 pt-5 pb-3 bg-white border-b border-gray-100">

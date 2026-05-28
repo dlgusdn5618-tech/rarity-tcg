@@ -705,7 +705,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
           <span className="text-xl text-gray-700">←</span>
         </button>
         <span className="text-sm text-gray-900" style={{ fontWeight: 600 }}>카드 상세</span>
-        <button className="w-8 h-8 flex items-center justify-center">
+        <button className="w-8 h-8 flex items-center justify-center" aria-label="공유">
           <Share2 size={18} color="#374151" strokeWidth={1.5} />
         </button>
       </header>

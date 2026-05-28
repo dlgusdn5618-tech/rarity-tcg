@@ -59,7 +59,7 @@ function ProposeInner() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gray-50 max-w-sm mx-auto flex flex-col items-center justify-center px-6">
+      <div className="min-h-screen bg-gray-50 max-w-sm mx-auto overflow-x-hidden flex flex-col items-center justify-center px-6">
         <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: "#f0fdf4" }}>
           <CheckCircle2 size={32} color="#10b981" strokeWidth={2} />
         </div>
@@ -72,7 +72,7 @@ function ProposeInner() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 max-w-sm mx-auto flex flex-col">
+    <div className="min-h-screen bg-gray-50 max-w-sm mx-auto overflow-x-hidden flex flex-col">
 
       {/* 헤더 */}
       <header className="flex items-center gap-3 px-4 pt-5 pb-3 bg-white border-b border-gray-100">

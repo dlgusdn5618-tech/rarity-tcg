@@ -203,7 +203,7 @@ export default function Home() {
           ))}
         </div>
         <div className="flex items-center gap-3">
-          <button className="relative" onClick={() => router.push("/mypage/notifications")}>
+          <button className="relative" aria-label="알림" onClick={() => router.push("/mypage/notifications")}>
             <Bell size={20} color="#374151" strokeWidth={1.5} />
             <span
               className="absolute -top-1 -right-1 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center"

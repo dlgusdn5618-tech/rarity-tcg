@@ -131,7 +131,7 @@ function ChatRoomInner({ id }: { id: string }) {
   }
 
   return (
-    <div className="min-h-screen bg-white max-w-sm mx-auto flex flex-col">
+    <div className="min-h-screen bg-white max-w-sm mx-auto overflow-x-hidden flex flex-col">
 
       {/* 헤더 */}
       <header className="flex items-center gap-3 px-4 pt-5 pb-3 bg-white border-b border-gray-100 shrink-0">

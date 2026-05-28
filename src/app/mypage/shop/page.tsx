@@ -56,7 +56,7 @@ function ShopPageInner() {
   const isOwner = sellerId === "rarity_user";
 
   return (
-    <div className="min-h-screen" style={{ background: "#FAFAFA" }}>
+    <div className="min-h-screen overflow-x-hidden" style={{ background: "#FAFAFA" }}>
       <div className="w-full max-w-[430px] mx-auto">
 
         {/* ── 헤더 ── */}

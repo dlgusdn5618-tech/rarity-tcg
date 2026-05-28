@@ -9,6 +9,7 @@ import {
   X, type LucideIcon,
 } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
+import { CardVisual } from "@/components/CardVisual";
 
 const RECENT_SEARCHES = ["리자몽 ex SAR", "피카츄 SAR", "루피 SAR", "뮤츠 UR"];
 
@@ -408,22 +409,7 @@ export default function ExplorePage() {
                 >
                   <div className="flex items-start gap-3">
                     {/* 카드 프레임 */}
-                    <div
-                      className="w-10 h-[58px] rounded-lg flex flex-col overflow-hidden shrink-0"
-                      style={{
-                        border: `1px solid ${chip.color}38`,
-                        background: `linear-gradient(175deg, ${chip.color}12 0%, #f6f6f6 55%)`,
-                      }}
-                    >
-                      <div className="h-[3px] w-full shrink-0" style={{ background: chip.color }} />
-                      <div className="flex-1 flex items-center justify-center p-1">
-                        <div style={{
-                          width: "100%", height: "100%", borderRadius: 2,
-                          border: `1px solid ${chip.color}22`,
-                          background: `radial-gradient(ellipse at 50% 30%, ${chip.color}18, transparent 70%)`,
-                        }} />
-                      </div>
-                    </div>
+                    <CardVisual size="sm" rarity={entry.rarity} />
 
                     {/* 카드 정보 */}
                     <div className="flex-1 min-w-0">

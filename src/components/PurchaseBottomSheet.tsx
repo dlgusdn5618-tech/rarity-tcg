@@ -6,6 +6,7 @@ import {
   CheckCircle2, FileText, Layers, type LucideIcon,
 } from "lucide-react";
 import { PRIMARY, RARITY_CHIP, SHADOW } from "@/lib/tokens";
+import { CardVisual } from "@/components/CardVisual";
 // rr-button-primary / rr-button-secondary / rr-price → globals.css
 
 export interface PurchaseSheetProps {
@@ -112,38 +113,43 @@ export function PurchaseBottomSheet({
             <>
               {/* 카드 정보 */}
               <div className="rounded-2xl p-3.5 mb-4" style={{ background: "#f9fafb" }}>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                    <span className="text-[15px] text-gray-900" style={{ fontWeight: 700 }}>{cardName}</span>
-                    <span
-                      className="text-[10px] px-1.5 py-0.5 rounded shrink-0"
-                      style={{ background: chip.bg, color: chip.color, fontWeight: 700 }}
-                    >
-                      {rarity}
-                    </span>
-                    <span
-                      className="text-[10px] px-1.5 py-0.5 rounded shrink-0"
-                      style={{ background: "#fffbeb", color: "#92400e", fontWeight: 600 }}
-                    >
-                      {condition}
-                    </span>
+                <div className="flex items-start gap-3">
+                  <CardVisual size="sm" rarity={rarity} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                        <span className="text-[15px] text-gray-900" style={{ fontWeight: 700 }}>{cardName}</span>
+                        <span
+                          className="text-[10px] px-1.5 py-0.5 rounded shrink-0"
+                          style={{ background: chip.bg, color: chip.color, fontWeight: 700 }}
+                        >
+                          {rarity}
+                        </span>
+                        <span
+                          className="text-[10px] px-1.5 py-0.5 rounded shrink-0"
+                          style={{ background: "#fffbeb", color: "#92400e", fontWeight: 600 }}
+                        >
+                          {condition}
+                        </span>
+                      </div>
+                      <span className="text-[17px] text-gray-900 shrink-0" style={{ fontWeight: 800 }}>
+                        {fmt(price)}원
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
+                      <span className="text-xs text-gray-500" style={{ fontWeight: 500 }}>{seller}</span>
+                      {photoVerified && (
+                        <span className="flex items-center gap-0.5 text-[10px]" style={{ color: "#16a34a", fontWeight: 600 }}>
+                          <Camera size={10} strokeWidth={2} />사진 인증
+                        </span>
+                      )}
+                      {safeTrade && (
+                        <span className="flex items-center gap-0.5 text-[10px]" style={{ color: "#1D4ED8", fontWeight: 600 }}>
+                          <ShieldCheck size={10} strokeWidth={2} />안전거래
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <span className="text-[17px] text-gray-900 shrink-0" style={{ fontWeight: 800 }}>
-                    {fmt(price)}원
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 mt-2 flex-wrap">
-                  <span className="text-xs text-gray-500" style={{ fontWeight: 500 }}>{seller}</span>
-                  {photoVerified && (
-                    <span className="flex items-center gap-0.5 text-[10px]" style={{ color: "#16a34a", fontWeight: 600 }}>
-                      <Camera size={10} strokeWidth={2} />사진 인증
-                    </span>
-                  )}
-                  {safeTrade && (
-                    <span className="flex items-center gap-0.5 text-[10px]" style={{ color: "#1D4ED8", fontWeight: 600 }}>
-                      <ShieldCheck size={10} strokeWidth={2} />안전거래
-                    </span>
-                  )}
                 </div>
               </div>
 

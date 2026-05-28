@@ -19,6 +19,7 @@ import {
 } from "@/lib/collection";
 import { RARITY_CHIP, PRIMARY, SHADOW, SEMANTIC } from "@/lib/tokens";
 import { EmptyState } from "@/components/EmptyState";
+import { CardVisual } from "@/components/CardVisual";
 
 // ── 탭 정의 ───────────────────────────────────────────────────────────────────
 
@@ -169,66 +170,72 @@ function CardRow({
   const Icon = pct > 0 ? TrendingUp : pct < 0 ? TrendingDown : Minus;
 
   return (
-    <div className="rr-card px-4 py-3.5">
-      {/* 상단: 이름 · 칩 / 현재가 */}
-      <div className="flex items-start justify-between gap-2 mb-1">
-        <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-          <span className="text-sm text-gray-900" style={{ fontWeight: 700 }}>{card.nameKo}</span>
-          <RarityChip rarity={card.rarity} />
-          {card.isGraded && card.gradingInfo && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "#EFF6FF", color: "#1D4ED8", fontWeight: 700 }}>
-              {card.gradingInfo}
-            </span>
-          )}
-          {card.quantity > 1 && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "#FFFBEB", color: "#B45309", fontWeight: 700 }}>
-              x{card.quantity}
-            </span>
-          )}
-        </div>
-        <span className="rr-metric text-[15px] text-gray-900 shrink-0">
-          {fmt(card.currentPrice)}원
-        </span>
-      </div>
+    <div className="rr-card p-3">
+      <div className="flex items-start gap-3">
+        <CardVisual size="sm" rarity={card.rarity} graded={card.isGraded} grade={card.gradingInfo} />
 
-      {/* 하단: 내 기준가 / 변동% */}
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[11px] text-gray-400" style={{ fontWeight: 400 }}>
-          내 기준가 {fmt(card.acquiredPrice)}원
-        </span>
-        <div className="flex items-center gap-0.5">
-          <Icon size={11} strokeWidth={2.5} color={color} />
-          <span className="text-[12px]" style={{ color, fontWeight: 700 }}>
-            {pct > 0 ? "+" : ""}{pct}%
-          </span>
+        <div className="flex-1 min-w-0">
+          {/* 상단: 이름 · 칩 / 현재가 */}
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+              <span className="text-sm text-gray-900" style={{ fontWeight: 700 }}>{card.nameKo}</span>
+              <RarityChip rarity={card.rarity} />
+              {card.isGraded && card.gradingInfo && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "#EFF6FF", color: "#1D4ED8", fontWeight: 700 }}>
+                  {card.gradingInfo}
+                </span>
+              )}
+              {card.quantity > 1 && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "#FFFBEB", color: "#B45309", fontWeight: 700 }}>
+                  x{card.quantity}
+                </span>
+              )}
+            </div>
+            <span className="rr-metric text-[15px] text-gray-900 shrink-0">
+              {fmt(card.currentPrice)}원
+            </span>
+          </div>
+
+          {/* 하단: 내 기준가 / 변동% */}
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] text-gray-400" style={{ fontWeight: 400 }}>
+              내 기준가 {fmt(card.acquiredPrice)}원
+            </span>
+            <div className="flex items-center gap-0.5">
+              <Icon size={11} strokeWidth={2.5} color={color} />
+              <span className="text-[12px]" style={{ color, fontWeight: 700 }}>
+                {pct > 0 ? "+" : ""}{pct}%
+              </span>
+            </div>
+          </div>
+
+          {/* 액션 버튼 */}
+          {(hasSellRec || hasTrade) && (
+            <div className="flex gap-2">
+              {hasSellRec && (
+                <button
+                  onClick={() => router.push("/sell")}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-white text-xs"
+                  style={{ background: PRIMARY, fontWeight: 700 }}
+                >
+                  <Tag size={12} strokeWidth={2.5} />
+                  판매 등록하기
+                </button>
+              )}
+              {hasTrade && (
+                <button
+                  onClick={() => router.push("/exchange/propose")}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs"
+                  style={{ background: "#f4f4f5", color: "#374151", fontWeight: 700 }}
+                >
+                  <ArrowLeftRight size={12} strokeWidth={2.5} />
+                  교환 찾기
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
-
-      {/* 액션 버튼 */}
-      {(hasSellRec || hasTrade) && (
-        <div className="flex gap-2">
-          {hasSellRec && (
-            <button
-              onClick={() => router.push("/sell")}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-white text-xs"
-              style={{ background: PRIMARY, fontWeight: 700 }}
-            >
-              <Tag size={12} strokeWidth={2.5} />
-              판매 등록하기
-            </button>
-          )}
-          {hasTrade && (
-            <button
-              onClick={() => router.push("/exchange/propose")}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs"
-              style={{ background: "#f4f4f5", color: "#374151", fontWeight: 700 }}
-            >
-              <ArrowLeftRight size={12} strokeWidth={2.5} />
-              교환 찾기
-            </button>
-          )}
-        </div>
-      )}
     </div>
   );
 }

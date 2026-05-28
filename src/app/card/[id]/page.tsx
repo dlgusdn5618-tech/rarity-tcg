@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect, use } from "react";
 import { Shield, Share2, Heart, Eye, Package, Store, Users, ShieldCheck, Camera, CheckCircle2, AlertCircle, MessageSquarePlus, TrendingDown, TrendingUp, Bell, BellRing, type LucideIcon } from "lucide-react";
+import { CardVisual } from "@/components/CardVisual";
 import { calcRarityIndex } from "@/lib/rarity-score";
 import { RarityIndex } from "@/components/RarityIndex";
 import { PurchaseBottomSheet } from "@/components/PurchaseBottomSheet";
@@ -573,15 +574,13 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
           {spec?.image
             ? <img src={spec.image} alt={card.nameKo} className="h-52 object-contain drop-shadow-xl" />
             : (
-              <div className="w-32 h-44 rounded-2xl bg-white shadow-md flex flex-col overflow-hidden border border-gray-100">
-                <div className="h-3 w-full" style={{ background: PRIMARY }} />
-                <div className="flex-1 flex items-center justify-center">
-                  <span className="text-xs text-gray-300 select-none" style={{ fontWeight: 700 }}>TCG CARD</span>
-                </div>
-                <div className="h-10 bg-gray-50 flex items-center justify-center border-t border-gray-100 px-2">
-                  <span className="text-xs text-gray-500 text-center truncate" style={{ fontWeight: 700 }}>{card.nameKo}</span>
-                </div>
-              </div>
+              <CardVisual
+                size="lg"
+                name={card.nameKo}
+                rarity={card.passport.rarity}
+                graded={isGradedCard}
+                grade={card.passport.grade}
+              />
             )
           }
           <div className="absolute top-3 left-3 flex items-center gap-1.5">
@@ -897,29 +896,10 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
         </div>
         <div className="flex gap-3 px-4 overflow-x-auto scrollbar-none pb-2">
           {getSimilarCards(id).map((c) => {
-            const sc = RARITY_CHIP[c.grade] ?? { bg: "#f8fafc", color: "#475569" };
             return (
             <button key={c.id} onClick={() => router.push(`/card/${c.id}`)} className="shrink-0 w-24 text-left">
               <div className="bg-white rounded-xl h-24 flex items-center justify-center mb-1.5 border border-gray-100">
-                <div
-                  className="w-12 h-[66px] rounded-lg flex flex-col overflow-hidden"
-                  style={{
-                    border: `1px solid ${sc.color}38`,
-                    background: `linear-gradient(175deg, ${sc.color}12 0%, #f6f6f6 55%)`,
-                  }}
-                >
-                  <div className="h-[3px] w-full" style={{ background: sc.color }} />
-                  <div className="flex-1 flex items-center justify-center p-1">
-                    <div style={{
-                      width: "100%", height: "100%", borderRadius: 2,
-                      border: `1px solid ${sc.color}22`,
-                      background: `radial-gradient(ellipse at 50% 30%, ${sc.color}18, transparent 70%)`,
-                    }} />
-                  </div>
-                  <div className="py-0.5 text-center" style={{ background: `${sc.color}15`, borderTop: `1px solid ${sc.color}20` }}>
-                    <span className="text-[7px]" style={{ color: sc.color, fontWeight: 700 }}>{c.grade}</span>
-                  </div>
-                </div>
+                <CardVisual size="md" rarity={c.grade} />
               </div>
               <p className="text-xs text-gray-900 truncate" style={{ fontWeight: 600 }}>{c.name}</p>
               <p className="text-xs text-gray-400" style={{ fontWeight: 400 }}>{c.grade}</p>

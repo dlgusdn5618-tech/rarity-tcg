@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { CardVisual } from "@/components/CardVisual";
 import { useRouter } from "next/navigation";
 import { getHomeBanners } from "@/lib/home-banners";
 import { getRarityRankings } from "@/lib/cards";
@@ -380,26 +381,7 @@ export default function Home() {
                   >
                     {card.rank}
                   </div>
-                  {/* TCG 카드 목업 */}
-                  <div
-                    className="w-[58px] h-[80px] rounded-lg flex flex-col overflow-hidden"
-                    style={{
-                      border: `1px solid ${chip.color}38`,
-                      background: `linear-gradient(175deg, ${chip.color}12 0%, #f6f6f6 55%)`,
-                    }}
-                  >
-                    <div className="h-[3px] w-full" style={{ background: chip.color }} />
-                    <div className="flex-1 flex items-center justify-center p-1.5">
-                      <div style={{
-                        width: "100%", height: "100%", borderRadius: 2,
-                        border: `1px solid ${chip.color}22`,
-                        background: `radial-gradient(ellipse at 50% 30%, ${chip.color}18, transparent 70%)`,
-                      }} />
-                    </div>
-                    <div className="py-0.5 text-center" style={{ background: `${chip.color}15`, borderTop: `1px solid ${chip.color}20` }}>
-                      <span className="text-[8px]" style={{ color: chip.color, fontWeight: 700 }}>{card.rarity}</span>
-                    </div>
-                  </div>
+                  <CardVisual size="md" rarity={card.rarity} />
                 </div>
                 {/* 카드명 + 레어도칩 */}
                 <p className="text-xs text-gray-900 truncate" style={{ fontWeight: 700 }}>{card.name}</p>
@@ -478,25 +460,7 @@ export default function Home() {
                   className="rounded-xl h-[108px] flex flex-col items-center justify-center mb-2"
                   style={{ background: `${chip.color}0e`, border: `1px solid ${chip.color}22` }}
                 >
-                  <div
-                    className="w-[58px] h-[80px] rounded-lg flex flex-col overflow-hidden"
-                    style={{
-                      border: `1px solid ${chip.color}38`,
-                      background: `linear-gradient(175deg, ${chip.color}12 0%, #f6f6f6 55%)`,
-                    }}
-                  >
-                    <div className="h-[3px] w-full" style={{ background: chip.color }} />
-                    <div className="flex-1 flex items-center justify-center p-1.5">
-                      <div style={{
-                        width: "100%", height: "100%", borderRadius: 2,
-                        border: `1px solid ${chip.color}22`,
-                        background: `radial-gradient(ellipse at 50% 30%, ${chip.color}18, transparent 70%)`,
-                      }} />
-                    </div>
-                    <div className="py-0.5 text-center" style={{ background: `${chip.color}15`, borderTop: `1px solid ${chip.color}20` }}>
-                      <span className="text-[8px]" style={{ color: chip.color, fontWeight: 700 }}>{card.grade}</span>
-                    </div>
-                  </div>
+                  <CardVisual size="md" rarity={card.grade} />
                 </div>
                 <p className="text-xs text-gray-900 truncate" style={{ fontWeight: 700 }}>{card.name}</p>
                 <p className="text-[10px] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>{card.condition}</p>

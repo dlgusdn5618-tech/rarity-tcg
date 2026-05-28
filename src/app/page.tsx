@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { getHomeBanners } from "@/lib/home-banners";
+import { getRarityRankings } from "@/lib/cards";
 import {
   Home as HomeIcon, Search, Sparkles, MessageCircle, User,
   Bell, MapPin, Package, Star, RefreshCw, Flame, ArrowRight,
@@ -33,35 +35,10 @@ const HEAT_TICKER = [
 ];
 
 /* ── Banners ────────────────────────────────────────────── */
-const BANNERS = [
-  {
-    id: 1,
-    badge: "NEW DROP",
-    title: "151 시리즈\n재입고 확정",
-    sub: "SAR 5종 포함 · 6월 7일 전국 발매",
-    bgFrom: "#1a1a2e",
-    bgTo:   "#0f0f1a",
-    accent: "#D62828",
-  },
-  {
-    id: 2,
-    badge: "LIMITED DEAL",
-    title: "이번주 한정\n급매 특가",
-    sub: "시간 한정 · 최대 30% 저렴한 매물",
-    bgFrom: "#1c1003",
-    bgTo:   "#100a00",
-    accent: "#F6C90E",
-  },
-  {
-    id: 3,
-    badge: "TRADE MATCH",
-    title: "내 카드로\n교환 매칭",
-    sub: "직거래 · 보증금 안전교환",
-    bgFrom: "#0d1b2a",
-    bgTo:   "#060d14",
-    accent: "#3b82f6",
-  },
-];
+const BANNERS = getHomeBanners();
+
+/* ── Rarity Rankings ────────────────────────────────────── */
+const RANKINGS = getRarityRankings();
 
 /* ── Recent Cards with trend ────────────────────────────── */
 const RECENT_CARDS: Record<string, {
@@ -169,7 +146,7 @@ export default function Home() {
   const banner = BANNERS[bannerIdx];
 
   return (
-    <div className="min-h-screen bg-gray-50 max-w-sm mx-auto relative">
+    <div className="min-h-screen bg-gray-50 w-full max-w-sm mx-auto relative overflow-x-hidden">
 
       {/* ── 헤더 ── */}
       <header className="flex items-center justify-between px-4 pt-5 pb-3 bg-white border-b border-gray-100">
@@ -262,8 +239,12 @@ export default function Home() {
       <div className="px-4 pt-4">
         <div
           className="relative rounded-2xl overflow-hidden h-48 cursor-pointer"
-          style={{ background: `linear-gradient(140deg, ${banner.bgFrom} 0%, ${banner.bgTo} 100%)` }}
-          onClick={() => setBannerIdx((bannerIdx + 1) % BANNERS.length)}
+          style={{ background: `linear-gradient(140deg, ${banner.backgroundFrom} 0%, ${banner.backgroundTo} 100%)` }}
+          onClick={() =>
+            banner.targetHref
+              ? router.push(banner.targetHref)
+              : setBannerIdx((bannerIdx + 1) % BANNERS.length)
+          }
         >
           {/* 도트 패턴 오버레이 */}
           <div
@@ -277,7 +258,7 @@ export default function Home() {
           <div className="absolute inset-0 flex flex-col justify-end p-5 pr-24">
             <span
               className="text-[10px] mb-2.5 self-start px-2 py-0.5 rounded"
-              style={{ background: banner.accent, color: "#fff", fontWeight: 700, letterSpacing: "0.06em" }}
+              style={{ background: banner.accentColor, color: "#fff", fontWeight: 700, letterSpacing: "0.06em" }}
             >
               {banner.badge}
             </span>
@@ -288,12 +269,12 @@ export default function Home() {
               {banner.title}
             </h2>
             <p className="text-white/60 text-[11px] mt-1.5" style={{ fontWeight: 400 }}>
-              {banner.sub}
+              {banner.subtitle}
             </p>
           </div>
           {/* 카드 스택 장식 */}
           <div className="absolute right-5 top-1/2 -translate-y-1/2">
-            <CardStack accent={banner.accent} />
+            <CardStack accent={banner.accentColor} />
           </div>
           {/* 하단 페이지 도트 */}
           <div className="absolute bottom-3.5 right-4 flex gap-1">
@@ -304,11 +285,113 @@ export default function Home() {
                 style={{
                   width:      i === bannerIdx ? 14 : 4,
                   height:     4,
-                  background: i === bannerIdx ? banner.accent : "rgba(255,255,255,0.25)",
+                  background: i === bannerIdx ? banner.accentColor : "rgba(255,255,255,0.25)",
                 }}
               />
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* ── 레어리티 TOP 랭킹 ── */}
+      <div className="pt-5">
+        <div className="flex items-center justify-between px-4 mb-3">
+          <div>
+            <h3 className="text-gray-900 text-[15px]" style={{ fontWeight: 700 }}>레어리티 TOP</h3>
+            <p className="text-[10px] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>희소성·거래 신뢰도 기준</p>
+          </div>
+          <button
+            className="flex items-center gap-0.5 text-xs text-gray-400"
+            style={{ fontWeight: 400 }}
+            onClick={() => router.push("/explore")}
+            // TODO: router.push("/explore?sort=rarity")
+          >
+            전체 <ArrowRight size={11} strokeWidth={1.5} />
+          </button>
+        </div>
+        <div className="flex gap-3 px-4 overflow-x-auto scrollbar-none pb-2">
+          {RANKINGS.map((card) => {
+            const chip = RARITY_CHIP[card.rarity] ?? { bg: "#f8fafc", color: "#475569" };
+            const scoreColor =
+              card.score >= 90 ? "#F6C90E" :
+              card.score >= 80 ? PRIMARY :
+              "#64748b";
+            const rankColor =
+              card.rank === 1 ? "#F6C90E" :
+              card.rank === 2 ? "#94a3b8" :
+              card.rank === 3 ? "#c47d2e" :
+              "#9ca3af";
+            return (
+              <div
+                key={card.id}
+                className="shrink-0 cursor-pointer"
+                style={{ width: 116 }}
+                onClick={() => router.push(`/card/${card.id}`)}
+              >
+                {/* 카드 프레임 */}
+                <div
+                  className="relative rounded-xl flex flex-col items-center justify-center mb-2"
+                  style={{
+                    height: 120,
+                    background: `${chip.color}0e`,
+                    border: `1px solid ${chip.color}22`,
+                  }}
+                >
+                  {/* 랭크 뱃지 */}
+                  <div
+                    className="absolute top-2 left-2 w-5 h-5 rounded-full flex items-center justify-center text-[10px]"
+                    style={{ background: rankColor, color: "#fff", fontWeight: 800 }}
+                  >
+                    {card.rank}
+                  </div>
+                  {/* TCG 카드 목업 */}
+                  <div
+                    className="w-[58px] h-[80px] rounded-lg flex flex-col overflow-hidden"
+                    style={{
+                      border: `1px solid ${chip.color}38`,
+                      background: `linear-gradient(175deg, ${chip.color}12 0%, #f6f6f6 55%)`,
+                    }}
+                  >
+                    <div className="h-[3px] w-full" style={{ background: chip.color }} />
+                    <div className="flex-1 flex items-center justify-center p-1.5">
+                      <div style={{
+                        width: "100%", height: "100%", borderRadius: 2,
+                        border: `1px solid ${chip.color}22`,
+                        background: `radial-gradient(ellipse at 50% 30%, ${chip.color}18, transparent 70%)`,
+                      }} />
+                    </div>
+                    <div className="py-0.5 text-center" style={{ background: `${chip.color}15`, borderTop: `1px solid ${chip.color}20` }}>
+                      <span className="text-[8px]" style={{ color: chip.color, fontWeight: 700 }}>{card.rarity}</span>
+                    </div>
+                  </div>
+                </div>
+                {/* 카드명 + 레어도칩 */}
+                <p className="text-xs text-gray-900 truncate" style={{ fontWeight: 700 }}>{card.name}</p>
+                <span
+                  className="inline-block text-[9px] px-1.5 py-0.5 rounded mt-0.5"
+                  style={{ background: chip.bg, color: chip.color, fontWeight: 700 }}
+                >
+                  {card.rarity}
+                </span>
+                {/* 스코어 */}
+                <div className="flex items-center justify-between mt-1.5">
+                  <span
+                    className="text-[13px]"
+                    style={{ color: scoreColor, fontWeight: 800 }}
+                  >
+                    {card.score}
+                  </span>
+                  <span className="text-[9px] text-gray-400" style={{ fontWeight: 500 }}>
+                    {card.price.toLocaleString()}원
+                  </span>
+                </div>
+                {/* 한 줄 이유 */}
+                <p className="text-[9px] text-gray-400 leading-tight mt-0.5 truncate" style={{ fontWeight: 400 }}>
+                  {card.reason}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
 

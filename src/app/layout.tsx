@@ -1,7 +1,18 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import { Noto_Sans_KR } from "next/font/google";
 import "./globals.css";
 
+// Pretendard Variable — 기본 UI 폰트 (SIL OFL 1.1)
+// src: ./fonts/PretendardVariable.woff2 (로컬 캐싱, 네트워크 의존 없음)
+const pretendard = localFont({
+  src: "./fonts/PretendardVariable.woff2",
+  variable: "--font-pretendard",
+  weight: "45 920",
+  display: "swap",
+});
+
+// Noto Sans KR — fallback 전용 (한글 글리프 보험)
 const notoSansKR = Noto_Sans_KR({
   variable: "--font-noto-sans-kr",
   subsets: ["latin"],
@@ -19,10 +30,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${notoSansKR.variable} h-full`}>
+    <html lang="ko" className={`${pretendard.variable} ${notoSansKR.variable} h-full`}>
       <body
         className="min-h-full flex flex-col antialiased"
-        style={{ background: "var(--bg)", fontFamily: "var(--font-noto-sans-kr), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" }}
+        style={{ background: "var(--bg)" }}
       >
         {children}
       </body>

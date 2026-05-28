@@ -159,6 +159,8 @@ export function PurchaseBottomSheet({
                     <button
                       key={key}
                       onClick={() => setDelivery(key)}
+                      aria-label={`구매 배송 방식 ${label} 선택`}
+                      aria-pressed={active}
                       className="flex flex-col items-center gap-1 py-3 rounded-2xl border transition-colors"
                       style={{
                         borderColor: active ? PRIMARY : "#e5e7eb",

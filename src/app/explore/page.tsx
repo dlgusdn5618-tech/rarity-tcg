@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { getExploreCards, type CardEntry } from "@/lib/cards";
 import {
   Home, Search, Sparkles, MessageCircle, User,
   SlidersHorizontal, ShieldCheck, TrendingUp, TrendingDown,
@@ -31,31 +32,6 @@ const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
   R:   { bg: "#F0F9FF", color: "#0369A1" },
 };
 
-type CardEntry = {
-  id: number; name: string; series: string; rarity: string;
-  category: "포켓몬" | "원피스"; listings: number;
-  minPrice: number; avgPrice: number; gradedCount: number;
-  langDist: { lang: string; count: number }[];
-  safeTrade: boolean; trend: number[];
-  wishCount: number;
-  createdAt: number; // 등록 후 경과일 (작을수록 최신)
-  grades: string[];  // 보유 감정 등급 (높은 순, 예: ["PSA 10", "PSA 9"])
-};
-
-const CARD_ENTRIES: CardEntry[] = [
-  { id: 1,  name: "리자몽 ex",    series: "151",            rarity: "SAR", category: "포켓몬", listings: 12, minPrice: 85000,  avgPrice: 90500,  gradedCount: 2, langDist: [{ lang: "일본", count: 8  }, { lang: "한글", count: 4 }], safeTrade: true,  trend: [78, 82, 80, 88, 85], wishCount: 87, createdAt: 58, grades: ["PSA 10", "PSA 9"]            },
-  { id: 2,  name: "피카츄 ex",    series: "151",            rarity: "SAR", category: "포켓몬", listings: 7,  minPrice: 42000,  avgPrice: 45000,  gradedCount: 0, langDist: [{ lang: "영어", count: 5  }, { lang: "일본", count: 2 }], safeTrade: false, trend: [46, 44, 43, 41, 42], wishCount: 63, createdAt: 33, grades: []                             },
-  { id: 3,  name: "뮤츠 ex",      series: "151",            rarity: "UR",  category: "포켓몬", listings: 5,  minPrice: 120000, avgPrice: 115000, gradedCount: 1, langDist: [{ lang: "일본", count: 5  }],                            safeTrade: true,  trend: [110,112,118,116,120], wishCount: 45, createdAt: 27, grades: ["PSA 9"]                      },
-  { id: 4,  name: "이상해꽃 ex",  series: "151",            rarity: "SR",  category: "포켓몬", listings: 9,  minPrice: 38000,  avgPrice: 41000,  gradedCount: 0, langDist: [{ lang: "한글", count: 6  }, { lang: "일본", count: 3 }], safeTrade: false, trend: [42, 40, 39, 38, 38], wishCount: 28, createdAt: 17, grades: []                             },
-  { id: 5,  name: "꼬부기 ex",    series: "151",            rarity: "SR",  category: "포켓몬", listings: 6,  minPrice: 55000,  avgPrice: 58000,  gradedCount: 0, langDist: [{ lang: "일본", count: 4  }, { lang: "한글", count: 2 }], safeTrade: true,  trend: [51, 53, 54, 54, 55], wishCount: 31, createdAt: 21, grades: []                             },
-  { id: 6,  name: "잠만보 ex",    series: "스칼렛·바이올렛", rarity: "SAR", category: "포켓몬", listings: 4,  minPrice: 67000,  avgPrice: 70000,  gradedCount: 1, langDist: [{ lang: "일본", count: 4  }],                            safeTrade: true,  trend: [62, 64, 66, 65, 67], wishCount: 19, createdAt: 11, grades: ["BGS 9.5"]                    },
-  { id: 12, name: "뮤 ex",        series: "페어리킹덤",      rarity: "SAR", category: "포켓몬", listings: 8,  minPrice: 88000,  avgPrice: 92000,  gradedCount: 2, langDist: [{ lang: "일본", count: 6  }, { lang: "한글", count: 2 }], safeTrade: true,  trend: [84, 86, 90, 88, 88], wishCount: 52, createdAt: 14, grades: ["PSA 10", "BGS 9.5"]          },
-  { id: 7,  name: "몽키 D. 루피", series: "OP-01",          rarity: "SAR", category: "원피스", listings: 15, minPrice: 95000,  avgPrice: 102000, gradedCount: 3, langDist: [{ lang: "일본", count: 10 }, { lang: "한글", count: 5 }], safeTrade: true,  trend: [88, 92, 96, 94, 95], wishCount: 94, createdAt: 47, grades: ["PSA 10", "PSA 9", "BGS 9.5"] },
-  { id: 8,  name: "롤로노아 조로", series: "OP-01",          rarity: "SR",  category: "원피스", listings: 8,  minPrice: 67000,  avgPrice: 71000,  gradedCount: 1, langDist: [{ lang: "일본", count: 6  }, { lang: "한글", count: 2 }], safeTrade: false, trend: [64, 66, 64, 68, 67], wishCount: 37, createdAt: 40, grades: ["PSA 9"]                      },
-  { id: 9,  name: "나미",          series: "OP-02",          rarity: "SR",  category: "원피스", listings: 5,  minPrice: 45000,  avgPrice: 47000,  gradedCount: 0, langDist: [{ lang: "일본", count: 3  }, { lang: "한글", count: 2 }], safeTrade: false, trend: [44, 45, 46, 45, 45], wishCount: 22, createdAt:  7, grades: []                             },
-  { id: 10, name: "에이스",        series: "OP-02",          rarity: "UR",  category: "원피스", listings: 6,  minPrice: 130000, avgPrice: 128000, gradedCount: 2, langDist: [{ lang: "일본", count: 5  }, { lang: "한글", count: 1 }], safeTrade: true,  trend: [118,122,126,128,130], wishCount: 71, createdAt:  4, grades: ["PSA 10", "PSA 9"]            },
-  { id: 11, name: "상디",          series: "OP-07",          rarity: "R",   category: "원피스", listings: 3,  minPrice: 22000,  avgPrice: 24000,  gradedCount: 0, langDist: [{ lang: "한글", count: 3  }],                            safeTrade: false, trend: [24, 23, 23, 22, 22], wishCount: 12, createdAt:  1, grades: []                             },
-];
 
 type SortType = "인기순" | "낮은 가격순" | "높은 가격순" | "최신순";
 
@@ -126,7 +102,7 @@ export default function ExplorePage() {
   const removeRecent = (keyword: string) =>
     setRecentSearches(recentSearches.filter((k) => k !== keyword));
 
-  const filteredCards = CARD_ENTRIES
+  const filteredCards = getExploreCards()
     .filter((entry) => {
       const matchQuery    = query === "" || entry.name.includes(query) || entry.rarity.includes(query);
       const matchCategory = selectedCategory === "전체" || entry.category === selectedCategory;

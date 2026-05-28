@@ -2,10 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect, use } from "react";
-import { Shield, Share2, Heart, Eye, Package, Store, Users, ShieldCheck, Camera, CheckCircle2, AlertCircle, MessageSquarePlus, TrendingDown, TrendingUp, type LucideIcon } from "lucide-react";
+import { Shield, Share2, Heart, Eye, Package, Store, Users, ShieldCheck, Camera, CheckCircle2, AlertCircle, MessageSquarePlus, TrendingDown, TrendingUp, Bell, BellRing, type LucideIcon } from "lucide-react";
 import { calcRarityIndex } from "@/lib/rarity-score";
 import { RarityIndex } from "@/components/RarityIndex";
 import { PurchaseBottomSheet } from "@/components/PurchaseBottomSheet";
+import { SignalAlertSheet, getSignalForCard } from "@/components/SignalAlertSheet";
+import { getCardById, getSimilarCards, type PassportData } from "@/lib/cards";
 
 const PRIMARY = "#D62828";
 
@@ -29,12 +31,6 @@ const PHOTO_SLOT_DEFS: { key: string; label: string; required: boolean; gradedOn
   { key: "slabnum", label: "감정번호 클로즈업", required: true, gradedOnly: true },
 ];
 
-type PassportData = {
-  tcg: string; rarity: string; language: string; distribution: string;
-  condition: string; grade: string; photoVerified: boolean; safeTrade: boolean;
-  pricePosition: string; scarcity: string; cardId: string;
-  photoSlots: Record<string, boolean>;
-};
 
 const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
   TROPHY: { bg: "#111111", color: "#F6C90E" },   // 검정/골드
@@ -53,65 +49,6 @@ const TYPE_EMOJI: Record<string, string> = {
   Dragon: "🐉", Colorless: "⭐",
 };
 
-const CARD_DB: Record<string, {
-  apiId: string; name: string; nameKo: string; price: number;
-  condition: string; category: string; views: number; likes: number;
-  seller: string; sellerGrade: string; sellerTrades: number;
-  sellerId?: string;
-  desc: string; priceHistory: number[];
-  tradeType: "parcel" | "half" | "direct" | "safe";
-  avgPrice30d: number; sellerResponseTime: string;
-  passport: PassportData;
-}> = {
-  "1": {
-    apiId: "sv3pt5-183", nameKo: "리자몽 ex", name: "Charizard ex",
-    price: 85000, condition: "S급", category: "포켓몬",
-    views: 1240, likes: 320,
-    seller: "포켓마스터", sellerGrade: "⭐ 우수판매자", sellerTrades: 247, sellerId: "pocketmaster",
-    desc: "구입 후 슬리브 보관. 모서리·표면 흠집 전혀 없음. 직거래 가능(강남).",
-    priceHistory: [72000, 75000, 78000, 76000, 82000, 85000],
-    tradeType: "safe",
-    avgPrice30d: 90500, sellerResponseTime: "보통 30분 내",
-    passport: {
-      tcg: "Pokemon", rarity: "SAR", language: "Japanese", distribution: "Booster Set",
-      condition: "Near Mint", grade: "PSA 10", photoVerified: true, safeTrade: true,
-      pricePosition: "30D Top 18%", scarcity: "Grail", cardId: "SV3pt5-183",
-      photoSlots: { front: true, back: true, corner: true, glare: true, slab: true, slabnum: true },
-    },
-  },
-  "2": {
-    apiId: "sv3pt5-173", nameKo: "피카츄 ex", name: "Pikachu",
-    price: 42000, condition: "A급", category: "포켓몬",
-    views: 980, likes: 210,
-    seller: "카드킹", sellerGrade: "⭐ 우수판매자", sellerTrades: 182, sellerId: "cardking",
-    desc: "개봉 직후 슬리브 보관. 아주 미세한 표면 광택 차이 있으나 육안으로 식별 어려움.",
-    priceHistory: [38000, 39000, 40000, 41000, 40000, 42000],
-    tradeType: "parcel",
-    avgPrice30d: 40000, sellerResponseTime: "보통 2시간 내",
-    passport: {
-      tcg: "Pokemon", rarity: "SAR", language: "English", distribution: "Booster Set",
-      condition: "Excellent", grade: "Ungraded", photoVerified: false, safeTrade: false,
-      pricePosition: "Fair Price", scarcity: "High", cardId: "SV3pt5-173",
-      photoSlots: { front: true, back: true },
-    },
-  },
-  "3": {
-    apiId: "sv3pt5-205", nameKo: "뮤츠 ex", name: "Mew ex",
-    price: 120000, condition: "S급", category: "포켓몬",
-    views: 870, likes: 180,
-    seller: "레어헌터", sellerGrade: "🔥 파워판매자", sellerTrades: 503, sellerId: "rarehunter",
-    desc: "PSA 9 등급 상당 컨디션. 완전 민트. 하드케이스 보관 중.",
-    priceHistory: [105000, 108000, 112000, 110000, 118000, 120000],
-    tradeType: "safe",
-    avgPrice30d: 115000, sellerResponseTime: "보통 1시간 내",
-    passport: {
-      tcg: "Pokemon", rarity: "UR", language: "Japanese", distribution: "Booster Set",
-      condition: "Near Mint", grade: "Ungraded", photoVerified: true, safeTrade: true,
-      pricePosition: "30D Top 5%", scarcity: "Grail", cardId: "SV3pt5-205",
-      photoSlots: { front: true, back: true, corner: true },
-    },
-  },
-};
 
 const CONDITION_INFO: Record<string, { color: string; bg: string; desc: string }> = {
   "S급": { color: "#D69E2E", bg: "#FFFFF0", desc: "완전 민트" },
@@ -126,11 +63,6 @@ const TRADE_OPTIONS: { key: "parcel" | "half" | "direct" | "safe"; label: string
   { key: "safe",   label: "안전거래", Icon: ShieldCheck, desc: "레어리티 보호" },
 ];
 
-const SIMILAR = [
-  { id: 2, name: "피카츄 ex",  grade: "SAR", price: 42000  },
-  { id: 3, name: "뮤츠 ex",    grade: "UR",  price: 120000 },
-  { id: 5, name: "꼬부기 ex",  grade: "SR",  price: 55000  },
-];
 
 type ApiSpec = {
   hp: string; types: string[]; evolvesFrom?: string;
@@ -563,7 +495,7 @@ function CardPassport({ name, nameKo, data }: { name: string; nameKo: string; da
 export default function CardDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const card = CARD_DB[id] ?? CARD_DB["1"];
+  const card = getCardById(id);
   const condition = CONDITION_INFO[card.condition];
 
   const [liked, setLiked] = useState(false);
@@ -572,6 +504,12 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
   const [spec, setSpec] = useState<ApiSpec>(null);
   const [specLoading, setSpecLoading] = useState(true);
   const [showPurchase, setShowPurchase] = useState(false);
+  const [showSignal, setShowSignal] = useState(false);
+  const [signalSet, setSignalSet] = useState(false);
+
+  useEffect(() => {
+    setSignalSet(getSignalForCard(id) !== null);
+  }, [id]);
 
   useEffect(() => {
     fetch(`https://api.pokemontcg.io/v2/cards/${card.apiId}`)
@@ -615,10 +553,10 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 max-w-sm mx-auto pb-28">
+    <div className="min-h-screen bg-gray-50 w-full max-w-sm mx-auto pb-28 overflow-x-hidden">
 
       {/* 헤더 */}
-      <header className="sticky top-0 z-10 bg-white flex items-center justify-between px-4 h-14 border-b border-gray-100">
+      <header className="sticky top-0 z-10 bg-white flex items-center justify-between px-4 h-14 border-b border-gray-100 w-full">
         <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center">
           <span className="text-xl text-gray-700">←</span>
         </button>
@@ -696,6 +634,21 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
             </p>
           </div>
         </div>
+
+        {/* 시그널 받기 버튼 */}
+        <button
+          onClick={() => setShowSignal(true)}
+          className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs transition-colors"
+          style={signalSet
+            ? { background: "#fff1f1", color: PRIMARY, border: `1px solid ${PRIMARY}33`, fontWeight: 600 }
+            : { background: "#f9fafb", color: "#6b7280", border: "1px solid #e5e7eb", fontWeight: 500 }
+          }
+        >
+          {signalSet
+            ? <><BellRing size={13} strokeWidth={2} color={PRIMARY} /> 시그널 설정됨</>
+            : <><Bell size={13} strokeWidth={1.8} color="#9ca3af" /> 목표가·새 매물 시그널 받기</>
+          }
+        </button>
       </div>
 
       {/* Card Passport */}
@@ -943,7 +896,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
           <button className="text-gray-400 text-sm">›</button>
         </div>
         <div className="flex gap-3 px-4 overflow-x-auto scrollbar-none pb-2">
-          {SIMILAR.map((c) => {
+          {getSimilarCards(id).map((c) => {
             const sc = RARITY_CHIP[c.grade] ?? { bg: "#f8fafc", color: "#475569" };
             return (
             <button key={c.id} onClick={() => router.push(`/card/${c.id}`)} className="shrink-0 w-24 text-left">
@@ -978,7 +931,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
       </div>
 
       {/* 하단 버튼 */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 px-4 pt-2.5 pb-3">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm min-w-0 bg-white border-t border-gray-100 px-4 pt-2.5 pb-3">
         {/* 한 줄 신뢰 요약 */}
         <div className="flex items-center justify-center gap-1.5 mb-2.5 flex-wrap">
           {trustTags.map((tag, i) => (
@@ -1024,6 +977,17 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
         photoVerified={card.passport.photoVerified}
         safeTrade={card.passport.safeTrade}
         onChat={() => { setShowPurchase(false); router.push(`/chat?fromCard=${id}`); }}
+      />
+
+      <SignalAlertSheet
+        isOpen={showSignal}
+        onClose={() => setShowSignal(false)}
+        cardId={id}
+        cardName={card.nameKo}
+        currentPrice={card.price}
+        avgPrice30d={card.avgPrice30d}
+        onSaved={() => setSignalSet(true)}
+        onNavigateFeed={() => { setShowSignal(false); router.push("/feed"); }}
       />
     </div>
   );

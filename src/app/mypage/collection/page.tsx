@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ChevronLeft, TrendingUp, TrendingDown, Tag, ArrowLeftRight,
-  Copy, Layers, ChevronRight, Minus,
+  Copy, ChevronRight, Minus,
 } from "lucide-react";
 import {
   MOCK_COLLECTION,
@@ -18,6 +18,7 @@ import {
   type TradeMatch,
 } from "@/lib/collection";
 import { RARITY_CHIP, PRIMARY, SHADOW, SEMANTIC } from "@/lib/tokens";
+import { EmptyState } from "@/components/EmptyState";
 
 // ── 탭 정의 ───────────────────────────────────────────────────────────────────
 
@@ -358,18 +359,6 @@ function TradeMatchRow({ match }: { match: TradeMatch }) {
   );
 }
 
-// ── 빈 상태 ────────────────────────────────────────────────────────────────────
-
-function EmptyState({ message }: { message: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-14 gap-3">
-      <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "#f4f4f5" }}>
-        <Layers size={24} strokeWidth={1.5} color="#a1a1aa" />
-      </div>
-      <p className="text-sm text-gray-400 text-center" style={{ fontWeight: 400 }}>{message}</p>
-    </div>
-  );
-}
 
 // ── 메인 페이지 ───────────────────────────────────────────────────────────────
 
@@ -475,7 +464,10 @@ export default function CollectionPage() {
 
             {activeTab === "전체" && (
               MOCK_COLLECTION.length === 0
-                ? <EmptyState message="보유 카드가 없어요" />
+                ? <EmptyState
+                    title="아직 등록한 카드가 없어요"
+                    description="내 카드를 등록하면 자산 가치와 교환 기회를 볼 수 있어요."
+                  />
                 : MOCK_COLLECTION.map((card) => (
                   <CardRow
                     key={card.id}
@@ -488,7 +480,10 @@ export default function CollectionPage() {
 
             {activeTab === "팔아볼 카드" && (
               sellRecs.length === 0
-                ? <EmptyState message="아직 가치가 오른 카드가 없어요" />
+                ? <EmptyState
+                    title="지금은 판매 추천 카드가 없어요"
+                    description="가격 변동이 생기면 다시 알려드릴게요."
+                  />
                 : sellRecs.map((rec) => (
                   <SellRecRow key={rec.card.id} rec={rec} />
                 ))
@@ -496,7 +491,10 @@ export default function CollectionPage() {
 
             {activeTab === "교환 후보" && (
               tradeMatches.length === 0
-                ? <EmptyState message="아직 교환하기 좋은 매칭이 없어요" />
+                ? <EmptyState
+                    title="맞는 교환 후보가 아직 없어요"
+                    description="컬렉션이 쌓일수록 더 정확한 매칭을 받을 수 있어요."
+                  />
                 : tradeMatches.map((match) => (
                   <TradeMatchRow key={match.myCard.id} match={match} />
                 ))
@@ -504,7 +502,10 @@ export default function CollectionPage() {
 
             {activeTab === "중복 카드" && (
               duplicates.length === 0
-                ? <EmptyState message="중복 카드가 없어요" />
+                ? <EmptyState
+                    title="중복 보유 카드가 없어요"
+                    description="같은 카드를 2장 이상 보유하면 여기에서 모아볼 수 있어요."
+                  />
                 : duplicates.map((card) => (
                   <div key={card.id}>
                     <div className="flex items-center gap-1.5 mb-2 px-1">

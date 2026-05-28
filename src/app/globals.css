@@ -243,3 +243,28 @@ body {
   padding: 12px 16px 24px;
   z-index: 30;
 }
+
+/* ── State utilities (Phase 3) ── */
+@keyframes rr-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.rr-skeleton {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e9eaeb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: rr-shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+}
+.rr-state-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #18181B;
+  letter-spacing: -0.1px;
+}
+.rr-state-description {
+  font-size: 12px;
+  font-weight: 400;
+  color: #A1A1AA;
+  line-height: 1.6;
+  text-align: center;
+}

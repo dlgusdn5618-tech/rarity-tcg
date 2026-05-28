@@ -8,6 +8,7 @@ import {
   SlidersHorizontal, ShieldCheck, TrendingUp, TrendingDown,
   X, type LucideIcon,
 } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 
 const RECENT_SEARCHES = ["리자몽 ex SAR", "피카츄 SAR", "루피 SAR", "뮤츠 UR"];
 
@@ -498,11 +499,19 @@ export default function ExplorePage() {
           </div>
 
           {filteredCards.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <Search size={36} color="#d1d5db" strokeWidth={1.2} className="mb-3" />
-              <p className="text-gray-900 text-sm" style={{ fontWeight: 600 }}>검색 결과가 없어요</p>
-              <p className="text-gray-400 text-xs mt-1">다른 키워드로 검색해보세요</p>
-            </div>
+            <EmptyState
+              icon={<Search size={22} strokeWidth={1.5} color="#a1a1aa" />}
+              title="조건에 맞는 카드가 없어요"
+              description="카테고리나 정렬 조건을 바꿔 다시 찾아보세요."
+              actionLabel="전체 카드 보기"
+              onAction={() => {
+                setSelectedCategory("전체");
+                setSelectedSeries("전체");
+                setSelectedGrade("전체");
+                setSelectedGradeFilter("전체");
+                setQuery("");
+              }}
+            />
           )}
         </div>
       )}

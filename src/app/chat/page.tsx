@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Home, Search, Sparkles, MessageCircle, User, Settings, type LucideIcon } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 
 const PRIMARY = "#D62828";
 
@@ -303,11 +304,13 @@ export default function ChatList() {
       </div>
 
       {filtered.length === 0 && !selectMode && (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <MessageCircle size={48} strokeWidth={1} color="#d1d5db" className="mb-4" />
-          <p className="text-gray-500 text-sm" style={{ fontWeight: 400 }}>아직 채팅이 없어요</p>
-          <p className="text-gray-400 text-xs mt-1" style={{ fontWeight: 400 }}>마음에 드는 카드를 찾아 문의해보세요</p>
-        </div>
+        <EmptyState
+          icon={<MessageCircle size={22} strokeWidth={1.5} color="#a1a1aa" />}
+          title="아직 진행 중인 채팅이 없어요"
+          description="관심 있는 카드에서 판매자에게 문의해보세요."
+          actionLabel="카드 탐색하기"
+          onAction={() => router.push("/explore")}
+        />
       )}
 
       {/* 선택 모드 하단 액션 바 */}

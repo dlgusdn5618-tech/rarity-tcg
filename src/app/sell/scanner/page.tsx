@@ -11,6 +11,7 @@ import {
   type ScanSlotKey, type ScanResult,
 } from "@/lib/scanner";
 import { PRIMARY, RARITY_CHIP, SHADOW, SEMANTIC } from "@/lib/tokens";
+import { LoadingState } from "@/components/LoadingState";
 
 // ── 슬롯 정의 ─────────────────────────────────────────────────────────────────
 
@@ -452,6 +453,18 @@ export default function ScannerPage() {
         onReset={handleReset}
         onContinue={handleContinue}
       />
+    );
+  }
+
+  // 스캔 중 로딩 화면
+  if (scanning) {
+    return (
+      <div
+        className="min-h-screen flex flex-col items-center justify-center"
+        style={{ background: "#FAFAFA" }}
+      >
+        <LoadingState variant="scanner" />
+      </div>
     );
   }
 

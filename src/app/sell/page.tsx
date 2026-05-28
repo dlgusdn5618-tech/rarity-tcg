@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Package, Truck, Users, ShieldCheck, Search, Info, Camera, CheckCircle2, X, Sparkles, type LucideIcon } from "lucide-react";
 import { type ScanResult } from "@/lib/scanner";
+import { EmptyState } from "@/components/EmptyState";
+import { LoadingState } from "@/components/LoadingState";
 
 const PRIMARY = "#D62828";
 
@@ -526,6 +528,20 @@ export default function SellPage() {
                    detectSearchMode(searchQuery) === "number" ? "품번 검색" : "이름 검색"}
                 </span>
               </div>
+            )}
+
+            {/* 검색 중 스켈레톤 */}
+            {searching && searchQuery.length > 0 && !selectedCard && (
+              <LoadingState variant="list" rows={3} />
+            )}
+
+            {/* 검색 결과 없음 */}
+            {!searching && searchResults.length === 0 && searchQuery.length > 1 && !selectedCard && (
+              <EmptyState
+                icon={<Search size={22} strokeWidth={1.5} color="#a1a1aa" />}
+                title="검색 결과가 없어요"
+                description="카드명이나 품번을 다시 확인해 주세요."
+              />
             )}
 
             {/* 검색 결과 */}

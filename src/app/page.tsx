@@ -361,7 +361,7 @@ export default function Home() {
             return (
               <div
                 key={card.id}
-                className="shrink-0 cursor-pointer"
+                className="shrink-0 cursor-pointer rr-lift"
                 style={{ width: 116 }}
                 onClick={() => router.push(`/card/${card.id}`)}
               >
@@ -452,7 +452,7 @@ export default function Home() {
             return (
               <div
                 key={card.id}
-                className="shrink-0 w-[108px] cursor-pointer"
+                className="shrink-0 w-[108px] cursor-pointer rr-lift"
                 onClick={() => router.push(`/card/${card.id}`)}
               >
                 {/* 카드 프레임 영역 */}

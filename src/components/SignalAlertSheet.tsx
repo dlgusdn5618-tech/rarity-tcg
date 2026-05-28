@@ -117,7 +117,7 @@ function DoneState({
   return (
     <div className="flex flex-col items-center text-center px-4 pb-6 pt-2">
       <div
-        className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+        className="w-16 h-16 rounded-full flex items-center justify-center mb-4 rr-pop"
         style={{ background: "#fff1f1" }}
       >
         <BellRing size={30} strokeWidth={2} color={PRIMARY} />
@@ -231,11 +231,11 @@ export function SignalAlertSheet({
   return (
     <>
       {/* 배경 */}
-      <div className="fixed inset-0 z-40 bg-black/40" onClick={handleClose} />
+      <div className="fixed inset-0 z-40 bg-black/40 rr-fade-in" onClick={handleClose} />
 
       {/* 시트 */}
       <div
-        className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm bg-white rounded-t-[24px] flex flex-col"
+        className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm bg-white rounded-t-[24px] flex flex-col rr-slide-up"
         style={{ boxShadow: SHADOW.sheet, maxHeight: "92vh" }}
       >
         {/* 핸들 + 헤더 */}

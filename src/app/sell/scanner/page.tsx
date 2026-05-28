@@ -63,7 +63,7 @@ function SlotCard({
       <div className="relative">
         <button
           onClick={() => { if (!filled) onFill(slot.key); }}
-          className="w-full rounded-2xl flex flex-col items-center justify-center gap-1 transition-all active:scale-95"
+          className="w-full rounded-2xl flex flex-col items-center justify-center gap-1 rr-pressable"
           style={{
             height: 88,
             background: filled ? SEMANTIC.successBg : "#f9fafb",
@@ -649,7 +649,7 @@ export default function ScannerPage() {
               className="w-full py-4 rounded-2xl flex flex-col items-center gap-2"
               style={{ background: "#111827" }}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 rr-pulse-soft">
                 <RefreshCw
                   size={16}
                   strokeWidth={2}
@@ -671,7 +671,7 @@ export default function ScannerPage() {
             <button
               onClick={handleScan}
               disabled={!canScan}
-              className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 text-sm transition-all"
+              className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 text-sm rr-pressable"
               style={{
                 background:  canScan ? "#111827" : "#f4f4f5",
                 color:       canScan ? "white"   : "#9ca3af",

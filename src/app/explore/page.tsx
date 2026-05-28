@@ -405,7 +405,7 @@ export default function ExplorePage() {
                 <div
                   key={entry.id}
                   onClick={() => router.push(`/card/${entry.id}`)}
-                  className="rr-card p-3 cursor-pointer active:bg-gray-50 transition-colors"
+                  className="rr-card p-3 cursor-pointer active:bg-gray-50 transition-colors rr-pressable"
                 >
                   <div className="flex items-start gap-3">
                     {/* 카드 프레임 */}

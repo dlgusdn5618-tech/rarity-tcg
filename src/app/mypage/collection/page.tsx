@@ -215,7 +215,7 @@ function CardRow({
               {hasSellRec && (
                 <button
                   onClick={() => router.push("/sell")}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-white text-xs"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-white text-xs rr-pressable"
                   style={{ background: PRIMARY, fontWeight: 700 }}
                 >
                   <Tag size={12} strokeWidth={2.5} />
@@ -225,7 +225,7 @@ function CardRow({
               {hasTrade && (
                 <button
                   onClick={() => router.push("/exchange/propose")}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs rr-pressable"
                   style={{ background: "#f4f4f5", color: "#374151", fontWeight: 700 }}
                 >
                   <ArrowLeftRight size={12} strokeWidth={2.5} />

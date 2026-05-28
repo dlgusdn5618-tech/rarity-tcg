@@ -514,7 +514,7 @@ export default function ScannerPage() {
             <p className="text-[12px]" style={{ color: "#1e40af", fontWeight: 700 }}>촬영 팁</p>
             <p className="text-[11px] mt-0.5 leading-relaxed" style={{ color: "#1e40af", fontWeight: 400, opacity: 0.8 }}>
               밝은 곳에서 카드를 평평하게 놓고 촬영하세요. 필수 4장이 모두 있어야 스캔을 시작할 수 있어요.
-              AI 분석 결과는 추정값이므로 등록 전 반드시 확인해 주세요.
+              AI 추정값이므로 등록 전 반드시 확인해 주세요.
             </p>
           </div>
         </div>

@@ -62,9 +62,10 @@ export default function FeedPage() {
     (s) => tabFilter === "전체" || TYPE_TO_FILTER[s.type] === tabFilter,
   );
 
-  const priceCnt = signals.filter((s) => s.type === "price" || s.type === "wishlist").length;
-  const newCnt   = signals.filter((s) => s.type === "newListing" || s.type === "rare").length;
-  const tradeCnt = signals.filter((s) => s.type === "trade").length;
+  const priceCnt  = signals.filter((s) => s.type === "price" || s.type === "wishlist").length;
+  const newCnt    = signals.filter((s) => s.type === "newListing" || s.type === "rare").length;
+  const tradeCnt  = signals.filter((s) => s.type === "trade").length;
+  const topSignal = signals.find((s) => s.priorityLabel) ?? null;
 
   return (
     <div className="min-h-screen bg-gray-50 w-full max-w-sm mx-auto pb-24 overflow-x-hidden">
@@ -75,7 +76,7 @@ export default function FeedPage() {
           RARITY SIGNAL
         </p>
         <h1 className="text-xl text-gray-900" style={{ fontWeight: 800 }}>내 시그널</h1>
-        <p className="text-[12px] text-gray-400 mt-1">관심 카드와 거래 기회를 모아봤어요</p>
+        <p className="text-[12px] text-gray-400 mt-1">찜하거나 알림 설정한 카드 소식을 모아봤어요</p>
       </header>
 
       {/* 요약 카드 */}
@@ -98,6 +99,18 @@ export default function FeedPage() {
             </div>
           ))}
         </div>
+
+        {topSignal?.priorityLabel && (
+          <div className="flex items-start gap-2 mt-2.5 pt-2.5 border-t border-gray-100 min-w-0">
+            <span
+              className="text-[10px] px-1.5 py-0.5 rounded shrink-0 mt-0.5"
+              style={{ background: "#f3f4f6", color: "#6b7280", fontWeight: 600 }}
+            >먼저 볼 것</span>
+            <p className="text-[11px] text-gray-700 leading-snug" style={{ fontWeight: 500 }}>
+              {topSignal.priorityLabel}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* 탭 필터 */}
@@ -223,6 +236,19 @@ function SignalCard({ signal, onAction }: { signal: Signal; onAction: (href: str
           <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed" style={{ fontWeight: 400 }}>
             {signal.description}
           </p>
+
+          {/* 왜 떴나요 */}
+          {signal.reason && (
+            <div className="flex items-start gap-1.5 mt-1 min-w-0">
+              <span
+                className="text-[9px] px-1.5 py-0.5 rounded shrink-0 mt-0.5"
+                style={{ background: "#f9fafb", color: "#9ca3af", fontWeight: 600, border: "1px solid #f3f4f6" }}
+              >왜 떴나요</span>
+              <p className="text-[10px] text-gray-400 leading-snug" style={{ fontWeight: 400 }}>
+                {signal.reason}
+              </p>
+            </div>
+          )}
 
           {/* 가격 정보 */}
           <PriceRow signal={signal} />

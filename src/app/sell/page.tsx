@@ -456,7 +456,7 @@ export default function SellPage() {
                 <div className="text-left">
                   <p className="text-sm text-white" style={{ fontWeight: 700 }}>사진으로 카드 찾기</p>
                   <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.50)", fontWeight: 400 }}>
-                    AI가 자동 인식 · 추정값이므로 확인 필요
+                    AI가 카드 정보를 추정 · 등록 전 확인 필요
                   </p>
                 </div>
               </div>
@@ -893,7 +893,7 @@ export default function SellPage() {
                   <ShieldCheck size={18} strokeWidth={1.5} color={PRIMARY} className="shrink-0 mt-0.5" />
                   <p className="text-xs text-gray-600 leading-relaxed" style={{ fontWeight: 400 }}>
                     구매자가 카드를 받고 확인한 후 판매자에게 대금이 지급돼요.
-                    가품 판정 시 <span style={{ fontWeight: 700 }}>100% 환불</span>됩니다.
+                    가품으로 확인 시 <span style={{ fontWeight: 700 }}>환불 절차</span>가 진행돼요.
                   </p>
                 </div>
               ),

@@ -111,7 +111,7 @@ function buildInsights(
   if (losingCards.length > 0 && insights.length < 3) {
     const worst = losingCards.reduce((a, b) => (gainPct(a) < gainPct(b) ? a : b));
     insights.push({
-      text: `${worst.nameKo}는 현재 가격이 내려간 상태예요. 잠시 기다려보는 게 좋을 수 있어요.`,
+      text: `${worst.nameKo}는 현재 거래 참고가가 내려간 상태예요. 가격 흐름을 확인해두면 좋아요.`,
       actionLabel: "",
       actionHref: "",
       color: "#9ca3af",
@@ -284,12 +284,15 @@ function SellRecRow({ rec }: { rec: SellRecommendation }) {
       </div>
 
       {/* 추천 판매가 */}
-      <div className="flex items-center justify-between mb-3 px-1">
+      <div className="flex items-center justify-between mb-1.5 px-1">
         <span className="text-[11px] text-gray-400" style={{ fontWeight: 400 }}>추천 판매가</span>
         <span className="text-[14px]" style={{ color: PRIMARY, fontWeight: 800 }}>
           {fmt(suggestedPrice)}원
         </span>
       </div>
+      <p className="text-[10px] text-gray-400 mb-3 px-1" style={{ fontWeight: 400 }}>
+        가격 정보는 거래 참고용이에요. 실제 거래가는 판매자와 구매자가 결정해요.
+      </p>
 
       <button
         onClick={() => router.push("/sell")}

@@ -199,7 +199,7 @@ export function PurchaseBottomSheet({
                   <div>
                     <span className="text-sm text-gray-700" style={{ fontWeight: 700 }}>예상 합계</span>
                     <p className="text-[10px] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>
-                      {isDirect ? "현장 결제" : "판매자 확인 후 확정"}
+                      {isDirect ? "현장 결제" : "판매자 확인 후 진행"}
                     </p>
                   </div>
                   <span className="rr-price text-[20px] text-gray-900">{fmt(total)}원</span>

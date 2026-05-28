@@ -8,6 +8,8 @@ export type Signal = {
   type: SignalType;
   title: string;
   description: string;
+  reason?: string;
+  priorityLabel?: string;
   cardName: string;
   rarity: string;
   previousPrice?: number;
@@ -29,6 +31,8 @@ const SIGNALS: Signal[] = [
     type: "price",
     title: "피카츄 ex SAR이 목표가 이하로 내려갔어요",
     description: "찜한 카드의 새 매물이 설정가보다 낮게 등록됐어요.",
+    reason: "찜한 카드보다 낮은 가격의 매물이 등록됐어요",
+    priorityLabel: "피카츄 ex가 목표가보다 낮게 등록됐어요",
     cardName: "피카츄 ex",
     rarity: "SAR",
     previousPrice: 280000,
@@ -44,6 +48,7 @@ const SIGNALS: Signal[] = [
     type: "newListing",
     title: "최근 본 리자몽 ex와 같은 카드가 등록됐어요",
     description: "Card Passport가 등록된 새 매물이에요.",
+    reason: "최근 본 카드와 같은 카드가 새로 올라왔어요",
     cardName: "리자몽 ex",
     rarity: "SR",
     currentPrice: 85000,
@@ -57,6 +62,7 @@ const SIGNALS: Signal[] = [
     type: "trade",
     title: "교환 적정도 87%인 매물이 있어요",
     description: "내 꼬부기 ex SR과 피카츄 ex SAR 교환 조건이 잘 맞아요.",
+    reason: "내 컬렉션 카드와 교환 조건이 잘 맞아요",
     cardName: "피카츄 ex",
     rarity: "SAR",
     fitPercent: 87,
@@ -71,6 +77,7 @@ const SIGNALS: Signal[] = [
     type: "seller",
     title: "포켓마스터가 PSA 10 매물을 등록했어요",
     description: "팔로우한 셀러의 새 등록 카드입니다.",
+    reason: "팔로우한 셀러가 관심 등급 카드를 등록했어요",
     cardName: "뮤츠 ex",
     rarity: "UR",
     currentPrice: 210000,
@@ -84,6 +91,7 @@ const SIGNALS: Signal[] = [
     type: "wishlist",
     title: "찜한 카드의 안전거래 매물이 추가됐어요",
     description: "이제 안전거래로 구매 가능한 매물이 있어요.",
+    reason: "안전거래 가능한 매물이 추가됐어요",
     cardName: "에이스",
     rarity: "UR",
     currentPrice: 130000,
@@ -97,6 +105,7 @@ const SIGNALS: Signal[] = [
     type: "rare",
     title: "관심 태그 'SAR' 카드가 새로 등록됐어요",
     description: "저장한 관심 태그와 일치하는 희귀 매물이에요.",
+    reason: "저장한 관심 태그와 일치하는 카드예요",
     cardName: "뮤 ex",
     rarity: "SAR",
     currentPrice: 320000,

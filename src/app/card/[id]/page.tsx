@@ -9,6 +9,7 @@ import { RarityIndex } from "@/components/RarityIndex";
 import { PurchaseBottomSheet } from "@/components/PurchaseBottomSheet";
 import { SignalAlertSheet, getSignalForCard } from "@/components/SignalAlertSheet";
 import { getCardById, getSimilarCards, type PassportData } from "@/lib/cards";
+import { MOCK_COLLECTION } from "@/lib/collection";
 
 const PRIMARY = "#D62828";
 
@@ -253,9 +254,9 @@ function TrustStackSection({
   const photoPct     = Math.round((filledCount / totalCount) * 100);
 
   const identityItems = [
-    { ok: true, text: "카드 패스포트 확인됨" },
+    { ok: true, text: "카드 정보 검증됨" },
     { ok: true, text: `${rarity} · ${formatLanguage(language)} · ${formatDistribution(distribution)}` },
-    ...(grade !== "Ungraded" ? [{ ok: true, text: `${grade} 감정 카드` }] : []),
+    ...(grade !== "Ungraded" ? [{ ok: true, text: `감정 등급이 확인된 카드 (${grade})` }] : []),
   ];
 
   const sellerItems = [
@@ -345,6 +346,148 @@ function TrustStackSection({
   );
 }
 
+function CardDecisionSummary({
+  priceDiffPct, photoCertPct, safeTrade, priceHistoryLen,
+}: {
+  priceDiffPct: number; photoCertPct: number; safeTrade: boolean; priceHistoryLen: number;
+}) {
+  const absDiff = Math.abs(priceDiffPct);
+  const trustOk = photoCertPct === 100 || safeTrade;
+
+  return (
+    <div className="rr-card px-4 py-3.5">
+      <p className="text-[10px] text-gray-400 mb-2.5" style={{ fontWeight: 600, letterSpacing: "0.04em" }}>
+        구매 판단 요약
+      </p>
+      <div className="flex flex-col gap-2.5">
+
+        {/* 가격 */}
+        <div className="flex items-start gap-2.5">
+          {priceDiffPct < 0
+            ? <TrendingDown size={13} strokeWidth={2} color="#16a34a" className="shrink-0 mt-0.5" />
+            : <TrendingUp   size={13} strokeWidth={2} color={priceDiffPct > 5 ? "#ea580c" : "#9ca3af"} className="shrink-0 mt-0.5" />
+          }
+          <div className="min-w-0">
+            <span className="text-[10px] px-1.5 py-0.5 rounded mr-1" style={{ background: "#f3f4f6", color: "#6b7280", fontWeight: 600 }}>가격</span>
+            <span className="text-xs" style={{ color: priceDiffPct < 0 ? "#16a34a" : priceDiffPct > 5 ? "#ea580c" : "#6b7280", fontWeight: 500 }}>
+              {priceDiffPct < 0
+                ? `최근 30일 평균보다 ${absDiff}% 낮은 편이에요`
+                : priceDiffPct === 0
+                ? "최근 30일 평균과 비슷한 수준이에요"
+                : `최근 30일 평균보다 ${absDiff}% 높은 편이에요`}
+            </span>
+          </div>
+        </div>
+
+        {/* 신뢰 */}
+        <div className="flex items-start gap-2.5">
+          {trustOk
+            ? <CheckCircle2 size={13} strokeWidth={2.5} color="#16a34a" className="shrink-0 mt-0.5" />
+            : <AlertCircle  size={13} strokeWidth={2}   color="#d97706" className="shrink-0 mt-0.5" />
+          }
+          <div className="min-w-0">
+            <span className="text-[10px] px-1.5 py-0.5 rounded mr-1" style={{ background: "#f3f4f6", color: "#6b7280", fontWeight: 600 }}>신뢰</span>
+            <span className="text-xs" style={{ color: trustOk ? "#374151" : "#92400E", fontWeight: 500 }}>
+              {photoCertPct === 100 && safeTrade
+                ? "사진 인증 완료 · 안전거래가 모두 가능해요"
+                : photoCertPct === 100
+                ? "사진 인증이 완료되어 있어요"
+                : safeTrade
+                ? "안전거래가 가능해요"
+                : "사진 인증이 일부 누락되어 있어요"}
+            </span>
+          </div>
+        </div>
+
+        {/* 비교 */}
+        <div className="flex items-start gap-2.5">
+          <span
+            className="w-3.5 h-3.5 rounded-full shrink-0 mt-0.5 flex items-center justify-center text-[7px]"
+            style={{ background: "#eff6ff", color: "#1d4ed8", fontWeight: 800 }}
+          >비</span>
+          <div className="min-w-0">
+            <span className="text-[10px] px-1.5 py-0.5 rounded mr-1" style={{ background: "#f3f4f6", color: "#6b7280", fontWeight: 600 }}>비교</span>
+            <span className="text-xs text-gray-500" style={{ fontWeight: 500 }}>
+              최근 {priceHistoryLen}개월 시세 데이터로 가격 흐름을 확인할 수 있어요
+            </span>
+          </div>
+        </div>
+
+      </div>
+      <p className="text-[10px] text-gray-400 mt-3" style={{ fontWeight: 400, lineHeight: 1.6 }}>
+        위 정보는 거래 참고용이에요. 실제 판단은 직접 확인 후 결정해 주세요.
+      </p>
+    </div>
+  );
+}
+
+function CardCollectionContext({
+  nameKo, rarity, category, onOpenSignal,
+}: {
+  nameKo: string; rarity: string; category: string; onOpenSignal: () => void;
+}) {
+  const owned = MOCK_COLLECTION.find((c) => c.nameKo === nameKo) ?? null;
+
+  const ownershipText = owned
+    ? `보유 중 (${owned.quantity}장)${owned.isForSale ? " · 판매 의사 있음" : owned.isForTrade ? " · 교환 의사 있음" : ""}`
+    : "아직 보유하지 않은 카드예요";
+
+  const collectionImpact = owned
+    ? "이미 컬렉션에 있는 카드예요"
+    : (rarity === "SAR" || rarity === "UR")
+    ? `${category} ${rarity} 라인업을 채울 수 있어요`
+    : `${category} 컬렉션에 추가할 수 있어요`;
+
+  const nextAction = owned
+    ? "시그널로 가격 변동을 모니터링해두면 좋아요"
+    : "목표가 시그널을 설정해두면 좋아요";
+
+  return (
+    <div className="rr-card px-4 py-3.5">
+      <div className="flex items-center justify-between mb-2.5">
+        <p className="text-[10px] text-gray-400" style={{ fontWeight: 600, letterSpacing: "0.04em" }}>
+          내 컬렉션 기준
+        </p>
+        {owned && (
+          <span
+            className="text-[10px] px-1.5 py-0.5 rounded-full"
+            style={{ background: "#f0fdf4", color: "#16a34a", fontWeight: 600 }}
+          >
+            보유 중
+          </span>
+        )}
+      </div>
+      <div className="flex flex-col gap-2 mb-3">
+        {([
+          { label: "보유 상태",   value: ownershipText    },
+          { label: "컬렉션 영향", value: collectionImpact },
+          { label: "다음 행동",   value: nextAction       },
+        ] as { label: string; value: string }[]).map((item) => (
+          <div key={item.label} className="flex items-start gap-2 min-w-0">
+            <span
+              className="text-[10px] shrink-0 mt-0.5 px-1.5 py-0.5 rounded"
+              style={{ background: "#f3f4f6", color: "#6b7280", fontWeight: 600, whiteSpace: "nowrap" }}
+            >
+              {item.label}
+            </span>
+            <span className="text-xs text-gray-700" style={{ fontWeight: 500, lineHeight: 1.5 }}>
+              {item.value}
+            </span>
+          </div>
+        ))}
+      </div>
+      <button
+        onClick={onOpenSignal}
+        className="rr-button-ghost flex items-center gap-1"
+        style={{ fontSize: "11px", color: "#6b7280" }}
+      >
+        <Bell size={11} strokeWidth={1.8} />
+        시그널 설정하기
+      </button>
+    </div>
+  );
+}
+
 function CardPassport({ name, nameKo, data }: { name: string; nameKo: string; data: PassportData }) {
   const chip        = RARITY_CHIP[data.rarity] ?? { bg: "#f9fafb", color: "#6b7280" };
   const displayName = data.language === "Korean" ? nameKo : name;
@@ -378,7 +521,7 @@ function CardPassport({ name, nameKo, data }: { name: string; nameKo: string; da
             카드 패스포트
           </p>
           <p className="text-[9px] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>
-            Card Passport
+            이 카드의 공식 스펙과 거래 기준 정보
           </p>
         </div>
         <div className="text-right">
@@ -650,6 +793,16 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
         </button>
       </div>
 
+      {/* ── 구매 판단 요약 ── */}
+      <div className="mx-4 mt-3">
+        <CardDecisionSummary
+          priceDiffPct={priceDiffPct}
+          photoCertPct={photoCertPct}
+          safeTrade={card.passport.safeTrade}
+          priceHistoryLen={card.priceHistory.length}
+        />
+      </div>
+
       {/* Card Passport */}
       <div className="mx-4 mt-3">
         <CardPassport name={card.name} nameKo={card.nameKo} data={card.passport} />
@@ -670,6 +823,16 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
             },
           })}
           cardName={card.nameKo}
+        />
+      </div>
+
+      {/* ── 내 컬렉션 기준 ── */}
+      <div className="mx-4 mt-3">
+        <CardCollectionContext
+          nameKo={card.nameKo}
+          rarity={card.passport.rarity}
+          category={card.category}
+          onOpenSignal={() => setShowSignal(true)}
         />
       </div>
 
@@ -754,7 +917,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
             <p className="text-sm text-gray-900" style={{ fontWeight: 700 }}>레어리티 안전거래 적용 중</p>
             <p className="text-xs text-gray-500 mt-0.5 leading-relaxed" style={{ fontWeight: 400 }}>
               구매자가 카드를 받고 확인한 후 판매자에게 대금이 지급돼요.
-              가품 판정 시 <span style={{ fontWeight: 700 }}>100% 환불</span>됩니다.
+              가품으로 확인 시 <span style={{ fontWeight: 700 }}>환불 절차</span>가 진행돼요.
             </p>
           </div>
         </div>

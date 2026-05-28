@@ -36,6 +36,21 @@ const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
 
 
 type SortType = "인기순" | "낮은 가격순" | "높은 가격순" | "최신순";
+type ViewMode = "처음 사기 좋은" | "인기 급상승" | "희귀도 높은" | "안전거래" | null;
+
+const RARITY_ORDER: Record<string, number> = { SAR: 4, UR: 3, SR: 2, R: 1 };
+const WISH_HOT_THRESHOLD = 60;
+
+type RecommendLabel = { text: string; bg: string; color: string };
+
+function getRecommendLabel(entry: CardEntry): RecommendLabel | null {
+  const rank = RARITY_ORDER[entry.rarity] ?? 0;
+  if (entry.safeTrade && rank <= 2) return { text: "처음 사기 좋아요", bg: "#f0fdf4", color: "#16a34a" };
+  if (entry.wishCount >= WISH_HOT_THRESHOLD) return { text: "지금 인기 급상승", bg: "#fff7ed", color: "#ea580c" };
+  if (rank >= 3) return { text: "희귀도 높은 카드", bg: "#F3EEFF", color: "#6D28D9" };
+  if (entry.safeTrade) return { text: "안전거래 가능", bg: "#eff6ff", color: "#1d4ed8" };
+  return null;
+}
 
 /* ── Mini Spark SVG ────────────────────────────────────── */
 function MiniSpark({ data, color }: { data: number[]; color: string }) {
@@ -90,6 +105,7 @@ export default function ExplorePage() {
   const [showSortMenu, setShowSortMenu]       = useState(false);
   const [sortType, setSortType]               = useState<SortType>("인기순");
   const [recentSearches, setRecentSearches]   = useState(RECENT_SEARCHES);
+  const [viewMode, setViewMode]               = useState<ViewMode>(null);
 
   const isSearching = query.length > 0 || isFocused;
 
@@ -117,9 +133,18 @@ export default function ExplorePage() {
         selectedGradeFilter === "BGS 9.5+" ? entry.grades.some((g) => g.startsWith("BGS") && parseFloat(g.split(" ")[1]) >= 9.5) :
         selectedGradeFilter === "감정 없음" ? entry.grades.length === 0 :
         true;
-      return matchQuery && matchCategory && matchSeries && matchGrade && matchGradeFilter;
+      const matchView =
+        viewMode === null              ? true :
+        viewMode === "처음 사기 좋은"  ? entry.safeTrade && (RARITY_ORDER[entry.rarity] ?? 0) <= 2 :
+        viewMode === "인기 급상승"     ? entry.wishCount >= WISH_HOT_THRESHOLD :
+        viewMode === "희귀도 높은"     ? (RARITY_ORDER[entry.rarity] ?? 0) >= 3 :
+        viewMode === "안전거래"        ? entry.safeTrade :
+        true;
+      return matchQuery && matchCategory && matchSeries && matchGrade && matchGradeFilter && matchView;
     })
     .sort((a, b) => {
+      if (viewMode === "인기 급상승") return b.wishCount - a.wishCount;
+      if (viewMode === "희귀도 높은") return (RARITY_ORDER[b.rarity] ?? 0) - (RARITY_ORDER[a.rarity] ?? 0);
       if (sortType === "인기순")     return b.wishCount - a.wishCount;
       if (sortType === "낮은 가격순") return a.minPrice - b.minPrice;
       if (sortType === "높은 가격순") return b.minPrice - a.minPrice;
@@ -151,7 +176,7 @@ export default function ExplorePage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onFocus={() => setIsFocused(true)}
-                placeholder="카드명, 시리즈, 레어도 검색"
+                placeholder="카드명, 시리즈, 희귀도 검색"
                 className="flex-1 bg-transparent text-sm text-gray-900 outline-none placeholder-gray-400"
                 style={{ fontWeight: 400 }}
               />
@@ -175,24 +200,44 @@ export default function ExplorePage() {
             )}
           </div>
 
-          {/* 카테고리 탭 */}
+          {/* 카테고리 탭 + 추천 관점 */}
           {!isSearching && (
-            <div className="flex gap-2 mt-3">
-              {["전체", "포켓몬", "원피스"].map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className="text-sm px-4 py-1.5 rounded-full transition-all"
-                  style={{
-                    background: selectedCategory === cat ? "#111" : "#f3f4f6",
-                    color:      selectedCategory === cat ? "#fff" : "#6b7280",
-                    fontWeight: selectedCategory === cat ? 700 : 400,
-                  }}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
+            <>
+              <div className="flex gap-2 mt-3">
+                {["전체", "포켓몬", "원피스"].map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className="text-sm px-4 py-1.5 rounded-full transition-all"
+                    style={{
+                      background: selectedCategory === cat ? "#111" : "#f3f4f6",
+                      color:      selectedCategory === cat ? "#fff" : "#6b7280",
+                      fontWeight: selectedCategory === cat ? 700 : 400,
+                    }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
+              {/* 추천 관점 세그먼트 */}
+              <div className="flex gap-1.5 mt-2 overflow-x-auto scrollbar-none pb-0.5">
+                {(["처음 사기 좋은", "인기 급상승", "희귀도 높은", "안전거래"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => setViewMode(viewMode === mode ? null : mode)}
+                    className="shrink-0 text-xs px-3 py-1 rounded-full transition-all"
+                    style={{
+                      background: viewMode === mode ? "#111" : "#f3f4f6",
+                      color:      viewMode === mode ? "#fff" : "#6b7280",
+                      fontWeight: viewMode === mode ? 700 : 400,
+                    }}
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>
@@ -282,9 +327,12 @@ export default function ExplorePage() {
             </div>
           </div>
           <div className="mb-3">
-            <span className="text-[11px] text-gray-400 mb-2 block" style={{ fontWeight: 700, letterSpacing: "0.05em" }}>
-              레어도
+            <span className="text-[11px] text-gray-400 mb-1 block" style={{ fontWeight: 700, letterSpacing: "0.05em" }}>
+              희귀도
             </span>
+            <p className="text-[10px] text-gray-400 mb-2" style={{ fontWeight: 400 }}>
+              희귀도는 카드의 등급이에요. SAR에 가까울수록 희귀해요.
+            </p>
             <div className="flex gap-1.5">
               {GRADES.map((g) => {
                 const chip   = RARITY_CHIP[g];
@@ -400,6 +448,7 @@ export default function ExplorePage() {
               const diffPct = Math.round(((entry.minPrice - entry.avgPrice) / entry.avgPrice) * 100);
               const isBelow = diffPct < 0;
               const isUp    = entry.trend[entry.trend.length - 1] >= entry.trend[0];
+              const label   = getRecommendLabel(entry);
 
               return (
                 <div
@@ -448,6 +497,16 @@ export default function ExplorePage() {
                         </div>
                         <MiniSpark data={entry.trend} color={chip.color} />
                       </div>
+
+                      {/* 추천 라벨 */}
+                      {label && (
+                        <span
+                          className="inline-block text-[10px] px-2 py-0.5 rounded-full mb-1"
+                          style={{ background: label.bg, color: label.color, fontWeight: 600 }}
+                        >
+                          {label.text}
+                        </span>
+                      )}
 
                       {/* 태그 행 */}
                       <div className="flex items-center gap-1.5 flex-wrap">

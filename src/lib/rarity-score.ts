@@ -141,7 +141,7 @@ export function calcRarityIndex(card: CardInputForScore): RarityIndexData {
     breakdown.push({
       label:    isPositive ? passport.grade : "PSA 미등록",
       reason:   isPositive
-        ? `${passport.grade} — 감정 등급 카드는 시세 프리미엄 20~40% 형성`
+        ? `${passport.grade} — 감정 등급 카드, 시세 프리미엄이 형성되는 경향이 있음`
         : "PSA 미등록 — 감정 등록 시 시세 상승 여지 있음",
       score:    gradePts,
       positive: isPositive,
@@ -170,7 +170,7 @@ export function calcRarityIndex(card: CardInputForScore): RarityIndexData {
   if (passport.photoVerified) {
     breakdown.push({
       label:    "사진 인증",
-      reason:   "사진 인증 완료 — 매물 신뢰도 상승으로 낙찰률 향상",
+      reason:   "사진 인증 완료 — 매물 신뢰도에 긍정적 영향",
       score:    5,
       positive: true,
     });

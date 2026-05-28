@@ -5,6 +5,7 @@ import { CardVisual } from "@/components/CardVisual";
 import { useRouter } from "next/navigation";
 import { getHomeBanners } from "@/lib/home-banners";
 import { getRarityRankings } from "@/lib/cards";
+import { HomeCollectionSummary } from "@/components/HomeCollectionSummary";
 import {
   Home as HomeIcon, Search, Sparkles, MessageCircle, User,
   Bell, MapPin, Package, Star, RefreshCw, ArrowRight,
@@ -231,8 +232,8 @@ export default function Home() {
               animation: "rr-blink 1.4s ease-in-out infinite",
             }}
           />
-          <span className="text-[10px] text-white" style={{ fontWeight: 700, letterSpacing: "0.04em" }}>
-            SIGNAL
+          <span className="text-[10px] text-white" style={{ fontWeight: 700 }}>
+            지금 인기
           </span>
         </div>
 
@@ -336,7 +337,7 @@ export default function Home() {
         <div className="rr-section-header">
           <div>
             <h3 className="rr-section-title">레어리티 TOP</h3>
-            <p className="rr-section-subtitle">희소성·거래 신뢰도 기준</p>
+            <p className="rr-section-subtitle">희귀도와 거래 신뢰도를 함께 본 순위</p>
           </div>
           <button
             className="rr-button-ghost flex items-center gap-0.5"
@@ -393,12 +394,15 @@ export default function Home() {
                 </span>
                 {/* 스코어 */}
                 <div className="flex items-center justify-between mt-1.5">
-                  <span
-                    className="rr-score text-[13px]"
-                    style={{ color: scoreColor }}
-                  >
-                    {card.score}
-                  </span>
+                  <div className="flex flex-col">
+                    <span
+                      className="rr-score text-[13px]"
+                      style={{ color: scoreColor }}
+                    >
+                      {card.score}점
+                    </span>
+                    <span className="text-[8px] text-gray-400" style={{ fontWeight: 400 }}>희귀도 점수</span>
+                  </div>
                   <span className="text-[9px] text-gray-400" style={{ fontWeight: 500 }}>
                     {card.price.toLocaleString()}원
                   </span>
@@ -411,6 +415,11 @@ export default function Home() {
             );
           })}
         </div>
+      </div>
+
+      {/* ── 내 컬렉션 현황 ── */}
+      <div className="pt-3">
+        <HomeCollectionSummary />
       </div>
 
       {/* ── 판매 유도 스트립 ── */}

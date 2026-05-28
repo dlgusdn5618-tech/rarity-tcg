@@ -92,6 +92,8 @@
 
 52. **디자인 시스템 3단계** — 빈/로딩/실패 상태 UI 정돈: ① globals.css에 rr-skeleton(shimmer 애니메이션)·rr-state-title·rr-state-description 유틸리티 추가 ② src/components/EmptyState.tsx 신규 생성(icon/eyebrow/title/description/action props, rr-button-secondary 기반) ③ src/components/LoadingState.tsx 신규 생성(list=rr-card 스켈레톤 3종/card/scanner variant, Sparkles 애니메이션+진행바) ④ explore 빈 결과→EmptyState+"전체 카드 보기" 필터 리셋 액션 ⑤ collection 탭별 EmptyState 텍스트 spec 반영 ⑥ sell Step1 검색중→LoadingState list·결과없음→EmptyState ⑦ sell/scanner 스캔중→LoadingState scanner 전체화면 ⑧ chat 빈목록→EmptyState+"카드 탐색하기"→/explore; 기능 로직·라우팅·mock 데이터 무변경
 
+53. **홈 히트 티커 수직 슬롯머신** — 가로 marquee 애니메이션 → 수직 슬롯머신 롤링으로 전면 교체: 흰 배경(bg-white border-b border-gray-100), 블랙 pill 뱃지(#111111) + 빨간 blink 도트(PRIMARY 색, rr-blink 키프레임), 40px 고정 높이 롤링 윈도우; useRef/setInterval(2000ms)/double-rAF 심리스 루프(마지막→처음 전환 시 transition:none+rAF×2로 점프 없는 리셋); 각 행: rr-badge-rarity 등급칩 + 카드명(700w truncate) + 변동률(NEW=파랑/up=초록/down=빨강) + HOT 뱃지; globals.css에 rr-blink 키프레임 추가; 미사용 Flame import·tickerIdx state 제거
+
 51. **디자인 시스템 2단계** — rr-* 클래스를 explore/sell/collection 3개 페이지에 적용: ① explore: 카드 엔트리 래퍼→rr-card, 최저가→rr-price, 매물수 숫자→rr-metric, 등급배지→rr-badge-rarity, 안전·HOT 배지→rr-badge ② sell: 완료화면 기본/보조 버튼 + 하단 다음/등록 CTA→rr-button-primary/rr-button-secondary(opacity 비활성 스타일 유지) ③ collection: CardRow·SellRecRow·TradeMatchRow·자산요약 래퍼→rr-card, 자산가치→rr-price, 변동금·현재가·지표 숫자→rr-metric, SellRecRow CTA→rr-button-primary, TradeMatchRow CTA→rr-button-secondary, InsightCard 링크→rr-button-ghost; step 로직·라우팅·mock 데이터 무변경
 
 ## 다음 작업 🔜

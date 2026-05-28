@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+
 export type CardVisualProps = {
   name?: string;
   rarity?: string;
@@ -51,6 +53,14 @@ function CardFrame({
   const showFooter = variant !== "compact";
   const showName = size === "lg" && !!name;
 
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [imageUrl]);
+
+  const shouldShowImage = !!imageUrl && !imageFailed;
+
   return (
     <div
       style={{
@@ -79,14 +89,12 @@ function CardFrame({
           overflow: "hidden",
         }}
       >
-        {imageUrl ? (
+        {shouldShowImage ? (
           <img
             src={imageUrl}
             alt={name ? `${name} 카드 이미지` : "카드 이미지"}
             style={{ width: "100%", height: "100%", objectFit: "contain" }}
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).style.display = "none";
-            }}
+            onError={() => setImageFailed(true)}
           />
         ) : (
           <div

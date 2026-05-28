@@ -98,6 +98,8 @@
 
 54. **디자인 시스템 4단계 — CardVisual 카드 비주얼 시스템** — src/components/CardVisual.tsx 신규 생성: Props(name/rarity/imageUrl/graded/grade/size/variant); size sm(40×58)/md(58×80)/lg(128×176) 3종; 레어도별 accentColor(SAR=#92400E·UR=#6D28D9·SR=#B91C1C·R=#0369A1·PROMO=#1D4ED8 등); 상단 accent 바 + radial gradient artwork 영역 + 하단 레어도 라벨 footer(lg는 카드명); imageUrl 있으면 img(alt="${name} 카드 이미지", onError로 깨진 아이콘 방지); graded=true+grade 비"Ungraded"이면 PSA/BGS slab 프레임(다크 #1f2937 헤더에 company+score, 차콜 1.5px 테두리, 내부 카드); 적용: 홈 랭킹/최근등록카드 썸네일 md, 탐색 리스트 sm, 카드 상세 fallback lg(graded slab 포함)+비슷한카드 md, 컬렉션 CardRow 왼쪽 sm(graded 카드 slab 표시), 구매 바텀시트 카드정보 sm; 기능로직·라우팅·mock 데이터 무변경; tsc·build 전 과정 오류 없음
 
+55. **디자인 시스템 5단계 — 마이크로 인터랙션** — globals.css에 6종 인터랙션 유틸리티 추가: rr-pressable(120ms scale·opacity 터치 피드백)·rr-lift(160ms translateY hover + active, pointer 기기만)·rr-fade-in(160ms 오버레이 등장)·rr-slide-up(220ms cubic-bezier 바텀시트 슬라이드업)·rr-pop(300ms scale-bounce 완료 아이콘)·rr-pulse-soft(1.8s 소프트 pulse AI 상태); rr-button-primary/secondary에 scale(0.985)+opacity active 피드백 통합; prefers-reduced-motion 대응(모든 animation/transition 비활성); 적용: 홈 랭킹·최근카드(rr-lift), 탐색 카드행(rr-pressable), 컬렉션 액션버튼(rr-pressable), PurchaseBottomSheet overlay/sheet/완료아이콘(rr-fade-in/rr-slide-up/rr-pop), SignalAlertSheet 동일, 스캐너 슬롯·스캔버튼(rr-pressable)+로딩인디케이터(rr-pulse-soft); 기능로직·라우팅·mock 데이터 무변경
+
 ## 다음 작업 🔜
 - **Supabase 연결** — Auth + DB
 - **카카오 로그인**

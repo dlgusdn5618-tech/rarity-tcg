@@ -5,6 +5,7 @@
 ## 앱 개요
 - 포켓몬 + 원피스 트레이딩 카드 거래 플랫폼
 - GitHub: https://github.com/dlgusdn5618-tech/rarity-tcg
+- Vercel: https://pokemon-trade-xi.vercel.app
 - 스택: Next.js + TypeScript + Tailwind CSS
 - 수익 모델: 거래 수수료 7% + 안전거래 수수료 3%
 
@@ -115,6 +116,14 @@
 60. **페르소나 기반 UX 4단계 — 카드상세 구매 판단 요약 + 내 컬렉션 기준** — /card/[id]에 2개 섹션 추가: ① CardDecisionSummary(구매 판단 요약) — 시그널 버튼 아래·Card Passport 위에 배치; 가격(priceDiffPct 기준 낮음/비슷/높음, TrendingDown/Up 아이콘), 신뢰(photoCertPct+safeTrade, CheckCircle2/AlertCircle), 비교(시세 n개월 데이터) 3개 체크포인트; "수익/추천/보장" 표현 전면 금지, 참고용 톤 유지; 하단 "위 정보는 거래 참고용이에요" 안내 문구 추가 ② CardCollectionContext(내 컬렉션 기준) — RarityIndex 아래·사진 인증 위에 배치; MOCK_COLLECTION.find(nameKo) 로 보유 여부 판단(보유 중 시 초록 뱃지), 보유 상태·컬렉션 영향·다음 행동 3개 항목 표시, 보유 시 판매/교환 의사 부제 표시, 미보유 시 rarity 기준 SAR/UR→라인업 채우기 / 기타→컬렉션 추가, "시그널 설정하기" 버튼 → 기존 setShowSignal(true) 연결; MOCK_COLLECTION import 추가; 기존 Card Passport/RarityIndex/사진인증/거래방식/판매자정보/구매전확인/하단CTA 전혀 변경 없음; tsc·build 전 과정 오류 없음
 
 59. **페르소나 기반 UX 3단계 — 탐색 추천 관점 세그먼트** — /explore 카테고리 탭 아래에 "추천 관점" 세그먼트 컨트롤 4종 추가: 처음 사기 좋은(safeTrade && 희귀도≤SR) / 인기 급상승(wishCount≥60) / 희귀도 높은(SAR·UR) / 안전거래(safeTrade); 탭 선택 시 해당 조건으로 카드 필터+정렬(인기 급상승→wishCount 내림/희귀도 높은→RARITY_ORDER 내림/나머지→기존 sortType), 재탭 시 해제(null); ViewMode 타입·RARITY_ORDER·WISH_HOT_THRESHOLD 상수·getRecommendLabel() 함수 추가; 카드 행 가격+스파크 행과 태그 행 사이에 추천 라벨 pill 1개(조건 충족 시만 표시); isSearching 시 세그먼트 숨김; 기존 카테고리·정렬·필터·EmptyState 동작 전혀 변경 없음; tsc·build 전 과정 오류 없음
+
+63. **출시 전 QA — overflow + aria-label** — exchange/[id]·exchange/propose(2곳)·chat/[id]·mypage/shop 루트 div에 `overflow-x-hidden` 추가(모바일 레이아웃 안정화); card/[id] Share2 버튼 `aria-label="공유"`, 홈 Bell 버튼 `aria-label="알림"` 추가(접근성); tsc·build 전 과정 오류 없음
+
+64. **Rarity Chip 디자인 개선 — border 위계 + 신규 등급 토큰** — RARITY_CHIP 구조에 `border` 필드 추가(Tier A-D 위계: Tier A alpha 55 / Tier B 38 / Tier C 25 / Tier D 중립 회색); 신규 등급 키 추가(HR·AR·CHR·CSR·U·C·SEC·L·P·UC); TROPHY color `#F6C90E`→`#E5E7EB`(골드 제거); explore·card/[id] 지역 RARITY_CHIP 제거 후 tokens.ts import 통합; 카드 상세 패스포트 헤더 칩 `text-[11px] px-2.5 py-1`→`text-[10px] px-1.5 py-0.5` 크기 축소; 트러스트 섹션 칩 fontWeight 600→700 통일; 모든 칩 font-size·height·padding 동일 유지, 위계는 border 선명도로만 표현; tsc·build 전 과정 오류 없음
+
+65. **홈 page.tsx RARITY_CHIP tokens.ts 통합** — 홈 지역 RARITY_CHIP(4종) 제거, `import { RARITY_CHIP } from "@/lib/tokens"` 추가; 3곳 fallback 객체에 `border` 필드 포함; 레어리티 TOP 랭킹 배지에 `border: chip.border` 적용; 티커 `rr-badge-rarity` 칩은 9px 크기 유지, border 미적용; tsc·build 전 과정 오류 없음
+
+66. **Vercel 배포** — `npx vercel --yes`로 프로젝트 배포 완료; URL: https://pokemon-trade-xi.vercel.app; GitHub 연동(git push 시 자동 재배포); 전 페이지 23개 경로 빌드 성공
 
 ## 다음 작업 🔜
 - **Supabase 연결** — Auth + DB

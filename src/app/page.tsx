@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { getHomeBanners } from "@/lib/home-banners";
 import { getRarityRankings } from "@/lib/cards";
 import { HomeCollectionSummary } from "@/components/HomeCollectionSummary";
+import { RARITY_CHIP } from "@/lib/tokens";
 import {
   Home as HomeIcon, Search, Sparkles, MessageCircle, User,
   Bell, MapPin, Package, Star, RefreshCw, ArrowRight,
@@ -14,13 +15,6 @@ import {
 
 const PRIMARY      = "#D62828";
 const PRIMARY_DARK = "#B01C1C";
-
-const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
-  SAR: { bg: "#FFFBEB", color: "#92400E" },
-  UR:  { bg: "#F3EEFF", color: "#6D28D9" },
-  SR:  { bg: "#FFF0F0", color: "#B91C1C" },
-  R:   { bg: "#F0F9FF", color: "#0369A1" },
-};
 
 /* ── Heat Ticker ────────────────────────────────────────── */
 const HEAT_TICKER = [
@@ -241,7 +235,7 @@ export default function Home() {
         <div className="flex-1 min-w-0 overflow-hidden" style={{ height: 40 }}>
           <div ref={tickerTrackRef} style={{ display: "flex", flexDirection: "column", willChange: "transform" }}>
             {HEAT_TICKER.map((item, i) => {
-              const chip = RARITY_CHIP[item.grade] ?? { bg: "#f8fafc", color: "#475569" };
+              const chip = RARITY_CHIP[item.grade] ?? { bg: "#f8fafc", color: "#475569", border: "1px solid #E4E4E7" };
               const changeColor = item.change === "NEW" ? "#2563eb"
                 : item.up ? "#16a34a" : "#dc2626";
               return (
@@ -349,7 +343,7 @@ export default function Home() {
         </div>
         <div className="flex gap-3 px-4 overflow-x-auto scrollbar-none pb-2">
           {RANKINGS.map((card) => {
-            const chip = RARITY_CHIP[card.rarity] ?? { bg: "#f8fafc", color: "#475569" };
+            const chip = RARITY_CHIP[card.rarity] ?? { bg: "#f8fafc", color: "#475569", border: "1px solid #E4E4E7" };
             const scoreColor =
               card.score >= 90 ? "#111111" :   // 최상위 — 블랙 강조
               card.score >= 80 ? PRIMARY :      // 상위 — 브랜드 레드
@@ -388,7 +382,7 @@ export default function Home() {
                 <p className="text-xs text-gray-900 truncate" style={{ fontWeight: 700 }}>{card.name}</p>
                 <span
                   className="inline-block text-[9px] px-1.5 py-0.5 rounded mt-0.5"
-                  style={{ background: chip.bg, color: chip.color, fontWeight: 700 }}
+                  style={{ background: chip.bg, color: chip.color, fontWeight: 700, border: chip.border }}
                 >
                   {card.rarity}
                 </span>
@@ -456,7 +450,7 @@ export default function Home() {
         </div>
         <div className="flex gap-3 px-4 overflow-x-auto scrollbar-none pb-2">
           {RECENT_CARDS[activeCategory].map((card) => {
-            const chip = RARITY_CHIP[card.grade] ?? { bg: "#f8fafc", color: "#475569" };
+            const chip = RARITY_CHIP[card.grade] ?? { bg: "#f8fafc", color: "#475569", border: "1px solid #E4E4E7" };
             const isUp = card.trend[4] >= card.trend[0];
             return (
               <div

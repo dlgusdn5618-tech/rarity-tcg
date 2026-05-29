@@ -10,6 +10,7 @@ import { PurchaseBottomSheet } from "@/components/PurchaseBottomSheet";
 import { SignalAlertSheet, getSignalForCard } from "@/components/SignalAlertSheet";
 import { getCardById, getSimilarCards, type PassportData } from "@/lib/cards";
 import { MOCK_COLLECTION } from "@/lib/collection";
+import { RARITY_CHIP } from "@/lib/tokens";
 
 const PRIMARY = "#D62828";
 
@@ -32,17 +33,6 @@ const PHOTO_SLOT_DEFS: { key: string; label: string; required: boolean; gradedOn
   { key: "slab",    label: "감정 케이스 전체",  required: true, gradedOnly: true },
   { key: "slabnum", label: "감정번호 클로즈업", required: true, gradedOnly: true },
 ];
-
-
-const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
-  TROPHY: { bg: "#111111", color: "#F6C90E" },   // 검정/골드
-  SAR:    { bg: "#FFFBEB", color: "#92400E" },   // 앰버 골드
-  UR:     { bg: "#F3EEFF", color: "#6D28D9" },   // 딥 바이올렛
-  PROMO:  { bg: "#EFF6FF", color: "#1D4ED8" },   // 로얄 블루
-  SR:     { bg: "#FFF0F0", color: "#B91C1C" },   // 크림슨
-  IR:     { bg: "#F0FDFA", color: "#0D9488" },   // 틸
-  RR:     { bg: "#F8FAFC", color: "#475569" },   // 슬레이트
-};
 
 
 const TYPE_EMOJI: Record<string, string> = {
@@ -489,7 +479,7 @@ function CardCollectionContext({
 }
 
 function CardPassport({ name, nameKo, data }: { name: string; nameKo: string; data: PassportData }) {
-  const chip        = RARITY_CHIP[data.rarity] ?? { bg: "#f9fafb", color: "#6b7280" };
+  const chip        = RARITY_CHIP[data.rarity] ?? { bg: "#f9fafb", color: "#6b7280", border: "1px solid #E4E4E7" };
   const displayName = data.language === "Korean" ? nameKo : name;
   const showKoSub   = data.language !== "Korean";
 
@@ -545,8 +535,8 @@ function CardPassport({ name, nameKo, data }: { name: string; nameKo: string; da
           )}
         </div>
         <span
-          className="text-[11px] px-2.5 py-1 rounded shrink-0"
-          style={{ background: chip.bg, color: chip.color, fontWeight: 700, border: `1px solid ${chip.color}33` }}
+          className="text-[10px] px-1.5 py-0.5 rounded shrink-0"
+          style={{ background: chip.bg, color: chip.color, fontWeight: 700, border: chip.border }}
         >
           {data.rarity}
         </span>
@@ -621,7 +611,7 @@ function CardPassport({ name, nameKo, data }: { name: string; nameKo: string; da
         )}
         <span
           className="text-[10px] px-2 py-0.5 rounded"
-          style={{ background: chip.bg, color: chip.color, fontWeight: 600, border: `1px solid ${chip.color}33` }}
+          style={{ background: chip.bg, color: chip.color, fontWeight: 700, border: chip.border }}
         >
           {data.rarity}
         </span>

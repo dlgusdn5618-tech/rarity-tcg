@@ -21,18 +21,33 @@ export const ACCENT_CHARCOAL = "#1F2937";
 /** 보조 버튼 텍스트, 보조 강조 */
 export const ACCENT_MUTED    = "#374151";
 
-// ── Rarity chips (bg + foreground text) ───────────────────────────────────────
-// bg: 칩 배경, color: 텍스트/아이콘 색
+// ── Rarity chips (bg + foreground text + border) ──────────────────────────────
+// bg: 칩 배경, color: 텍스트, border: 위계 표현(크기 아닌 선명도로만)
+// 모든 칩은 font-size·height·padding 동일. 위계는 border alpha로만 구분.
 
-export const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
-  TROPHY: { bg: "#111111", color: "#F6C90E" },   // 검정 / 피카츄 골드
-  SAR:    { bg: "#FFFBEB", color: "#92400E" },   // 앰버 골드 — Special Art Rare
-  UR:     { bg: "#F3EEFF", color: "#6D28D9" },   // 딥 바이올렛 — Ultra/Hyper Rare
-  SR:     { bg: "#FFF0F0", color: "#B91C1C" },   // 크림슨 — Super Rare
-  PROMO:  { bg: "#EFF6FF", color: "#1D4ED8" },   // 로얄 블루 — Promo
-  IR:     { bg: "#F0FDFA", color: "#0D9488" },   // 틸 — Illustration Rare
-  RR:     { bg: "#F8FAFC", color: "#475569" },   // 슬레이트 — Double Rare
-  R:      { bg: "#F0F9FF", color: "#0369A1" },   // 스카이 블루 — Rare
+export const RARITY_CHIP: Record<string, { bg: string; color: string; border: string }> = {
+  // ── Tier A: 최상위 — border alpha 55 (~33%) ────────────────────────────────
+  TROPHY: { bg: "#111111", color: "#E5E7EB", border: "1px solid #374151"    },  // 다크 반전
+  SAR:    { bg: "#FFFBEB", color: "#92400E", border: "1px solid #92400E55"  },  // 앰버 골드
+  HR:     { bg: "#FFF8F0", color: "#C05621", border: "1px solid #C0562155"  },  // 딥 오렌지
+  SEC:    { bg: "#FFFBEB", color: "#92400E", border: "1px solid #92400E55"  },  // 원피스 최상위
+  // ── Tier B: 상위 — border alpha 38 (~22%) ─────────────────────────────────
+  UR:     { bg: "#F3EEFF", color: "#6D28D9", border: "1px solid #6D28D938"  },  // 딥 바이올렛
+  AR:     { bg: "#F0F4FF", color: "#3730A3", border: "1px solid #3730A338"  },  // 인디고
+  CHR:    { bg: "#FCF4FF", color: "#7E22CE", border: "1px solid #7E22CE38"  },  // 바이올렛
+  CSR:    { bg: "#FDF4FF", color: "#86198F", border: "1px solid #86198F38"  },  // 퍼플핑크
+  SR:     { bg: "#FFF0F0", color: "#B91C1C", border: "1px solid #B91C1C38"  },  // 크림슨
+  L:      { bg: "#F0F4FF", color: "#3730A3", border: "1px solid #3730A338"  },  // 원피스 리더
+  // ── Tier C: 중간 — border alpha 25 (~15%) ─────────────────────────────────
+  IR:     { bg: "#F0FDFA", color: "#0D9488", border: "1px solid #0D948825"  },  // 틸
+  PROMO:  { bg: "#EFF6FF", color: "#1D4ED8", border: "1px solid #1D4ED825"  },  // 로얄 블루
+  P:      { bg: "#EFF6FF", color: "#1D4ED8", border: "1px solid #1D4ED825"  },  // 원피스 프로모
+  RR:     { bg: "#F8FAFC", color: "#475569", border: "1px solid #47556925"  },  // 슬레이트
+  // ── Tier D: 기본 — border 중립 회색 고정 ──────────────────────────────────
+  R:      { bg: "#F0F9FF", color: "#0369A1", border: "1px solid #E4E4E7"    },  // 스카이 블루
+  U:      { bg: "#F9FAFB", color: "#6B7280", border: "1px solid #E4E4E7"    },  // 중립 회색
+  C:      { bg: "#F9FAFB", color: "#9CA3AF", border: "1px solid #E4E4E7"    },  // 연회색
+  UC:     { bg: "#F9FAFB", color: "#9CA3AF", border: "1px solid #E4E4E7"    },  // 원피스 언커먼
 };
 
 // ── Rarity stroke (TCG 카드 프레임 border/accent 색) ──────────────────────────

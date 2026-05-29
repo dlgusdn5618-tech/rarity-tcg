@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { CardVisual } from "@/components/CardVisual";
+import { RARITY_CHIP } from "@/lib/tokens";
 
 const RECENT_SEARCHES = ["리자몽 ex SAR", "피카츄 SAR", "루피 SAR", "뮤츠 UR"];
 
@@ -26,14 +27,6 @@ const SERIES = ["전체", "151", "스칼렛·바이올렛", "페어리킹덤", "
 const GRADES = ["전체", "SAR", "UR", "SR", "R"];
 const GRADE_FILTERS = ["전체", "PSA 10", "PSA 9+", "BGS 9.5+", "감정 없음"] as const;
 type GradeFilter = (typeof GRADE_FILTERS)[number];
-
-const RARITY_CHIP: Record<string, { bg: string; color: string }> = {
-  SAR: { bg: "#FFFBEB", color: "#92400E" },
-  UR:  { bg: "#F3EEFF", color: "#6D28D9" },
-  SR:  { bg: "#FFF0F0", color: "#B91C1C" },
-  R:   { bg: "#F0F9FF", color: "#0369A1" },
-};
-
 
 type SortType = "인기순" | "낮은 가격순" | "높은 가격순" | "최신순";
 type ViewMode = "처음 사기 좋은" | "인기 급상승" | "희귀도 높은" | "안전거래" | null;
@@ -444,7 +437,7 @@ export default function ExplorePage() {
           {/* 카드 엔트리 리스트 */}
           <div className="flex flex-col gap-2">
             {filteredCards.map((entry) => {
-              const chip    = RARITY_CHIP[entry.rarity] ?? { bg: "#f8fafc", color: "#475569" };
+              const chip    = RARITY_CHIP[entry.rarity] ?? { bg: "#f8fafc", color: "#475569", border: "1px solid #E4E4E7" };
               const diffPct = Math.round(((entry.minPrice - entry.avgPrice) / entry.avgPrice) * 100);
               const isBelow = diffPct < 0;
               const isUp    = entry.trend[entry.trend.length - 1] >= entry.trend[0];
@@ -467,7 +460,7 @@ export default function ExplorePage() {
                         <p className="text-sm text-gray-900 truncate" style={{ fontWeight: 700 }}>{entry.name}</p>
                         <span
                           className="text-[10px] px-1.5 py-0.5 rounded shrink-0"
-                          style={{ background: chip.bg, color: chip.color, fontWeight: 700, border: `1px solid ${chip.color}33` }}
+                          style={{ background: chip.bg, color: chip.color, fontWeight: 700, border: chip.border }}
                         >
                           {entry.rarity}
                         </span>
